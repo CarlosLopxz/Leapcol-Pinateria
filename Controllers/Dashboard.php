@@ -1,15 +1,11 @@
 <?php
-class Dashboard extends Controllers
+require_once "Libraries/Core/AuthController.php";
+
+class Dashboard extends AuthController
 {
     public function __construct()
     {
         parent::__construct();
-        session_start();
-        session_regenerate_id(true);
-        if (empty($_SESSION['login'])) {
-            header('Location: ' . BASE_URL . 'login');
-            die();
-        }
     }
 
     public function index()

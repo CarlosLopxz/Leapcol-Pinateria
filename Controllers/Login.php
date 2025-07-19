@@ -4,8 +4,17 @@ class Login extends Controllers
     public function __construct()
     {
         parent::__construct();
-        session_start();
-        // No redirigimos automáticamente al dashboard
+        
+        // Iniciar sesión si no está iniciada
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Si ya hay una sesión activa, redirigir al dashboard
+        if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
+            header('Location: ' . BASE_URL . 'dashboard');
+            exit();
+        }
     }
 
     public function login()

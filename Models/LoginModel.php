@@ -15,12 +15,23 @@ class LoginModel extends Mysql
     {
         $this->strEmail = $email;
         $this->strPassword = $password;
+        
+        // Usar consulta preparada para evitar inyección SQL
         $sql = "SELECT idusuario, nombre, apellido, status, password, rolid FROM usuarios WHERE 
-                email = '$this->strEmail' AND status = 1";
-        $request = $this->select($sql);
+                email = ? AND status = 1";
+        $arrValues = array($this->strEmail);
+        $request = $this->select($sql, $arrValues);
+        
+        // Para depuración - guardar en log
+        error_log("Login attempt: " . $email);
+        error_log("User found: " . (!empty($request) ? "Yes" : "No"));
         
         if (!empty($request)) {
+            // Verificar la contraseña
             $result = password_verify($this->strPassword, $request['password']);
+            error_log("Password verification: " . ($result ? "Success" : "Failed"));
+            error_log("Stored hash: " . $request['password']);
+            
             if ($result) {
                 $_SESSION['idUser'] = $request['idusuario'];
                 $_SESSION['login'] = true;
@@ -28,8 +39,9 @@ class LoginModel extends Mysql
                 $sql = "SELECT u.idusuario, u.nombre, u.apellido, u.email, r.idrol, r.nombrerol, u.status 
                         FROM usuarios u 
                         INNER JOIN roles r ON u.rolid = r.idrol 
-                        WHERE u.idusuario = {$_SESSION['idUser']}";
-                $request = $this->select($sql);
+                        WHERE u.idusuario = ?";
+                $arrValues = array($_SESSION['idUser']);
+                $request = $this->select($sql, $arrValues);
                 $_SESSION['userData'] = $request;
                 return $request;
             } else {

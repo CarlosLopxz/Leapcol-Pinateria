@@ -83,14 +83,14 @@ function formatMoney($cantidad)
 // Función para cargar el header
 function headerAdmin($data = "")
 {
-    $view_header = "Views/Layouts/header.php";
+    $view_header = "Views/Template/header.php";
     require_once($view_header);
 }
 
 // Función para cargar el footer
 function footerAdmin($data = "")
 {
-    $view_footer = "Views/Layouts/footer.php";
+    $view_footer = "Views/Template/footer.php";
     require_once($view_footer);
 }
 

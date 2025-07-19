@@ -39,27 +39,22 @@
                                     <h4 class="text-capitalize">Bienvenido a <?= NOMBRE_EMPRESA ?></h4>
                                     <p class="text-muted">Inicia sesión para acceder al sistema</p>
                                 </div>
-                                <form id="formLogin" name="formLogin" class="needs-validation" novalidate>
+                                <form id="formLogin" name="formLogin" class="needs-validation" method="post" onsubmit="return false;" novalidate>
                                     <div class="mb-3">
                                         <label class="form-label">Correo Electrónico</label>
                                         <input type="email" id="txtEmail" name="txtEmail" class="form-control" placeholder="Ingresa tu correo" required>
+                                        <div class="invalid-feedback">
+                                            Por favor ingrese un correo electrónico válido.
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label">Contraseña</label>
-                                        <div class="input-group">
+                                        <div class="input-group has-validation">
                                             <input type="password" id="txtPassword" name="txtPassword" class="form-control border-0" placeholder="Ingresa tu contraseña" required>
                                             <button class="btn ps-0 border-0 toggle-password" type="button"><i class="far fa-eye-slash"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-3">
-                                        <div class="col">
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="rememberMe">
-                                                <label class="form-check-label text-muted" for="rememberMe">Recordarme</label>
+                                            <div class="invalid-feedback">
+                                                Por favor ingrese su contraseña.
                                             </div>
-                                        </div>
-                                        <div class="col text-end ps-0">
-                                            <a href="#" id="btnForgotPass" class="d2c_link text-primary text-capitalize">¿Olvidaste tu contraseña?</a>
                                         </div>
                                     </div>
                                     <div class="mb-3">
@@ -76,123 +71,18 @@
         </div>
     </section>
     <!-- End:Main Body -->
-<!-- 
-    <div class="modal fade" id="modalForgotPassword" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Recuperar Contraseña</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formResetPass" name="formResetPass">
-                        <p class="text-center">Escribe el correo electrónico asociado a tu cuenta para recibir instrucciones de recuperación.</p>
-                        <div class="mb-3">
-                            <input type="email" class="form-control" id="txtEmailReset" name="txtEmailReset" placeholder="Correo electrónico" required>
-                        </div>
-                        <div class="d-grid">
-                            <button type="submit" id="btnResetPass" class="btn btn-primary">Enviar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> -->
 
     <!-- Initial Javascript -->
     <script src="<?= BASE_URL ?>lib/jQuery/jquery-3.5.1.min.js"></script>
     <script src="<?= BASE_URL ?>lib/bootstrap_5/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- custom js -->
-    <script src="<?= BASE_URL ?>assets/js/main.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Toggle password visibility
-            document.querySelector('.toggle-password').addEventListener('click', function() {
-                const passwordInput = document.getElementById('txtPassword');
-                const icon = this.querySelector('i');
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                } else {
-                    passwordInput.type = 'password';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                }
-            });
-
-            // Show forgot password modal
-            document.getElementById('btnForgotPass').addEventListener('click', function(e) {
-                e.preventDefault();
-                const modal = new bootstrap.Modal(document.getElementById('modalForgotPassword'));
-                modal.show();
-            });
-
-            // Login form submit
-            document.getElementById('formLogin').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const btnLogin = document.getElementById('btnLogin');
-                const formData = new FormData(this);
-                
-                btnLogin.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...';
-                btnLogin.disabled = true;
-                
-                fetch('<?= BASE_URL ?>login/loginUser', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        window.location.href = '<?= BASE_URL ?>dashboard';
-                    } else {
-                        alert(data.msg);
-                        btnLogin.innerHTML = 'Iniciar Sesión';
-                        btnLogin.disabled = false;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    btnLogin.innerHTML = 'Iniciar Sesión';
-                    btnLogin.disabled = false;
-                });
-            });
-
-            // Reset password form submit
-            document.getElementById('formResetPass').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const btnResetPass = document.getElementById('btnResetPass');
-                const formData = new FormData(this);
-                
-                btnResetPass.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
-                btnResetPass.disabled = true;
-                
-                fetch('<?= BASE_URL ?>login/resetPass', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status) {
-                        alert(data.msg);
-                        document.getElementById('modalForgotPassword').querySelector('.btn-close').click();
-                    } else {
-                        alert(data.msg);
-                    }
-                    btnResetPass.innerHTML = 'Enviar';
-                    btnResetPass.disabled = false;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    btnResetPass.innerHTML = 'Enviar';
-                    btnResetPass.disabled = false;
-                });
-            });
-        });
+        const base_url = "<?= BASE_URL ?>";
     </script>
+    <script src="<?= BASE_URL ?>assets/js/main.js"></script>
+    <script src="<?= BASE_URL ?>assets/js/functions_login.js"></script>
 </body>
 
 </html>

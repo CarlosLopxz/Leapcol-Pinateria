@@ -1,10 +1,12 @@
-      <!-- Offcanvas Toggler -->
+        </div>
+
+        <!-- Offcanvas Toggler -->
         <button class="d2c_offcanvas_toggle position-fixed top-50 start-0 translate-middle-y d-block d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#d2c_sidebar" aria-controls="d2c_sidebar">
             <i class="far fa-hand-point-right"></i>
         </button>
         <!-- End:Offcanvas Toggler -->
 
-        <!-- Initial  Javascript -->
+        <!-- Initial Javascript -->
         <script src="<?= BASE_URL ?>lib/jQuery/jquery-3.5.1.min.js"></script>
         <script src="<?= BASE_URL ?>lib/bootstrap_5/bootstrap.bundle.min.js"></script>
 
