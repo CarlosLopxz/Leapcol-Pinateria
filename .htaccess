@@ -1,0 +1,7 @@
+Options All -Indexes
+RewriteEngine on
+
+# Permitir acceso a través del controlador
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
