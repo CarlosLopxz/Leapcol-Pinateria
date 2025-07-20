@@ -19,17 +19,40 @@ class Mysql extends Conexion
             $this->strquery = $query;
             $this->arrValues = $arrValues;
             
+            // Verificar conexión
+            if (!$this->conexion instanceof PDO) {
+                error_log("Error: La conexión no es un objeto PDO válido");
+                return 0;
+            }
+            
+            // Preparar consulta
             $insert = $this->conexion->prepare($this->strquery);
+            if (!$insert) {
+                $errorInfo = $this->conexion->errorInfo();
+                error_log("Error al preparar consulta: " . json_encode($errorInfo));
+                return 0;
+            }
+            
+            // Ejecutar consulta
             $resInsert = $insert->execute($this->arrValues);
             
             if ($resInsert) {
                 $lastInsert = $this->conexion->lastInsertId();
                 return $lastInsert;
             } else {
+                $errorInfo = $insert->errorInfo();
+                error_log("Error en insert (errorInfo): " . json_encode($errorInfo));
+                // Mostrar error específico de SQL
+                if (isset($errorInfo[2])) {
+                    error_log("Mensaje de error SQL: " . $errorInfo[2]);
+                }
                 return 0;
             }
         } catch (PDOException $e) {
             error_log("Error en insert: " . $e->getMessage());
+            error_log("Código de error: " . $e->getCode());
+            error_log("SQL: " . $this->strquery);
+            error_log("Valores: " . json_encode($this->arrValues));
             return 0;
         }
     }

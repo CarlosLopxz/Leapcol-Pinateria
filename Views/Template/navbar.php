@@ -27,14 +27,27 @@
 
                     <!-- Sub Menu Item -->
                     <li class="nav-item">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>Inventario">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>categorias">
                             <span class="d2c_icon">
-                                <i class="fas fa-box"></i>
+                                <i class="fas fa-tags"></i>
                             </span>
-                            <span> Inventario </span>
+                            <span> Categorías </span>
                         </a>
                     </li>
                     <!-- End:Sub Menu Item -->
+
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>productos">
+                            <span class="d2c_icon">
+                                <i class="fas fa-box"></i>
+                            </span>
+                            <span> Productos </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
+
+
 
                     <!-- Sub Menu Item -->
                     <li class="nav-item">
@@ -127,7 +140,7 @@
                         <div class="float-start me-2">
                             <a href="<?= BASE_URL ?>perfil"><img class="w-100 rounded" src="<?= BASE_URL ?>assets/images/avatar/user.png" alt="Profile Image" style="height: 3rem; width: 3rem; object-fit: cover"></a>
                         </div>
-                        <div class="float-start">~
+                        <div class="float-start">
                             <h6 class="mb-1"><a href="<?= BASE_URL ?>perfil">
                                 <?php if(isset($_SESSION['userData'])): ?>
                                     <?= $_SESSION['userData']['nombre'] . ' ' . $_SESSION['userData']['apellido'] ?>

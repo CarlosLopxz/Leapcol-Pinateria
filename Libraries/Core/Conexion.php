@@ -11,8 +11,8 @@ class Conexion
             $this->conect->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             // echo "conexión exitosa";
         } catch (PDOException $e) {
-            $this->conect = 'Error de conexión';
-            echo "ERROR: " . $e->getMessage();
+            error_log("Error de conexión a la base de datos: " . $e->getMessage());
+            throw new Exception("Error de conexión a la base de datos. Por favor, contacte al administrador.");
         }
     }
 
