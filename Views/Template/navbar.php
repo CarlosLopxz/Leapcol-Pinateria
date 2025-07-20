@@ -125,9 +125,9 @@
                     <!-- User Profile Item -->
                     <li class="nav-item clearfix mb-4">
                         <div class="float-start me-2">
-                            <a href="<?= BASE_URL ?>perfil"><img class="w-100 rounded" src="<?= BASE_URL ?>assets/images/profile/profile-1.jpg" alt="Profile Image" style="height: 3rem; width: 3rem; object-fit: cover"></a>
+                            <a href="<?= BASE_URL ?>perfil"><img class="w-100 rounded" src="<?= BASE_URL ?>assets/images/avatar/user.png" alt="Profile Image" style="height: 3rem; width: 3rem; object-fit: cover"></a>
                         </div>
-                        <div class="float-start">
+                        <div class="float-start">~
                             <h6 class="mb-1"><a href="<?= BASE_URL ?>perfil">
                                 <?php if(isset($_SESSION['userData'])): ?>
                                     <?= $_SESSION['userData']['nombre'] . ' ' . $_SESSION['userData']['apellido'] ?>

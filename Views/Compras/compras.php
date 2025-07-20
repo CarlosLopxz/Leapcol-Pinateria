@@ -193,6 +193,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-info" id="btnDescargarPDF">
+                    <i class="fas fa-file-pdf me-1"></i> Descargar PDF
+                </button>
                 <button type="button" class="btn btn-primary" id="btnEditar">Editar</button>
                 <button type="button" class="btn btn-danger" id="btnAnular">Anular</button>
             </div>
@@ -290,6 +293,9 @@
                         let buttons = `
                             <button class="btn btn-sm btn-info" onclick="verCompra(${data})" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-secondary" onclick="descargarCompraPDF(${data})" title="Descargar PDF">
+                                <i class="fas fa-file-pdf"></i>
                             </button>`;
                             
                         if(row.estado != 0) {
@@ -347,6 +353,10 @@
         document.getElementById('btnAnular').addEventListener('click', function() {
             anularCompra(compraActualId);
         });
+        
+        document.getElementById('btnDescargarPDF').addEventListener('click', function() {
+            descargarCompraPDF(compraActualId);
+        });
     });
     
     function cargarDatosDashboard() {
@@ -366,20 +376,31 @@
                 }
             })
             .then(data => {
+                // Verificar si data es un objeto válido
+                if (!data || typeof data !== 'object') {
+                    console.error('Datos de dashboard inválidos:', data);
+                    data = {};
+                }
+                
                 // Actualizar contadores
                 document.getElementById('totalCompras').textContent = data.totalCompras || 0;
                 
                 // Calcular total de compras del mes actual
                 const mesActual = new Date().getMonth() + 1;
-                const comprasMesActual = data.comprasMes.find(item => parseInt(item.mes) === mesActual);
+                const comprasMesActual = data.comprasMes && Array.isArray(data.comprasMes) ? 
+                    data.comprasMes.find(item => parseInt(item.mes) === mesActual) : null;
                 document.getElementById('comprasMes').textContent = formatoPrecioCOP(comprasMesActual ? comprasMesActual.total : 0);
                 
                 // Contar proveedores únicos
-                const proveedoresUnicos = new Set(data.comprasPorProveedor.map(item => item.proveedor));
+                const proveedoresUnicos = new Set(
+                    data.comprasPorProveedor && Array.isArray(data.comprasPorProveedor) ? 
+                    data.comprasPorProveedor.map(item => item.proveedor) : []
+                );
                 document.getElementById('totalProveedores').textContent = proveedoresUnicos.size;
                 
                 // Contar productos comprados
-                const totalProductos = data.productosMasComprados.reduce((sum, item) => sum + parseInt(item.cantidad), 0);
+                const totalProductos = data.productosMasComprados && Array.isArray(data.productosMasComprados) ? 
+                    data.productosMasComprados.reduce((sum, item) => sum + parseInt(item.cantidad), 0) : 0;
                 document.getElementById('totalProductos').textContent = totalProductos;
                 
                 // Crear gráfico de compras por mes
@@ -409,11 +430,13 @@
             values.push(0);
         }
         
-        // Llenar con datos reales
-        datos.forEach(item => {
-            const mes = parseInt(item.mes) - 1; // Ajustar índice (0-11)
-            values[mes] = parseFloat(item.total);
-        });
+        // Llenar con datos reales si existen
+        if (datos && Array.isArray(datos)) {
+            datos.forEach(item => {
+                const mes = parseInt(item.mes) - 1; // Ajustar índice (0-11)
+                values[mes] = parseFloat(item.total);
+            });
+        }
         
         // Crear gráfico
         if (comprasPorMesChart) {
@@ -460,6 +483,11 @@
     
     function crearGraficoComprasPorProveedor(datos) {
         const ctx = document.getElementById('comprasPorProveedorChart').getContext('2d');
+        
+        // Verificar si hay datos
+        if (!datos || !Array.isArray(datos)) {
+            datos = [];
+        }
         
         // Limitar a los 5 principales proveedores
         const topProveedores = datos.slice(0, 5);
@@ -677,5 +705,68 @@
                 });
             }
         });
+    }
+    
+    function descargarCompraPDF(id) {
+        // Mostrar indicador de carga
+        Swal.fire({
+            title: 'Generando PDF',
+            text: 'Por favor espere...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Crear un iframe oculto para la descarga
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = `<?= BASE_URL ?>compras/generarPDF/${id}`;
+        document.body.appendChild(iframe);
+        
+        // Manejar la carga del iframe
+        iframe.onload = function() {
+            // Cerrar el indicador de carga
+            Swal.close();
+            
+            // Verificar si hay un error
+            try {
+                const iframeContent = iframe.contentDocument || iframe.contentWindow.document;
+                const errorContent = iframeContent.body.textContent;
+                
+                // Si hay contenido JSON con error, mostrarlo
+                if (errorContent && errorContent.includes('"status":false')) {
+                    try {
+                        const errorData = JSON.parse(errorContent);
+                        Swal.fire('Error', errorData.msg || 'No se pudo generar el PDF', 'error');
+                    } catch (e) {
+                        // Si no es JSON, probablemente es el PDF descargándose
+                    }
+                } else {
+                    // Éxito - el PDF se está descargando
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'PDF Generado',
+                        text: 'El PDF se está descargando',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            } catch (e) {
+                // Error de acceso al iframe - probablemente debido a políticas de seguridad
+                // Esto es normal cuando se descarga un archivo
+            }
+            
+            // Eliminar el iframe después de un tiempo
+            setTimeout(() => {
+                document.body.removeChild(iframe);
+            }, 5000);
+        };
+        
+        // Manejar errores
+        iframe.onerror = function() {
+            Swal.fire('Error', 'No se pudo generar el PDF', 'error');
+            document.body.removeChild(iframe);
+        };
     }
 </script>
