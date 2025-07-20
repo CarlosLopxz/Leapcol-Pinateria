@@ -27,6 +27,105 @@ class Inventario extends AuthController
         }
         die();
     }
+    
+    public function exportarInventarioCompleto()
+    {
+        try {
+            // Obtener todos los productos con detalles completos
+            $arrData = $this->model->getProductosCompletos();
+            
+            if(empty($arrData)) {
+                // Si no hay datos, redirigir con mensaje de error
+                header('Location: ' . BASE_URL . 'inventario?error=nodata');
+                exit;
+            }
+            
+            // Configurar encabezados para descarga de Excel
+            header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+            header('Content-Disposition: attachment;filename="Inventario_Completo_' . date('YmdHis') . '.xls"');
+            header('Cache-Control: max-age=0');
+            
+            // Agregar BOM para UTF-8
+            echo "\xEF\xBB\xBF";
+            
+            // Generar contenido Excel con codificación UTF-8
+            echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+            echo '<head>';
+            echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">';
+            echo '<style>';
+            echo 'table {border-collapse: collapse;}';
+            echo 'td, th {border: 1px solid #000000; padding: 5px;}';
+            echo 'th {background-color: #3498db; color: white; font-weight: bold;}';
+            echo '</style>';
+            echo '</head>';
+            echo '<body>';
+            echo '<table>';
+            
+            // Encabezados
+            echo '<tr>';
+            echo '<th>ID</th>';
+            echo '<th>Código</th>';
+            echo '<th>Nombre</th>';
+            echo '<th>Descripción</th>';
+            echo '<th>Categoría</th>';
+            echo '<th>Subcategoría</th>';
+            echo '<th>Unidad Medida</th>';
+            echo '<th>Tamaño</th>';
+            echo '<th>Presentación</th>';
+            echo '<th>Almacén</th>';
+            echo '<th>Ubicación</th>';
+            echo '<th>Condiciones</th>';
+            echo '<th>Observaciones</th>';
+            echo '<th>Stock Actual</th>';
+            echo '<th>Stock Mínimo</th>';
+            echo '<th>Stock Máximo</th>';
+            echo '<th>Precio Compra</th>';
+            echo '<th>Precio Venta</th>';
+            echo '<th>Costos Adicionales</th>';
+            echo '<th>Estado</th>';
+            echo '<th>Fecha Creación</th>';
+            echo '<th>Fecha Actualización</th>';
+            echo '</tr>';
+            
+            // Datos
+            foreach($arrData as $producto) {
+                echo '<tr>';
+                echo '<td>' . $producto['id'] . '</td>';
+                echo '<td>' . $producto['codigo'] . '</td>';
+                echo '<td>' . $producto['nombre'] . '</td>';
+                echo '<td>' . ($producto['descripcion'] ?? '') . '</td>';
+                echo '<td>' . $producto['categoria_nombre'] . '</td>';
+                echo '<td>' . ($producto['subcategoria_nombre'] ?? '') . '</td>';
+                echo '<td>' . $producto['unidad_medida'] . '</td>';
+                echo '<td>' . ($producto['tamanio'] ?? '') . '</td>';
+                echo '<td>' . ($producto['presentacion'] ?? '') . '</td>';
+                echo '<td>' . $producto['almacen_nombre'] . '</td>';
+                echo '<td>' . ($producto['ubicacion'] ?? '') . '</td>';
+                echo '<td>' . ($producto['condiciones'] ?? '') . '</td>';
+                echo '<td>' . ($producto['observaciones'] ?? '') . '</td>';
+                echo '<td>' . $producto['stock_actual'] . '</td>';
+                echo '<td>' . ($producto['stock_minimo'] ?? '') . '</td>';
+                echo '<td>' . ($producto['stock_maximo'] ?? '') . '</td>';
+                echo '<td>' . number_format($producto['precio_compra'], 2, ',', '.') . '</td>';
+                echo '<td>' . number_format($producto['precio_venta'], 2, ',', '.') . '</td>';
+                echo '<td>' . number_format($producto['costos_adicionales'] ?? 0, 2, ',', '.') . '</td>';
+                echo '<td>' . ($producto['estado'] == 1 ? 'Activo' : 'Inactivo') . '</td>';
+                echo '<td>' . $producto['fecha_creacion'] . '</td>';
+                echo '<td>' . ($producto['fecha_actualizacion'] ?? '') . '</td>';
+                echo '</tr>';
+            }
+            
+            echo '</table>';
+            echo '</body>';
+            echo '</html>';
+            
+        } catch (Exception $e) {
+            error_log("Error en exportarInventarioCompleto: " . $e->getMessage());
+            header('Location: ' . BASE_URL . 'inventario?error=export');
+            exit;
+        }
+        die();
+    }
 
     public function index()
     {

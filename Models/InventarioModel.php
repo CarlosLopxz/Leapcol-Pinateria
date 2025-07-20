@@ -153,4 +153,21 @@ class InventarioModel extends Mysql
             return [];
         }
     }
+    
+    public function getProductosCompletos()
+    {
+        try {
+            $sql = "SELECT p.*, c.nombre as categoria_nombre, s.nombre as subcategoria_nombre, a.nombre as almacen_nombre 
+                    FROM productos p 
+                    INNER JOIN categorias c ON p.categoria_id = c.id 
+                    LEFT JOIN subcategorias s ON p.subcategoria_id = s.id 
+                    INNER JOIN almacenes a ON p.almacen_id = a.id 
+                    ORDER BY p.id DESC";
+            $request = $this->select_all($sql);
+            return $request;
+        } catch (Exception $e) {
+            error_log("Error en getProductosCompletos: " . $e->getMessage());
+            return [];
+        }
+    }
 }

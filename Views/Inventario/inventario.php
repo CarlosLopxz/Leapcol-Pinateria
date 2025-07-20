@@ -11,9 +11,14 @@
                 <h4 class="mb-0 text-capitalize">Gestión de Inventario</h4>
                 <p class="text-muted">Administra los productos del inventario</p>
             </div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFormProducto">
-                <i class="fas fa-plus me-2"></i>Nuevo Producto
-            </button>
+            <div>
+                <a href="<?= BASE_URL ?>inventario/exportarInventarioCompleto" class="btn btn-success me-2">
+                    <i class="fas fa-file-excel me-2"></i>Exportar Inventario Completo
+                </a>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalFormProducto">
+                    <i class="fas fa-plus me-2"></i>Nuevo Producto
+                </button>
+            </div>
         </div>
 
         <!-- Inventario Table -->
@@ -300,8 +305,18 @@
 
 <!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.bootstrap5.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- DataTables Buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -413,9 +428,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             ],
             "responsive": true,
-            "dom": 'Bfrtip',
+            "dom": '<"d-flex justify-content-between align-items-center mb-3"<"d-flex align-items-center"l><"d-flex"B>>rtip',
             "buttons": [
-                'copy', 'csv', 'excel', 'pdf', 'print'
+                {
+                    extend: 'excel',
+                    text: '<i class="fas fa-file-excel me-1"></i> Excel',
+                    className: 'btn btn-success',
+                    title: 'Inventario Piñatería',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    },
+                    customize: function(xlsx) {
+                        // Personalizar el archivo Excel si es necesario
+                    }
+                },
+                {
+                    extend: 'pdf',
+                    text: '<i class="fas fa-file-pdf me-1"></i> PDF',
+                    className: 'btn btn-danger',
+                    title: 'Inventario Piñatería',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print me-1"></i> Imprimir',
+                    className: 'btn btn-info',
+                    title: 'Inventario Piñatería',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
+                },
+                {
+                    extend: 'csv',
+                    text: '<i class="fas fa-file-csv me-1"></i> CSV',
+                    className: 'btn btn-primary',
+                    title: 'Inventario Piñatería',
+                    exportOptions: {
+                        columns: [0, 1, 2, 3, 4, 5, 6]
+                    }
+                }
             ]
         });
         
