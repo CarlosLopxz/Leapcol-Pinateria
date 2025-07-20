@@ -330,7 +330,8 @@
                     return JSON.parse(text);
                 } catch (e) {
                     console.error('Error al parsear JSON:', e);
-                    return [];
+                    console.log('Respuesta recibida:', text);
+                    throw new Error('Error al procesar la respuesta del servidor');
                 }
             })
             .then(data => {
@@ -339,6 +340,17 @@
                 
                 // Limpiar opciones actuales
                 selectProducto.innerHTML = '<option value="">Seleccionar...</option>';
+                
+                // Verificar si hay productos
+                if (!data || data.length === 0) {
+                    console.warn('No se encontraron productos activos');
+                    const option = document.createElement('option');
+                    option.value = "";
+                    option.textContent = "No hay productos disponibles";
+                    option.disabled = true;
+                    selectProducto.appendChild(option);
+                    return;
+                }
                 
                 // Agregar productos
                 data.forEach(producto => {
@@ -363,7 +375,12 @@
                 });
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error al cargar productos:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron cargar los productos. Por favor, recargue la página.'
+                });
             });
     }
     

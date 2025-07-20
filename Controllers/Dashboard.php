@@ -6,6 +6,7 @@ class Dashboard extends AuthController
     public function __construct()
     {
         parent::__construct();
+        $this->model = new DashboardModel();
     }
 
     public function index()
@@ -19,5 +20,33 @@ class Dashboard extends AuthController
     public function dashboard()
     {
         $this->index();
+    }
+    
+    public function getTotalVentas()
+    {
+        $arrData = ['total' => $this->model->getTotalVentas()];
+        echo json_encode($arrData);
+        die();
+    }
+    
+    public function getVentasMes()
+    {
+        $arrData = ['total' => $this->model->getVentasMes()];
+        echo json_encode($arrData);
+        die();
+    }
+    
+    public function getTotalClientes()
+    {
+        $arrData = ['total' => $this->model->getTotalClientes()];
+        echo json_encode($arrData);
+        die();
+    }
+    
+    public function getTotalProductosVendidos()
+    {
+        $arrData = ['total' => $this->model->getTotalProductosVendidos()];
+        echo json_encode($arrData);
+        die();
     }
 }

@@ -210,7 +210,7 @@
     
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar estadísticas para el dashboard
-        cargarEstadisticas();
+        setTimeout(cargarEstadisticas, 100); // Pequeño retraso para asegurar que los elementos DOM estén listos
         
         // Inicializar DataTable
         tableVentas = $('#tableVentas').DataTable({
@@ -402,44 +402,69 @@
     }
     
     function cargarEstadisticas() {
+        // Función para manejar respuestas
+        const handleResponse = (response) => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
+            }
+            return response.text().then(text => {
+                try {
+                    // Eliminar cualquier texto HTML antes del JSON
+                    const jsonStart = text.indexOf('{');
+                    if (jsonStart >= 0) {
+                        const jsonText = text.substring(jsonStart);
+                        return JSON.parse(jsonText);
+                    }
+                    return {};
+                } catch (e) {
+                    console.error('Error al parsear JSON:', e, text);
+                    return {};
+                }
+            });
+        };
+        
         // Cargar total de ventas
         fetch('<?= BASE_URL ?>dashboard/getTotalVentas')
-            .then(response => response.json())
+            .then(handleResponse)
             .then(data => {
                 document.getElementById('totalVentas').textContent = data.total || 0;
             })
             .catch(error => {
                 console.error('Error al cargar total de ventas:', error);
+                document.getElementById('totalVentas').textContent = '0';
             });
         
         // Cargar ventas del mes
         fetch('<?= BASE_URL ?>dashboard/getVentasMes')
-            .then(response => response.json())
+            .then(handleResponse)
             .then(data => {
                 document.getElementById('ventasMes').textContent = formatoPrecioCOP(data.total || 0);
             })
             .catch(error => {
                 console.error('Error al cargar ventas del mes:', error);
+                document.getElementById('ventasMes').textContent = '$0';
             });
         
         // Cargar total de clientes
         fetch('<?= BASE_URL ?>dashboard/getTotalClientes')
-            .then(response => response.json())
+            .then(handleResponse)
             .then(data => {
                 document.getElementById('totalClientes').textContent = data.total || 0;
             })
             .catch(error => {
                 console.error('Error al cargar total de clientes:', error);
+                document.getElementById('totalClientes').textContent = '0';
             });
         
         // Cargar total de productos vendidos
         fetch('<?= BASE_URL ?>dashboard/getTotalProductosVendidos')
-            .then(response => response.json())
+            .then(handleResponse)
             .then(data => {
                 document.getElementById('totalProductos').textContent = data.total || 0;
             })
             .catch(error => {
                 console.error('Error al cargar total de productos vendidos:', error);
+                document.getElementById('totalProductos').textContent = '0';
             });
     }
     

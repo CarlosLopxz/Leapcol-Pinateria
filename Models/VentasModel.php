@@ -47,11 +47,56 @@ class VentasModel extends Mysql
     public function getDetalleVenta($idVenta)
     {
         $this->intIdVenta = $idVenta;
-        $sql = "SELECT d.*, p.codigo, p.nombre
-                FROM detalle_venta d
-                INNER JOIN productos p ON d.producto_id = p.id
+        
+        // Primero obtenemos los detalles básicos
+        $sql = "SELECT d.*, p.codigo, p.nombre, p.precio_venta 
+                FROM detalle_venta d 
+                INNER JOIN productos p ON d.producto_id = p.id 
                 WHERE d.venta_id = {$this->intIdVenta}";
         $request = $this->select_all($sql);
+        
+        // Procesamos cada detalle para asegurar que tenga precios correctos
+        if (!empty($request)) {
+            foreach ($request as &$item) {
+                // Si no hay precio unitario o es cero, usar el precio de venta del producto
+                if (empty($item['precio_unitario'])) {
+                    $item['precio_unitario'] = $item['precio_venta'];
+                    
+                    // Actualizar en la base de datos para futuras consultas
+                    $updateSql = "UPDATE detalle_venta SET precio_unitario = ? WHERE id = ?";
+                    $this->update($updateSql, [$item['precio_unitario'], $item['id']]);
+                    
+                    error_log("Precio actualizado para detalle ID {$item['id']}: {$item['precio_unitario']}");
+                }
+                
+                // Si no hay subtotal o es cero, calcularlo y actualizarlo
+                if (empty($item['subtotal'])) {
+                    $item['subtotal'] = $item['precio_unitario'] * $item['cantidad'];
+                    
+                    // Actualizar en la base de datos
+                    $updateSql = "UPDATE detalle_venta SET subtotal = ? WHERE id = ?";
+                    $this->update($updateSql, [$item['subtotal'], $item['id']]);
+                    
+                    error_log("Subtotal actualizado para detalle ID {$item['id']}: {$item['subtotal']}");
+                }
+                
+                // Asegurar que los valores sean numéricos
+                $item['precio_unitario'] = floatval($item['precio_unitario']);
+                $item['subtotal'] = floatval($item['subtotal']);
+            }
+            
+            // Actualizar los totales de la venta si es necesario
+            $totalCalculado = array_sum(array_column($request, 'subtotal'));
+            $ventaSql = "SELECT subtotal, total FROM ventas WHERE id = {$this->intIdVenta}";
+            $venta = $this->select($ventaSql);
+            
+            if ($venta && (empty($venta['subtotal']) || abs($venta['subtotal'] - $totalCalculado) > 0.01)) {
+                $updateVentaSql = "UPDATE ventas SET subtotal = ?, total = ? WHERE id = ?";
+                $this->update($updateVentaSql, [$totalCalculado, $totalCalculado, $this->intIdVenta]);
+                error_log("Totales de venta actualizados: {$totalCalculado}");
+            }
+        }
+        
         return $request;
     }
 
@@ -213,9 +258,17 @@ class VentasModel extends Mysql
                 }
             }
             
-            // Inserción mínima para probar
-            $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, total, usuario_id) VALUES(?, ?, ?, ?)";
-            $arrData = array($cliente, $fechaVenta, $total, $usuario);
+            // Inserción completa con todos los campos
+            $subtotal = isset($datos['subtotal']) ? floatval($datos['subtotal']) : $total;
+            $impuestos = isset($datos['impuestos']) ? floatval($datos['impuestos']) : 0;
+            $descuentos = isset($datos['descuentos']) ? floatval($datos['descuentos']) : 0;
+            $metodoPago = isset($datos['metodoPago']) ? intval($datos['metodoPago']) : 1;
+            $estado = isset($datos['estado']) ? intval($datos['estado']) : 1;
+            $observaciones = isset($datos['observaciones']) ? $datos['observaciones'] : '';
+            
+            $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, estado, observaciones, usuario_id) 
+                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $estado, $observaciones, $usuario);
             
             error_log("Ejecutando query simplificada: " . $query_insert);
             error_log("Con datos: " . json_encode($arrData));
@@ -228,18 +281,35 @@ class VentasModel extends Mysql
             // Si la inserción básica funciona, intentamos procesar los productos
             if ($return > 0) {
                 try {
-                    // Procesar productos de forma simplificada
+                    // Procesar productos con todos los datos necesarios
                     foreach ($datos['productos'] as $producto) {
                         $idProducto = $producto['id'];
                         $cantidad = $producto['cantidad'];
+                        $precio = $producto['precio'];
+                        $subtotal = $producto['subtotal'];
                         
-                        error_log("Procesando producto ID: " . $idProducto . ", cantidad: " . $cantidad);
+                        error_log("Procesando producto ID: " . $idProducto . ", cantidad: " . $cantidad . ", precio: " . $precio . ", subtotal: " . $subtotal);
                         
-                        // Insertar detalle simplificado
-                        $query_detail = "INSERT INTO detalle_venta(venta_id, producto_id, cantidad) VALUES(?, ?, ?)";
-                        $arrDataDetail = array($return, $idProducto, $cantidad);
+                        // Obtener datos del producto (precio de compra y venta)
+                        $query_producto = "SELECT precio_compra, precio_venta FROM productos WHERE id = ?";
+                        $arrDataProducto = array($idProducto);
+                        $request_producto = $this->select($query_producto, $arrDataProducto);
+                        // Si no tenemos precio en los datos, usar el precio de venta del producto
+                        if (empty($precio) || $precio == 0) {
+                            $precio = $request_producto ? $request_producto['precio_venta'] : 0;
+                            $subtotal = $precio * $cantidad;
+                            error_log("Precio no proporcionado, usando precio de venta: {$precio}");
+                        }
                         
-                        error_log("Insertando detalle simplificado");
+                        $costo_unitario = $request_producto ? $request_producto['precio_compra'] : 0;
+                        $costo_total = $costo_unitario * $cantidad;
+                        $ganancia = $subtotal - $costo_total;
+                        
+                        // Insertar detalle completo
+                        $query_detail = "INSERT INTO detalle_venta(venta_id, producto_id, cantidad, precio_unitario, costo_unitario, subtotal, costo_total, ganancia) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+                        $arrDataDetail = array($return, $idProducto, $cantidad, $precio, $costo_unitario, $subtotal, $costo_total, $ganancia);
+                        
+                        error_log("Insertando detalle completo");
                         $detail_insert = $this->insert($query_detail, $arrDataDetail);
                         
                         if (!$detail_insert) {

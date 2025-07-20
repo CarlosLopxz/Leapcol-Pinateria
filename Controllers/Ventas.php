@@ -300,6 +300,25 @@ class Ventas extends AuthController
             // Obtener detalle de la venta
             $detalle = $this->model->getDetalleVenta($idVenta);
             
+            // Depurar los datos que llegan
+            error_log("Datos de detalle de venta: " . json_encode($detalle));
+            
+            // Si no hay datos de precio, obtenerlos directamente
+            if (!empty($detalle)) {
+                foreach ($detalle as &$item) {
+                    if (empty($item['precio_unitario']) || $item['precio_unitario'] == 0) {
+                        // Obtener precio directamente de la tabla productos
+                        $sql = "SELECT precio_venta FROM productos WHERE id = {$item['producto_id']}";
+                        $producto = $this->model->select($sql);
+                        if ($producto) {
+                            $item['precio_unitario'] = $producto['precio_venta'];
+                            $item['subtotal'] = $item['precio_unitario'] * $item['cantidad'];
+                            error_log("Precio obtenido directamente: {$item['precio_unitario']}");
+                        }
+                    }
+                }
+            }
+            
             // Verificar si TCPDF está disponible
             if (!class_exists('TCPDF')) {
                 header('Content-Type: application/json; charset=utf-8');
@@ -404,7 +423,27 @@ class Ventas extends AuthController
                     $pdf->Cell(28, 4, $nombreCorto, 0, 0, 'L', $fill);
                     $pdf->Cell(8, 4, $producto['cantidad'], 0, 0, 'C', $fill);
                     
-                    // Formatear precios con menos decimales y asegurar que se vean
+                    // Obtener precio directamente si no está disponible
+                    if (empty($producto['precio_unitario']) || $producto['precio_unitario'] == 0) {
+                        // Consultar el precio directamente de la tabla productos
+                        $sql = "SELECT precio_venta FROM productos WHERE id = {$producto['producto_id']}";
+                        $stmt = $this->model->conexion->prepare($sql);
+                        $stmt->execute();
+                        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+                        
+                        if ($result) {
+                            $producto['precio_unitario'] = $result['precio_venta'];
+                        } else {
+                            $producto['precio_unitario'] = 0;
+                        }
+                    }
+                    
+                    // Calcular subtotal si no está disponible
+                    if (empty($producto['subtotal']) || $producto['subtotal'] == 0) {
+                        $producto['subtotal'] = $producto['precio_unitario'] * $producto['cantidad'];
+                    }
+                    
+                    // Formatear precios con menos decimales
                     $precioFormateado = '$' . number_format($producto['precio_unitario'], 0, ',', '.');
                     $subtotalFormateado = '$' . number_format($producto['subtotal'], 0, ',', '.');
                     

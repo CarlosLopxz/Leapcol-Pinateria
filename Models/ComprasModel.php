@@ -69,7 +69,7 @@ class ComprasModel extends Mysql
     public function getProductosActivos()
     {
         try {
-            $sql = "SELECT id, codigo, nombre, precio_compra, stock_actual 
+            $sql = "SELECT id, codigo, nombre, precio_compra, stock_actual as stock 
                     FROM productos 
                     WHERE estado = 1 
                     ORDER BY nombre ASC";

@@ -490,7 +490,12 @@
         );
         
         if (producto) {
-            seleccionarProducto(producto.id);
+            // Agregar directamente al carrito con cantidad 1
+            if (producto.stock > 0) {
+                agregarAlCarrito(producto.id, 1);
+            } else {
+                Swal.fire('Sin stock', 'No hay stock disponible para este producto', 'warning');
+            }
         } else {
             Swal.fire('No encontrado', 'No se encontró ningún producto con ese código o nombre', 'info');
         }
@@ -510,14 +515,8 @@
             return;
         }
         
-        // Mostrar modal para ingresar cantidad
-        document.getElementById('productoId').value = producto.id;
-        document.getElementById('cantidadProducto').value = 1;
-        document.getElementById('cantidadProducto').max = producto.stock;
-        document.getElementById('stockDisponible').textContent = producto.stock;
-        
-        const modal = new bootstrap.Modal(document.getElementById('modalCantidad'));
-        modal.show();
+        // Agregar directamente al carrito con cantidad 1
+        agregarAlCarrito(producto.id, 1);
     }
     
     function agregarAlCarrito(productoId, cantidad) {
@@ -584,9 +583,9 @@
                     <small>Código: ${item.codigo}</small>
                 </td>
                 <td>
-                    <div class="input-group input-group-sm">
+                    <div class="input-group input-group-sm" style="width:100px;">
                         <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
-                        <input type="text" class="form-control text-center" value="${item.cantidad}" readonly>
+                        <input type="text" class="form-control text-center" value="${item.cantidad}" readonly style="padding:5px;">
                         <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
                     </div>
                 </td>

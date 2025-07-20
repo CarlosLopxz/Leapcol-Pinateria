@@ -23,6 +23,7 @@ class ProductosModel extends Mysql
         $sql = "SELECT p.*, c.nombre as categoria
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
+                WHERE p.estado != 3
                 ORDER BY p.id DESC";
         $request = $this->select_all($sql);
         return $request;
@@ -130,18 +131,9 @@ class ProductosModel extends Mysql
     {
         $this->intIdProducto = $idProducto;
         
-        // Verificar si el producto está en alguna venta
-        $sql = "SELECT COUNT(*) as total FROM detalle_venta WHERE producto_id = {$this->intIdProducto}";
-        $request = $this->select($sql);
-        if($request['total'] > 0) {
-            // Si está en ventas, solo lo desactivamos
-            $sql = "UPDATE productos SET estado = 0 WHERE id = {$this->intIdProducto}";
-            $request = $this->update($sql, []);
-        } else {
-            // Si no está en ventas, lo eliminamos
-            $sql = "DELETE FROM productos WHERE id = {$this->intIdProducto}";
-            $request = $this->delete($sql);
-        }
+        // Marcar como eliminado (estado 3) independientemente de si está en ventas o no
+        $sql = "UPDATE productos SET estado = 3 WHERE id = {$this->intIdProducto}";
+        $request = $this->update($sql, []);
         return $request;
     }
 
