@@ -46,6 +46,28 @@
                         </a>
                     </li>
                     <!-- End:Sub Menu Item -->
+                    
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>proveedores">
+                            <span class="d2c_icon">
+                                <i class="fas fa-truck"></i>
+                            </span>
+                            <span> Proveedores </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
+
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>compras">
+                            <span class="d2c_icon">
+                                <i class="fas fa-truck"></i>
+                            </span>
+                            <span> Compras </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
                     <li class="nav-item">
