@@ -22,10 +22,6 @@
     </head>
 
     <body class="d2c_theme_light">
-        <!-- Preloader Start -->
-        <div class="preloader">
-            <img src="<?= BASE_URL ?>assets/images/logo/logo.png" alt="<?= NOMBRE_EMPRESA ?>">
-        </div>
-        <!-- Preloader End -->
+     
 
         <div class="d2c_wrapper"><?php include_once "navbar.php"; ?>

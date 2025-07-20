@@ -37,23 +37,33 @@ class Mysql extends Conexion
     //Busca un registro
     public function select(string $query, array $arrValues = [])
     {
-        $this->strquery = $query;
-        $this->arrValues = $arrValues;
-        $result = $this->conexion->prepare($this->strquery);
-        $result->execute($this->arrValues);
-        $data = $result->fetch(PDO::FETCH_ASSOC);
-        return $data;
+        try {
+            $this->strquery = $query;
+            $this->arrValues = $arrValues;
+            $result = $this->conexion->prepare($this->strquery);
+            $result->execute($this->arrValues);
+            $data = $result->fetch(PDO::FETCH_ASSOC);
+            return $data;
+        } catch (PDOException $e) {
+            error_log("Error en select: " . $e->getMessage());
+            return null;
+        }
     }
     
     //Devuelve todos los registros
     public function select_all(string $query, array $arrValues = [])
     {
-        $this->strquery = $query;
-        $this->arrValues = $arrValues;
-        $result = $this->conexion->prepare($this->strquery);
-        $result->execute($this->arrValues);
-        $data = $result->fetchall(PDO::FETCH_ASSOC);
-        return $data;
+        try {
+            $this->strquery = $query;
+            $this->arrValues = $arrValues;
+            $result = $this->conexion->prepare($this->strquery);
+            $result->execute($this->arrValues);
+            $data = $result->fetchall(PDO::FETCH_ASSOC);
+            return $data;
+        } catch (PDOException $e) {
+            error_log("Error en select_all: " . $e->getMessage());
+            return [];
+        }
     }
     
     //Actualiza registros
@@ -69,10 +79,14 @@ class Mysql extends Conexion
             if ($resExecute) {
                 return $resExecute;
             } else {
+                $errorInfo = $update->errorInfo();
+                error_log("Error en update (errorInfo): " . json_encode($errorInfo));
                 return false;
             }
         } catch (PDOException $e) {
-            error_log("Error en update: " . $e->getMessage());
+            error_log("Error en update (exception): " . $e->getMessage());
+            error_log("SQL: " . $this->strquery);
+            error_log("Valores: " . json_encode($this->arrValues));
             return false;
         }
     }
@@ -80,11 +94,16 @@ class Mysql extends Conexion
     //Eliminar un registros
     public function delete(string $query, array $arrValues = [])
     {
-        $this->strquery = $query;
-        $this->arrValues = $arrValues;
-        $result = $this->conexion->prepare($this->strquery);
-        $del = $result->execute($this->arrValues);
-        return $del;
+        try {
+            $this->strquery = $query;
+            $this->arrValues = $arrValues;
+            $result = $this->conexion->prepare($this->strquery);
+            $del = $result->execute($this->arrValues);
+            return $del;
+        } catch (PDOException $e) {
+            error_log("Error en delete: " . $e->getMessage());
+            return false;
+        }
     }
 
     // Métodos de transacción
