@@ -96,11 +96,32 @@ class Compras extends AuthController
             // Establecer el encabezado de contenido como JSON
             header('Content-Type: application/json; charset=utf-8');
             
-            $arrData = $this->model->getProductosActivos();
+            // Registrar en log para depuración
+            error_log("Iniciando getProductos");
+            
+            // Obtener todos los productos activos sin importar el stock
+            $sql = "SELECT id, codigo, nombre, precio_compra, stock 
+                    FROM productos 
+                    WHERE estado = 1 
+                    ORDER BY nombre ASC";
+            $arrData = $this->model->select_all($sql);
+            
+            // Asegurar que siempre devuelva un array
             if (empty($arrData)) {
+                error_log("No se encontraron productos activos");
                 $arrData = [];
+            } else {
+                error_log("Productos encontrados directamente: " . count($arrData));
             }
-            echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+            
+            // Codificar como JSON y verificar errores
+            $json = json_encode($arrData, JSON_UNESCAPED_UNICODE);
+            if ($json === false) {
+                error_log("Error al codificar JSON: " . json_last_error_msg());
+                echo json_encode([], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo $json;
+            }
         } catch (Exception $e) {
             error_log("Error en getProductos: " . $e->getMessage());
             echo json_encode([], JSON_UNESCAPED_UNICODE);

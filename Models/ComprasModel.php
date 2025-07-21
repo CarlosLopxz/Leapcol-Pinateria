@@ -69,11 +69,23 @@ class ComprasModel extends Mysql
     public function getProductosActivos()
     {
         try {
-            $sql = "SELECT id, codigo, nombre, precio_compra, stock_actual as stock 
+            // Corregir la consulta para usar el nombre correcto de la columna (stock en lugar de stock_actual)
+            $sql = "SELECT id, codigo, nombre, precio_compra, stock 
                     FROM productos 
                     WHERE estado = 1 
                     ORDER BY nombre ASC";
             $request = $this->select_all($sql);
+            
+            // Registrar en log para depuración
+            error_log("Productos encontrados: " . count($request));
+            error_log("SQL ejecutado: " . $sql);
+            
+            // Asegurar que siempre devuelva un array
+            if (empty($request)) {
+                error_log("No se encontraron productos activos");
+                return [];
+            }
+            
             return $request;
         } catch (Exception $e) {
             error_log("Error en getProductosActivos: " . $e->getMessage());

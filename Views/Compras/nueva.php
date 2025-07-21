@@ -318,70 +318,114 @@
     }
     
     function cargarProductos() {
-        fetch('<?= BASE_URL ?>compras/getProductos')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.text();
-            })
-            .then(text => {
+        console.log('Iniciando carga de productos...');
+        
+        // Mostrar indicador de carga
+        const selectProducto = document.getElementById('producto');
+        selectProducto.innerHTML = '<option value="">Cargando productos...</option>';
+        selectProducto.disabled = true;
+        
+        // Usar XMLHttpRequest en lugar de fetch para mayor compatibilidad
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', '<?= BASE_URL ?>compras/getProductos', true);
+        
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                console.log('Respuesta recibida:', xhr.status);
+                console.log('Texto recibido:', xhr.responseText.substring(0, 100) + '...');
+                
                 try {
-                    return JSON.parse(text);
+                    const data = JSON.parse(xhr.responseText);
+                    console.log('Datos parseados:', data);
+                    productosData = Array.isArray(data) ? data : [];
+                    
+                    // Habilitar el select
+                    selectProducto.disabled = false;
+                    
+                    // Limpiar opciones actuales
+                    selectProducto.innerHTML = '<option value="">Seleccionar...</option>';
+                    
+                    // Verificar si hay productos
+                    if (!productosData || productosData.length === 0) {
+                        console.warn('No se encontraron productos activos');
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = "No hay productos disponibles";
+                        option.disabled = true;
+                        selectProducto.appendChild(option);
+                        return;
+                    }
+                    
+                    console.log('Agregando ' + productosData.length + ' productos al select');
+                    
+                    // Agregar productos
+                    productosData.forEach(producto => {
+                        const option = document.createElement('option');
+                        option.value = producto.id;
+                        option.textContent = `${producto.codigo} - ${producto.nombre}`;
+                        option.dataset.precio = producto.precio_compra;
+                        option.dataset.codigo = producto.codigo;
+                        selectProducto.appendChild(option);
+                    });
+                    
+                    console.log('Productos cargados correctamente');
+                    
                 } catch (e) {
                     console.error('Error al parsear JSON:', e);
-                    console.log('Respuesta recibida:', text);
-                    throw new Error('Error al procesar la respuesta del servidor');
+                    console.log('Respuesta recibida completa:', xhr.responseText);
+                    
+                    // Habilitar el select
+                    selectProducto.disabled = false;
+                    selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
+                    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Error al procesar la respuesta del servidor'
+                    });
                 }
-            })
-            .then(data => {
-                productosData = data;
-                const selectProducto = document.getElementById('producto');
+            } else {
+                console.error('Error en la respuesta del servidor:', xhr.status);
                 
-                // Limpiar opciones actuales
-                selectProducto.innerHTML = '<option value="">Seleccionar...</option>';
+                // Habilitar el select
+                selectProducto.disabled = false;
+                selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
                 
-                // Verificar si hay productos
-                if (!data || data.length === 0) {
-                    console.warn('No se encontraron productos activos');
-                    const option = document.createElement('option');
-                    option.value = "";
-                    option.textContent = "No hay productos disponibles";
-                    option.disabled = true;
-                    selectProducto.appendChild(option);
-                    return;
-                }
-                
-                // Agregar productos
-                data.forEach(producto => {
-                    const option = document.createElement('option');
-                    option.value = producto.id;
-                    option.textContent = `${producto.codigo} - ${producto.nombre}`;
-                    option.dataset.precio = producto.precio_compra;
-                    option.dataset.codigo = producto.codigo;
-                    selectProducto.appendChild(option);
-                });
-                
-                // Evento para cargar precio al seleccionar producto
-                selectProducto.addEventListener('change', function() {
-                    const selectedOption = this.options[this.selectedIndex];
-                    if(selectedOption.value) {
-                        document.getElementById('precio').value = selectedOption.dataset.precio;
-                        calcularSubtotalProducto();
-                    } else {
-                        document.getElementById('precio').value = '';
-                        document.getElementById('subtotal_producto').value = '';
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error al cargar productos:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
                     text: 'No se pudieron cargar los productos. Por favor, recargue la página.'
                 });
+            }
+        };
+        
+        xhr.onerror = function() {
+            console.error('Error de red al cargar productos');
+            
+            // Habilitar el select
+            selectProducto.disabled = false;
+            selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error de red al cargar productos. Por favor, verifique su conexión.'
             });
+        };
+        
+        xhr.send();
+        
+        // Evento para cargar precio al seleccionar producto
+        selectProducto.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            if(selectedOption.value) {
+                document.getElementById('precio').value = selectedOption.dataset.precio;
+                calcularSubtotalProducto();
+            } else {
+                document.getElementById('precio').value = '';
+                document.getElementById('subtotal_producto').value = '';
+            }
+        });
     }
     
     function cargarDatosCompra(idCompra) {
