@@ -101,13 +101,7 @@
                                 <input type="text" class="form-control" id="subtotal" readonly value="0">
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="impuestos" class="form-label">IVA (19%):</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control" id="impuestos" readonly value="0">
-                            </div>
-                        </div>
+
                         <div class="mb-3">
                             <label for="descuento" class="form-label">Descuento:</label>
                             <div class="input-group">
@@ -672,18 +666,14 @@
         // Calcular subtotal
         const subtotal = carrito.reduce((sum, item) => sum + item.subtotal, 0);
         
-        // Calcular impuestos (19%)
-        const impuestos = subtotal * 0.19;
-        
         // Obtener descuento
         const descuento = parseFloat(document.getElementById('descuento').value) || 0;
         
-        // Calcular total
-        const total = subtotal + impuestos - descuento;
+        // Calcular total (sin IVA)
+        const total = subtotal - descuento;
         
         // Actualizar campos
         document.getElementById('subtotal').value = subtotal.toFixed(0);
-        document.getElementById('impuestos').value = impuestos.toFixed(0);
         document.getElementById('total').value = total.toFixed(0);
     }
     
@@ -788,7 +778,7 @@
         // Obtener datos de la venta
         const cliente = document.getElementById('clienteSelect').value;
         const subtotal = parseFloat(document.getElementById('subtotal').value);
-        const impuestos = parseFloat(document.getElementById('impuestos').value);
+        const impuestos = 0; // Sin IVA
         const descuentos = parseFloat(document.getElementById('descuento').value) || 0;
         const total = parseFloat(document.getElementById('total').value);
         const metodoPago = document.getElementById('metodoPago').value;
@@ -823,6 +813,14 @@
         formData.append('metodo_pago', metodoPago);
         formData.append('observaciones', observaciones);
         formData.append('productos', JSON.stringify(productosVenta));
+        
+        // Agregar datos de pago si es efectivo
+        if(metodoPago === '1') {
+            const pagoCon = parseFloat(document.getElementById('pagaCon').value) || 0;
+            const cambio = parseFloat(document.getElementById('cambio').value) || 0;
+            formData.append('pagoCon', pagoCon);
+            formData.append('cambio', cambio);
+        }
         
         fetch('<?= BASE_URL ?>ventas/setVenta', {
             method: 'POST',
@@ -979,7 +977,6 @@
         // Limpiar campos
         document.getElementById('clienteSelect').value = 0;
         document.getElementById('subtotal').value = 0;
-        document.getElementById('impuestos').value = 0;
         document.getElementById('descuento').value = 0;
         document.getElementById('total').value = 0;
         document.getElementById('metodoPago').value = 1;

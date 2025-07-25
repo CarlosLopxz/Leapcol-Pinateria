@@ -266,9 +266,24 @@ class VentasModel extends Mysql
             $estado = isset($datos['estado']) ? intval($datos['estado']) : 1;
             $observaciones = isset($datos['observaciones']) ? $datos['observaciones'] : '';
             
-            $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, estado, observaciones, usuario_id) 
-                            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $estado, $observaciones, $usuario);
+            // Verificar si existen los campos pago_con y cambio
+            $sql = "SHOW COLUMNS FROM ventas LIKE 'pago_con'";
+            $pagoCampoExiste = $this->select_all($sql);
+            
+            if (!empty($pagoCampoExiste)) {
+                // Los campos existen, usar consulta completa
+                $pagoCon = isset($datos['pagoCon']) ? floatval($datos['pagoCon']) : null;
+                $cambio = isset($datos['cambio']) ? floatval($datos['cambio']) : null;
+                
+                $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, pago_con, cambio, estado, observaciones, usuario_id) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $pagoCon, $cambio, $estado, $observaciones, $usuario);
+            } else {
+                // Los campos no existen, usar consulta sin ellos
+                $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, estado, observaciones, usuario_id) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $estado, $observaciones, $usuario);
+            }
             
             error_log("Ejecutando query simplificada: " . $query_insert);
             error_log("Con datos: " . json_encode($arrData));

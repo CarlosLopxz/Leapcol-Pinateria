@@ -131,9 +131,11 @@ class Ventas extends AuthController
                     $descuentos = floatval($_POST['descuentos']);
                     $total = floatval($_POST['total']);
                     $metodoPago = intval($_POST['metodo_pago']);
-                    $pagoCon = floatval($_POST['pago_con'] ?? 0);
+                    $pagoCon = floatval($_POST['pagoCon'] ?? 0);
                     $cambio = floatval($_POST['cambio'] ?? 0);
                     $estado = 1; // Completada
+                    
+                    error_log("Datos de pago recibidos - Método: {$metodoPago}, Pago con: {$pagoCon}, Cambio: {$cambio}");
                     $observaciones = strClean($_POST['observaciones']);
                     
                     // Verificar si existe la sesión y el usuario
@@ -477,11 +479,6 @@ class Ventas extends AuthController
             $pdf->Cell(45, 4, 'Subtotal:', 0, 0, 'R');
             $pdf->Cell(25, 4, '$' . number_format($venta['subtotal'], 0, ',', '.'), 0, 1, 'R');
             
-            if($venta['impuestos'] > 0) {
-                $pdf->Cell(45, 4, 'IVA (19%):', 0, 0, 'R');
-                $pdf->Cell(25, 4, '$' . number_format($venta['impuestos'], 0, ',', '.'), 0, 1, 'R');
-            }
-            
             if($venta['descuentos'] > 0) {
                 $pdf->Cell(45, 4, 'Descuento:', 0, 0, 'R');
                 $pdf->Cell(25, 4, '$' . number_format($venta['descuentos'], 0, ',', '.'), 0, 1, 'R');
@@ -507,6 +504,20 @@ class Ventas extends AuthController
             $pdf->Cell(20, 4, 'Método de pago:', 0, 0);
             $pdf->SetFont('helvetica', '', 7);
             $pdf->Cell(0, 4, $metodoPago, 0, 1);
+            
+            // Información de pago para efectivo
+            if($venta['metodo_pago'] == 1) {
+                $pdf->Ln(1);
+                $pdf->SetFont('helvetica', 'B', 7);
+                $pdf->Cell(45, 4, 'Pago con:', 0, 0, 'R');
+                $pdf->SetFont('helvetica', '', 7);
+                $pdf->Cell(25, 4, '$' . number_format($venta['pago_con'] ?? 0, 0, ',', '.'), 0, 1, 'R');
+                
+                $pdf->SetFont('helvetica', 'B', 7);
+                $pdf->Cell(45, 4, 'Cambio:', 0, 0, 'R');
+                $pdf->SetFont('helvetica', '', 7);
+                $pdf->Cell(25, 4, '$' . number_format($venta['cambio'] ?? 0, 0, ',', '.'), 0, 1, 'R');
+            }
             
             // Línea separadora con estilo
             $pdf->Ln(2);
@@ -641,13 +652,24 @@ class Ventas extends AuthController
         $pdf->Cell(130, 6, 'SUBTOTAL:', 0, 0, 'R');
         $pdf->Cell(30, 6, '$' . number_format($venta['subtotal'], 0), 1, 1, 'R');
         
-        if($venta['impuestos'] > 0) {
-            $pdf->Cell(130, 6, 'IVA:', 0, 0, 'R');
-            $pdf->Cell(30, 6, '$' . number_format($venta['impuestos'], 0), 1, 1, 'R');
+        if($venta['descuentos'] > 0) {
+            $pdf->Cell(130, 6, 'DESCUENTO:', 0, 0, 'R');
+            $pdf->Cell(30, 6, '$' . number_format($venta['descuentos'], 0), 1, 1, 'R');
         }
         
         $pdf->Cell(130, 8, 'TOTAL:', 0, 0, 'R');
         $pdf->Cell(30, 8, '$' . number_format($venta['total'], 0), 1, 1, 'R');
+        
+        // Información de pago si es efectivo
+        if($venta['metodo_pago'] == 1) {
+            $pdf->Ln(5);
+            $pdf->SetFont('helvetica', 'B', 10);
+            $pdf->Cell(130, 6, 'PAGO CON:', 0, 0, 'R');
+            $pdf->Cell(30, 6, '$' . number_format($venta['pago_con'] ?? 0, 0), 1, 1, 'R');
+            
+            $pdf->Cell(130, 6, 'CAMBIO:', 0, 0, 'R');
+            $pdf->Cell(30, 6, '$' . number_format($venta['cambio'] ?? 0, 0), 1, 1, 'R');
+        }
         
         $nombreArchivo = 'factura_' . $venta['id'] . '.pdf';
         $pdf->Output($nombreArchivo, 'D');
