@@ -131,6 +131,8 @@ class Ventas extends AuthController
                     $descuentos = floatval($_POST['descuentos']);
                     $total = floatval($_POST['total']);
                     $metodoPago = intval($_POST['metodo_pago']);
+                    $pagoCon = floatval($_POST['pago_con'] ?? 0);
+                    $cambio = floatval($_POST['cambio'] ?? 0);
                     $estado = 1; // Completada
                     $observaciones = strClean($_POST['observaciones']);
                     
@@ -160,6 +162,8 @@ class Ventas extends AuthController
                             'descuentos' => $descuentos,
                             'total' => $total,
                             'metodoPago' => $metodoPago,
+                            'pagoCon' => $pagoCon,
+                            'cambio' => $cambio,
                             'estado' => $estado,
                             'observaciones' => $observaciones,
                             'usuario' => $usuario,
@@ -197,6 +201,13 @@ class Ventas extends AuthController
                             error_log("Resultado de insertVenta: " . $result);
                             
                             if($result > 0) {
+                                // Registrar venta en caja si hay una caja abierta
+                                if(file_exists('Controllers/Caja.php')) {
+                                    require_once 'Controllers/Caja.php';
+                                    $cajaController = new Caja();
+                                    $cajaController->registrarVentaEnCaja($result, $total, $metodoPago);
+                                }
+                                
                                 $arrResponse = [
                                     'status' => true, 
                                     'msg' => 'Venta registrada correctamente', 

@@ -103,6 +103,17 @@
                         </a>
                     </li>
                     <!-- End:Sub Menu Item -->
+
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>caja">
+                            <span class="d2c_icon">
+                                <i class="fas fa-cash-register"></i>
+                            </span>
+                            <span> Caja </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
                 </ul>
                 <!-- End:Sub Menu -->
             </li>
@@ -121,6 +132,17 @@
                                 <i class="fas fa-user-cog"></i>
                             </span>
                             <span> Usuarios </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
+
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>roles">
+                            <span class="d2c_icon">
+                                <i class="fas fa-user-shield"></i>
+                            </span>
+                            <span> Roles </span>
                         </a>
                     </li>
                     <!-- End:Sub Menu Item -->

@@ -137,6 +137,23 @@
                             <option value="3">Tarjeta de Débito</option>
                             <option value="4">Transferencia</option>
                         </select>
+                        
+                        <div class="mb-3" id="pagoEfectivoContainer">
+                            <label for="pagaCon" class="form-label">Paga con:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="pagaCon" min="0" step="0.01">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3" id="cambioContainer" style="display: none;">
+                            <label for="cambio" class="form-label fw-bold">Cambio:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="text" class="form-control form-control-lg fw-bold text-success" id="cambio" readonly>
+                            </div>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="observaciones" class="form-label">Observaciones:</label>
                             <textarea class="form-control" id="observaciones" rows="2"></textarea>
@@ -380,6 +397,10 @@
         
         // Evento para calcular totales cuando cambia el descuento
         document.getElementById('descuento').addEventListener('input', calcularTotales);
+        
+        // Eventos para método de pago y cambio
+        document.getElementById('metodoPago').addEventListener('change', manejarMetodoPago);
+        document.getElementById('pagaCon').addEventListener('input', calcularCambio);
     });
     
     function cargarClientes() {
@@ -747,6 +768,23 @@
             return;
         }
         
+        // Verificar pago en efectivo
+        const metodoSeleccionado = document.getElementById('metodoPago').value;
+        if(metodoSeleccionado === '1') { // Efectivo
+            const totalVenta = parseFloat(document.getElementById('total').value);
+            const pagaCon = parseFloat(document.getElementById('pagaCon').value) || 0;
+            
+            if(pagaCon <= 0) {
+                Swal.fire('Error', 'Debe ingresar el monto con que paga', 'error');
+                return;
+            }
+            
+            if(pagaCon < totalVenta) {
+                Swal.fire('Error', 'El monto a pagar es insuficiente', 'error');
+                return;
+            }
+        }
+        
         // Obtener datos de la venta
         const cliente = document.getElementById('clienteSelect').value;
         const subtotal = parseFloat(document.getElementById('subtotal').value);
@@ -947,11 +985,55 @@
         document.getElementById('metodoPago').value = 1;
         document.getElementById('observaciones').value = '';
         document.getElementById('buscarProducto').value = '';
+        document.getElementById('pagaCon').value = '';
+        document.getElementById('cambio').value = '';
+        document.getElementById('pagoEfectivoContainer').style.display = 'block';
+        document.getElementById('cambioContainer').style.display = 'none';
     }
     
     function imprimirTicket(id) {
         // Abrir en una nueva ventana
         window.open(`<?= BASE_URL ?>ventas/imprimirTicket/${id}`, '_blank');
+    }
+    
+    function manejarMetodoPago() {
+        const metodoPago = document.getElementById('metodoPago').value;
+        const pagoEfectivoContainer = document.getElementById('pagoEfectivoContainer');
+        const cambioContainer = document.getElementById('cambioContainer');
+        
+        if(metodoPago === '1') { // Efectivo
+            pagoEfectivoContainer.style.display = 'block';
+            document.getElementById('pagaCon').required = true;
+        } else {
+            pagoEfectivoContainer.style.display = 'none';
+            cambioContainer.style.display = 'none';
+            document.getElementById('pagaCon').required = false;
+            document.getElementById('pagaCon').value = '';
+            document.getElementById('cambio').value = '';
+        }
+    }
+    
+    function calcularCambio() {
+        const total = parseFloat(document.getElementById('total').value) || 0;
+        const pagaCon = parseFloat(document.getElementById('pagaCon').value) || 0;
+        const cambioContainer = document.getElementById('cambioContainer');
+        const cambioInput = document.getElementById('cambio');
+        
+        if(pagaCon > 0 && total > 0) {
+            const cambio = pagaCon - total;
+            
+            if(cambio >= 0) {
+                cambioInput.value = cambio.toFixed(0);
+                cambioInput.className = 'form-control form-control-lg fw-bold text-success';
+                cambioContainer.style.display = 'block';
+            } else {
+                cambioInput.value = Math.abs(cambio).toFixed(0);
+                cambioInput.className = 'form-control form-control-lg fw-bold text-danger';
+                cambioContainer.style.display = 'block';
+            }
+        } else {
+            cambioContainer.style.display = 'none';
+        }
     }
     
     function descargarFacturaDigital(id) {
