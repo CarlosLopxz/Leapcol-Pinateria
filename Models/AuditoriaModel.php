@@ -23,15 +23,7 @@ class AuditoriaModel extends Mysql
         $fecha = date('Y-m-d H:i:s');
         $log = "[$fecha] Usuario: $nombre (ID: $idUsuario, Rol: $rol) - Accedió al módulo: $modulo\n";
         
-        // Crear directorio de logs si no existe
-        $logDir = 'Logs';
-        if (!file_exists($logDir)) {
-            mkdir($logDir, 0777, true);
-        }
-        
-        // Guardar en archivo de log
-        $logFile = $logDir . '/accesos_' . date('Y-m-d') . '.log';
-        file_put_contents($logFile, $log, FILE_APPEND);
+      
         
         return true;
     }

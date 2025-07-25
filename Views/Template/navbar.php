@@ -47,6 +47,17 @@
                     </li>
                     <!-- End:Sub Menu Item -->
 
+                    <!-- Sub Menu Item -->
+                    <li class="nav-item">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>produccion">
+                            <span class="d2c_icon">
+                                <i class="fas fa-cogs"></i>
+                            </span>
+                            <span> Producción </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
+
 
 
                     <!-- Sub Menu Item -->

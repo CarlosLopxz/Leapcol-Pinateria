@@ -102,3 +102,31 @@ function getModal(string $nameModal, $data)
         require_once $view_modal;
     }
 }
+
+// Función para subir imágenes
+function uploadImage($file, $folder = 'uploads')
+{
+    if($file['error'] !== UPLOAD_ERR_OK) {
+        return '';
+    }
+    
+    $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if(!in_array($file['type'], $allowedTypes)) {
+        return '';
+    }
+    
+    $uploadDir = "assets/images/{$folder}/";
+    if(!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = uniqid() . '.' . $extension;
+    $uploadPath = $uploadDir . $filename;
+    
+    if(move_uploaded_file($file['tmp_name'], $uploadPath)) {
+        return $filename;
+    }
+    
+    return '';
+}

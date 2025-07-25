@@ -13,7 +13,8 @@ $protected_routes = [
     'reportes',
     'configuracion',
     'categorias',
-    'eventos'
+    'eventos',
+    'produccion'
 ];
 
 // Rutas públicas

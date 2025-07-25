@@ -517,6 +517,22 @@
         
         // Agregar directamente al carrito con cantidad 1
         agregarAlCarrito(producto.id, 1);
+        
+        // Mostrar alerta rápida
+        Swal.fire({
+            icon: 'success',
+            title: 'Agregado',
+            timer: 800,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+        });
+        
+        // Cerrar modal de productos
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalProductos'));
+        if (modal) {
+            modal.hide();
+        }
     }
     
     function agregarAlCarrito(productoId, cantidad) {
