@@ -246,7 +246,7 @@
 
 <!-- Modal para Venta Exitosa -->
 <div class="modal fade" id="modalVentaExitosa" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
                 <h5 class="modal-title">¡Venta Realizada!</h5>
@@ -258,13 +258,13 @@
                 <p>Número de venta: <strong id="ventaId"></strong></p>
                 <p>Total: <strong id="ventaTotal"></strong></p>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-center">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-info" id="btnImprimirTicketVenta">
                     <i class="fas fa-print me-2"></i>Imprimir Ticket
                 </button>
-                <button type="button" class="btn btn-primary" id="btnNuevaVenta">
-                    <i class="fas fa-plus me-2"></i>Nueva Venta
+                <button type="button" class="btn btn-success" id="btnFacturaDigital">
+                    <i class="fas fa-file-pdf me-2"></i>Factura Digital
                 </button>
             </div>
         </div>
@@ -366,19 +366,16 @@
         // Evento para cancelar venta
         document.getElementById('btnCancelarVenta').addEventListener('click', cancelarVenta);
         
-        // Evento para nueva venta después de venta exitosa
-        document.getElementById('btnNuevaVenta').addEventListener('click', function() {
-            // Cerrar modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalVentaExitosa'));
-            modal.hide();
-            
-            // Limpiar carrito
-            cancelarVenta();
-        });
+
         
         // Evento para imprimir ticket desde modal de venta exitosa
         document.getElementById('btnImprimirTicketVenta').addEventListener('click', function() {
             imprimirTicket(ventaActualId);
+        });
+        
+        // Evento para descargar factura digital
+        document.getElementById('btnFacturaDigital').addEventListener('click', function() {
+            descargarFacturaDigital(ventaActualId);
         });
         
         // Evento para calcular totales cuando cambia el descuento
@@ -823,6 +820,9 @@
                 // Guardar ID de la venta
                 ventaActualId = data.idVenta;
                 
+                // Limpiar carrito
+                limpiarVenta();
+                
                 // Mostrar modal de venta exitosa
                 document.getElementById('ventaId').textContent = data.idVenta;
                 document.getElementById('ventaTotal').textContent = formatoPrecioCOP(total);
@@ -952,5 +952,15 @@
     function imprimirTicket(id) {
         // Abrir en una nueva ventana
         window.open(`<?= BASE_URL ?>ventas/imprimirTicket/${id}`, '_blank');
+    }
+    
+    function descargarFacturaDigital(id) {
+        // Crear enlace de descarga
+        const link = document.createElement('a');
+        link.href = `<?= BASE_URL ?>ventas/facturaDigital/${id}`;
+        link.download = `factura_${id}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 </script>

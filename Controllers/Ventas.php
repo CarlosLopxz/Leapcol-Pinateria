@@ -557,4 +557,89 @@ class Ventas extends AuthController
         }
         die();
     }
+    
+    public function facturaDigital($idVenta)
+    {
+        ob_clean(); // Limpiar buffer de salida
+        
+        $idVenta = intval($idVenta);
+        $venta = $this->model->getVenta($idVenta);
+        $detalle = $this->model->getDetalleVenta($idVenta);
+        
+        if (!$venta || !class_exists('TCPDF')) {
+            die('Error: No se puede generar la factura');
+        }
+        
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->setPrintHeader(false);
+        $pdf->setPrintFooter(false);
+        $pdf->SetMargins(15, 15, 15);
+        $pdf->AddPage();
+        
+        // Título
+        $pdf->SetFont('helvetica', 'B', 16);
+        $pdf->Cell(0, 10, 'FACTURA ELECTRÓNICA', 0, 1, 'C');
+        $pdf->Ln(5);
+        
+        // Empresa
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 6, NOMBRE_EMPRESA, 0, 1);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 5, 'NIT: 900.123.456-7', 0, 1);
+        $pdf->Cell(0, 5, DIRECCION, 0, 1);
+        $pdf->Ln(5);
+        
+        // Datos factura
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(40, 6, 'Factura N°:', 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(60, 6, $venta['id'], 0, 0);
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(30, 6, 'Fecha:', 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 6, date('d/m/Y', strtotime($venta['fecha_venta'])), 0, 1);
+        
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(40, 6, 'Cliente:', 0, 0);
+        $pdf->SetFont('helvetica', '', 10);
+        $pdf->Cell(0, 6, ($venta['cliente_nombre'] ?: 'Cliente General'), 0, 1);
+        $pdf->Ln(10);
+        
+        // Tabla productos
+        $pdf->SetFont('helvetica', 'B', 9);
+        $pdf->Cell(80, 8, 'PRODUCTO', 1, 0, 'C');
+        $pdf->Cell(20, 8, 'CANT', 1, 0, 'C');
+        $pdf->Cell(30, 8, 'PRECIO', 1, 0, 'C');
+        $pdf->Cell(30, 8, 'TOTAL', 1, 1, 'C');
+        
+        $pdf->SetFont('helvetica', '', 9);
+        foreach($detalle as $item) {
+            $precio = $item['precio_unitario'] ?: 0;
+            $subtotal = $precio * $item['cantidad'];
+            
+            $pdf->Cell(80, 6, $item['nombre'], 1, 0);
+            $pdf->Cell(20, 6, $item['cantidad'], 1, 0, 'C');
+            $pdf->Cell(30, 6, '$' . number_format($precio, 0), 1, 0, 'R');
+            $pdf->Cell(30, 6, '$' . number_format($subtotal, 0), 1, 1, 'R');
+        }
+        
+        $pdf->Ln(5);
+        
+        // Totales
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(130, 6, 'SUBTOTAL:', 0, 0, 'R');
+        $pdf->Cell(30, 6, '$' . number_format($venta['subtotal'], 0), 1, 1, 'R');
+        
+        if($venta['impuestos'] > 0) {
+            $pdf->Cell(130, 6, 'IVA:', 0, 0, 'R');
+            $pdf->Cell(30, 6, '$' . number_format($venta['impuestos'], 0), 1, 1, 'R');
+        }
+        
+        $pdf->Cell(130, 8, 'TOTAL:', 0, 0, 'R');
+        $pdf->Cell(30, 8, '$' . number_format($venta['total'], 0), 1, 1, 'R');
+        
+        $nombreArchivo = 'factura_' . $venta['id'] . '.pdf';
+        $pdf->Output($nombreArchivo, 'D');
+        die();
+    }
 }

@@ -168,15 +168,7 @@
                             </p>
                         </div>
                     </li>
-                    <!-- Item -->
-                    <li class="nav-item d-flex align-items-center">
-                        <span>Modo</span>
-                        <span class="form-switch d-flex ms-auto">
-                            <input class="form-check-input" id="d2c_theme_changer" type="checkbox" role="switch">
-                        </span>
-                    </li>
-                    <!-- End:Item -->
-                    
+                  
                     <!-- Logout Item -->
                     <li class="nav-item mt-3">
                         <a href="<?= BASE_URL ?>logout" class="btn btn-danger w-100 d-flex align-items-center justify-content-center">

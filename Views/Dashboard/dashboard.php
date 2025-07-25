@@ -21,8 +21,8 @@
                         <div class="w-100">
                             <h5 class="mb-1">Productos</h5>
                             <div class="d-flex justify-content-between">
-                                <p class="mb-0">Total: 150</p>
-                                <p class="mb-0 text-success">+5%</p>
+                                <p class="mb-0">Total: <?= $data['totalProductos'] ?></p>
+                                <p class="mb-0 text-info">Activos</p>
                             </div>
                         </div>
                     </div>
@@ -40,8 +40,8 @@
                         <div class="w-100">
                             <h5 class="mb-1">Clientes</h5>
                             <div class="d-flex justify-content-between">
-                                <p class="mb-0">Total: 45</p>
-                                <p class="mb-0 text-success">+2%</p>
+                                <p class="mb-0">Total: <?= $data['totalClientes'] ?></p>
+                                <p class="mb-0 text-info">Registrados</p>
                             </div>
                         </div>
                     </div>
@@ -59,8 +59,8 @@
                         <div class="w-100">
                             <h5 class="mb-1">Ventas</h5>
                             <div class="d-flex justify-content-between">
-                                <p class="mb-0">Total: 120</p>
-                                <p class="mb-0 text-success">+8%</p>
+                                <p class="mb-0">Total: <?= $data['totalVentas'] ?></p>
+                                <p class="mb-0 text-info">Realizadas</p>
                             </div>
                         </div>
                     </div>
@@ -78,8 +78,8 @@
                         <div class="w-100">
                             <h5 class="mb-1">Ingresos</h5>
                             <div class="d-flex justify-content-between">
-                                <p class="mb-0">$5,342.50</p>
-                                <p class="mb-0 text-success">+3.5%</p>
+                                <p class="mb-0">$<?= number_format($data['totalIngresos'], 0, ',', '.') ?></p>
+                                <p class="mb-0 text-success">Total</p>
                             </div>
                         </div>
                     </div>
@@ -111,30 +111,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>001</td>
-                                        <td>Juan Pérez</td>
-                                        <td>15/06/2023</td>
-                                        <td>$150.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>002</td>
-                                        <td>María López</td>
-                                        <td>16/06/2023</td>
-                                        <td>$250.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>003</td>
-                                        <td>Carlos Gómez</td>
-                                        <td>17/06/2023</td>
-                                        <td>$320.00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>004</td>
-                                        <td>Ana Martínez</td>
-                                        <td>18/06/2023</td>
-                                        <td>$180.00</td>
-                                    </tr>
+                                    <?php if(!empty($data['ventasRecientes'])): ?>
+                                        <?php foreach($data['ventasRecientes'] as $venta): ?>
+                                        <tr>
+                                            <td><?= $venta['id'] ?></td>
+                                            <td><?= $venta['cliente'] ?></td>
+                                            <td><?= date('d/m/Y', strtotime($venta['fecha_venta'])) ?></td>
+                                            <td>$<?= number_format($venta['total'], 0, ',', '.') ?></td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center">No hay ventas registradas</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -147,3 +137,81 @@
 <!-- End:Main Body -->
 
 <?php footerAdmin($data); ?>
+
+<script>
+// Datos reales para el gráfico
+const ventasData = <?= json_encode($data['ventasPorMes']) ?>;
+
+// Nombres de meses en español
+const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+// Inicializar arrays con todos los meses en 0
+const meses = [...mesesNombres];
+const totales = new Array(12).fill(0);
+
+// Procesar datos reales
+ventasData.forEach(function(item) {
+    const mesIndex = parseInt(item.mes) - 1; // Convertir a índice (0-11)
+    if (mesIndex >= 0 && mesIndex < 12) {
+        totales[mesIndex] = parseFloat(item.total) || 0;
+    }
+});
+
+// Configuración del gráfico
+const options = {
+    series: [{
+        name: 'Ventas',
+        data: totales
+    }],
+    chart: {
+        height: 350,
+        type: 'line',
+        zoom: {
+            enabled: false
+        }
+    },
+    dataLabels: {
+        enabled: false
+    },
+    stroke: {
+        curve: 'smooth',
+        colors: ['#007bff'],
+        width: 3
+    },
+    title: {
+        text: 'Ventas por Mes - ' + new Date().getFullYear(),
+        align: 'left'
+    },
+    grid: {
+        row: {
+            colors: ['#f3f3f3', 'transparent'],
+            opacity: 0.5
+        },
+    },
+    xaxis: {
+        categories: meses,
+    },
+    yaxis: {
+        labels: {
+            formatter: function (val) {
+                return '$' + Math.round(val).toLocaleString('es-CO');
+            }
+        }
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return '$' + Math.round(val).toLocaleString('es-CO');
+            }
+        }
+    }
+};
+
+// Renderizar gráfico
+const chart = new ApexCharts(document.querySelector("#d2c_dashboard_lineChart"), options);
+chart.render();
+</script>
+
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

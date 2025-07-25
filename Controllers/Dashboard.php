@@ -14,6 +14,12 @@ class Dashboard extends AuthController
         $data['page_tag'] = "Dashboard - " . NOMBRE_EMPRESA;
         $data['page_title'] = "Dashboard";
         $data['page_name'] = "dashboard";
+        $data['totalProductos'] = $this->model->getTotalProductos();
+        $data['totalClientes'] = $this->model->getTotalClientes();
+        $data['totalVentas'] = $this->model->getTotalVentas();
+        $data['totalIngresos'] = $this->model->getTotalIngresos();
+        $data['ventasRecientes'] = $this->model->getVentasRecientes();
+        $data['ventasPorMes'] = $this->model->getVentasPorMes();
         $this->views->getView($this, "dashboard", $data);
     }
     
@@ -43,10 +49,5 @@ class Dashboard extends AuthController
         die();
     }
     
-    public function getTotalProductosVendidos()
-    {
-        $arrData = ['total' => $this->model->getTotalProductosVendidos()];
-        echo json_encode($arrData);
-        die();
-    }
+
 }

@@ -31,13 +31,43 @@ class DashboardModel extends Mysql
         return isset($request['total']) ? $request['total'] : 0;
     }
     
-    public function getTotalProductosVendidos()
+    public function getTotalProductos()
     {
-        $sql = "SELECT SUM(dv.cantidad) as total 
-                FROM detalle_venta dv 
-                INNER JOIN ventas v ON dv.id_venta = v.id 
-                WHERE v.estado = 1";
+        $sql = "SELECT COUNT(*) as total FROM productos WHERE estado = 1";
         $request = $this->select($sql);
         return isset($request['total']) ? $request['total'] : 0;
+    }
+    
+    public function getTotalIngresos()
+    {
+        $sql = "SELECT SUM(total) as total FROM ventas WHERE estado = 1";
+        $request = $this->select($sql);
+        return isset($request['total']) ? $request['total'] : 0;
+    }
+    
+    public function getVentasRecientes()
+    {
+        $sql = "SELECT v.id, 
+                       COALESCE(CONCAT(c.nombre, ' ', c.apellido), 'Cliente General') as cliente,
+                       v.fecha_venta, 
+                       v.total
+                FROM ventas v
+                LEFT JOIN clientes c ON v.cliente_id = c.id
+                WHERE v.estado = 1
+                ORDER BY v.fecha_venta DESC
+                LIMIT 5";
+        return $this->select_all($sql);
+    }
+    
+    public function getVentasPorMes()
+    {
+        $sql = "SELECT 
+                    MONTH(fecha_venta) as mes,
+                    SUM(total) as total
+                FROM ventas 
+                WHERE estado = 1 AND YEAR(fecha_venta) = YEAR(CURDATE())
+                GROUP BY MONTH(fecha_venta)
+                ORDER BY MONTH(fecha_venta)";
+        return $this->select_all($sql);
     }
 }
