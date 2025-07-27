@@ -138,6 +138,9 @@
 
 <?php footerAdmin($data); ?>
 
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 <script>
 // Datos reales para el gráfico
 const ventasData = <?= json_encode($data['ventasPorMes']) ?>;
@@ -159,7 +162,7 @@ ventasData.forEach(function(item) {
 });
 
 // Configuración del gráfico
-const options = {
+const dashboardOptions = {
     series: [{
         name: 'Ventas',
         data: totales
@@ -209,9 +212,6 @@ const options = {
 };
 
 // Renderizar gráfico
-const chart = new ApexCharts(document.querySelector("#d2c_dashboard_lineChart"), options);
+const chart = new ApexCharts(document.querySelector("#d2c_dashboard_lineChart"), dashboardOptions);
 chart.render();
 </script>
-
-<!-- ApexCharts -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

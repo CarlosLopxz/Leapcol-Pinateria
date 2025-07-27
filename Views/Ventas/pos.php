@@ -466,14 +466,23 @@
                     card.setAttribute('data-nombre', producto.nombre);
                     card.setAttribute('data-codigo', producto.codigo);
                     
+                    // Verificar stock disponible considerando lo que ya está en el carrito
+                    const itemEnCarrito = carrito.find(item => item.id === producto.id);
+                    const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+                    const stockDisponible = producto.stock - cantidadEnCarrito;
+                    
+                    const stockClass = stockDisponible <= 0 ? 'text-danger' : (stockDisponible <= 5 ? 'text-warning' : 'text-success');
+                    const btnDisabled = stockDisponible <= 0 ? 'disabled' : '';
+                    const btnText = stockDisponible <= 0 ? 'Sin Stock' : 'Agregar';
+                    
                     card.innerHTML = `
                         <div class="card-body">
                             <h6 class="card-title">${producto.nombre}</h6>
                             <p class="card-text mb-1">Código: ${producto.codigo}</p>
                             <p class="card-text mb-1">Precio: ${formatoPrecioCOP(producto.precio_venta)}</p>
-                            <p class="card-text mb-2">Stock: ${producto.stock}</p>
-                            <button class="btn btn-sm btn-primary w-100" onclick="seleccionarProducto(${producto.id})">
-                                <i class="fas fa-plus me-1"></i> Agregar
+                            <p class="card-text mb-2 ${stockClass}">Stock: ${stockDisponible}</p>
+                            <button class="btn btn-sm btn-primary w-100" onclick="seleccionarProducto(${producto.id})" ${btnDisabled}>
+                                <i class="fas fa-plus me-1"></i> ${btnText}
                             </button>
                         </div>
                     `;
@@ -502,12 +511,24 @@
         );
         
         if (producto) {
-            // Agregar directamente al carrito con cantidad 1
-            if (producto.stock > 0) {
-                agregarAlCarrito(producto.id, 1);
-            } else {
+            // Verificar stock disponible
+            if (producto.stock <= 0) {
                 Swal.fire('Sin stock', 'No hay stock disponible para este producto', 'warning');
+                return;
             }
+            
+            // Verificar si ya está en el carrito
+            const itemEnCarrito = carrito.find(item => item.id === producto.id);
+            const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+            const stockDisponible = producto.stock - cantidadEnCarrito;
+            
+            if (stockDisponible <= 0) {
+                Swal.fire('Sin stock', 'Ya tienes todo el stock disponible de este producto en el carrito', 'warning');
+                return;
+            }
+            
+            // Agregar al carrito
+            agregarAlCarrito(producto.id, 1);
         } else {
             Swal.fire('No encontrado', 'No se encontró ningún producto con ese código o nombre', 'info');
         }
@@ -524,6 +545,16 @@
         // Verificar si hay stock
         if (producto.stock <= 0) {
             Swal.fire('Sin stock', 'No hay stock disponible para este producto', 'warning');
+            return;
+        }
+        
+        // Verificar si ya está en el carrito y calcular stock disponible
+        const itemEnCarrito = carrito.find(item => item.id === producto.id);
+        const cantidadEnCarrito = itemEnCarrito ? itemEnCarrito.cantidad : 0;
+        const stockDisponible = producto.stock - cantidadEnCarrito;
+        
+        if (stockDisponible <= 0) {
+            Swal.fire('Sin stock', 'Ya tienes todo el stock disponible de este producto en el carrito', 'warning');
             return;
         }
         
@@ -586,6 +617,9 @@
         
         // Calcular totales
         calcularTotales();
+        
+        // Actualizar vista de productos para reflejar stock disponible
+        cargarProductos();
         
         // Limpiar campo de búsqueda
         document.getElementById('buscarProducto').value = '';
@@ -654,12 +688,14 @@
         
         actualizarTablaCarrito();
         calcularTotales();
+        cargarProductos();
     }
     
     function eliminarDelCarrito(index) {
         carrito.splice(index, 1);
         actualizarTablaCarrito();
         calcularTotales();
+        cargarProductos();
     }
     
     function calcularTotales() {

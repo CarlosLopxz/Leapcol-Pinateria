@@ -507,6 +507,9 @@ class Ventas extends AuthController
             
             // Información de pago para efectivo
             if($venta['metodo_pago'] == 1) {
+                // Debug: verificar valores
+                error_log("Valores en ticket - Pago con: " . ($venta['pago_con'] ?? 'NULL') . ", Cambio: " . ($venta['cambio'] ?? 'NULL'));
+                
                 $pdf->Ln(1);
                 $pdf->SetFont('helvetica', 'B', 7);
                 $pdf->Cell(45, 4, 'Pago con:', 0, 0, 'R');

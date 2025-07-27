@@ -11,13 +11,18 @@
                 <h4 class="mb-0 text-capitalize">Gestión de Roles y Permisos</h4>
                 <p class="text-muted">Configura qué módulos puede ver cada rol</p>
             </div>
+            <div>
+                <button class="btn btn-primary" id="btnNuevoRol">
+                    <i class="fas fa-plus me-2"></i>Nuevo Rol
+                </button>
+            </div>
         </div>
 
         <div class="row">
             <!-- Lista de Roles -->
             <div class="col-md-4">
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Roles del Sistema</h5>
                     </div>
                     <div class="card-body">
@@ -64,6 +69,37 @@
 </div>
 <!-- End:Main Body -->
 
+<!-- Modal Rol -->
+<div class="modal fade" id="modalRol" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tituloModalRol">Nuevo Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formRol">
+                    <input type="hidden" id="idRol" name="idrol" value="">
+                    
+                    <div class="mb-3">
+                        <label for="nombreRol" class="form-label">Nombre del Rol <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombreRol" name="nombrerol" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descripcionRol" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcionRol" name="descripcion" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarRol">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php footerAdmin($data); ?>
 
 <!-- SweetAlert2 -->
@@ -82,6 +118,8 @@
         document.getElementById('btnGuardarPermisos').addEventListener('click', guardarPermisos);
         document.getElementById('btnSeleccionarTodos').addEventListener('click', seleccionarTodos);
         document.getElementById('btnDeseleccionarTodos').addEventListener('click', deseleccionarTodos);
+        document.getElementById('btnNuevoRol').addEventListener('click', nuevoRol);
+        document.getElementById('btnGuardarRol').addEventListener('click', guardarRol);
     });
     
     function cargarRoles() {
@@ -99,6 +137,9 @@
                     item.innerHTML = `
                         <div class="d-flex w-100 justify-content-between">
                             <h6 class="mb-1">${rol.nombrerol}</h6>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarRol(${rol.idrol})" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
                         </div>
                         <p class="mb-1">${rol.descripcion || 'Sin descripción'}</p>
                     `;
@@ -212,6 +253,67 @@
     function deseleccionarTodos() {
         document.querySelectorAll('input[name="modulos[]"]').forEach(checkbox => {
             checkbox.checked = false;
+        });
+    }
+    
+    function nuevoRol() {
+        document.getElementById('formRol').reset();
+        document.getElementById('idRol').value = '';
+        document.getElementById('tituloModalRol').textContent = 'Nuevo Rol';
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalRol'));
+        modal.show();
+    }
+    
+    function editarRol(rolId) {
+        fetch(`<?= BASE_URL ?>roles/getRol/${rolId}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('idRol').value = data.idrol;
+                document.getElementById('nombreRol').value = data.nombrerol;
+                document.getElementById('descripcionRol').value = data.descripcion || '';
+                document.getElementById('tituloModalRol').textContent = 'Editar Rol';
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalRol'));
+                modal.show();
+            });
+    }
+    
+    function guardarRol() {
+        const form = document.getElementById('formRol');
+        if(!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        
+        Swal.fire({
+            title: 'Guardando',
+            text: 'Por favor espere...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        
+        fetch('<?= BASE_URL ?>roles/setRol', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+            if(data.status) {
+                Swal.fire('Éxito', data.msg, 'success');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalRol'));
+                modal.hide();
+                cargarRoles();
+            } else {
+                Swal.fire('Error', data.msg, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Ocurrió un error al guardar el rol', 'error');
         });
     }
 </script>

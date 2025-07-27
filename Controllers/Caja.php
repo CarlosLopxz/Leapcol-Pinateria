@@ -91,6 +91,18 @@ class Caja extends AuthController
                 $monto = floatval($_POST['monto']);
                 $metodoPago = intval($_POST['metodoPago']);
                 
+                // Validar que si es egreso, no exceda el dinero disponible
+                if($tipo === 'egreso') {
+                    $resumen = $this->model->getResumenCaja($cajaId);
+                    $totalActual = $resumen['total_actual'] ?? 0;
+                    
+                    if($monto > $totalActual) {
+                        $arrResponse = ['status' => false, 'msg' => 'No hay suficiente dinero en caja. Disponible: $' . number_format($totalActual, 0)];
+                        echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+                        die();
+                    }
+                }
+                
                 $datos = [
                     'caja_id' => $cajaId,
                     'tipo' => $tipo,
@@ -102,6 +114,8 @@ class Caja extends AuthController
                 
                 $result = $this->model->registrarMovimiento($datos);
                 if($result > 0) {
+                    // Actualizar totales después del movimiento
+                    $this->model->actualizarTotalesCaja($cajaId);
                     $arrResponse = ['status' => true, 'msg' => 'Movimiento registrado correctamente'];
                 } else {
                     $arrResponse = ['status' => false, 'msg' => 'Error al registrar el movimiento'];

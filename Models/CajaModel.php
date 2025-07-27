@@ -8,7 +8,13 @@ class CajaModel extends Mysql
 
     public function getCajaAbierta($usuarioId)
     {
-        $sql = "SELECT * FROM cajas WHERE usuario_id = ? AND estado = 1 ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT c.*, 
+                       (c.monto_inicial + COALESCE(c.total_ventas, 0) + 
+                        (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') - 
+                        (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso')) as total_actual
+                FROM cajas c 
+                WHERE c.usuario_id = ? AND c.estado = 1 
+                ORDER BY c.id DESC LIMIT 1";
         return $this->select($sql, [intval($usuarioId)]);
     }
 
@@ -69,12 +75,15 @@ class CajaModel extends Mysql
         $sql = "SELECT 
                     c.*,
                     u.nombre as usuario_nombre,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') as total_ingresos,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso') as total_egresos,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta') as total_ventas_caja,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago = 1) as efectivo_ventas,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago = 2) as tarjeta_ventas,
-                    (SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago = 4) as transferencia_ventas
+                    (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') as total_ingresos,
+                    (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso') as total_egresos,
+                    COALESCE(c.total_ventas, 0) as total_ventas_caja,
+                    COALESCE(c.total_efectivo, 0) as efectivo_ventas,
+                    COALESCE(c.total_tarjeta, 0) as tarjeta_ventas,
+                    COALESCE(c.total_transferencia, 0) as transferencia_ventas,
+                    (c.monto_inicial + COALESCE(c.total_ventas, 0) + 
+                     (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') - 
+                     (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso')) as total_actual
                 FROM cajas c
                 INNER JOIN usuarios u ON c.usuario_id = u.idusuario
                 WHERE c.id = ?";

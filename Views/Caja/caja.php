@@ -73,7 +73,7 @@
                             <i class="fas fa-calculator fa-2x me-3"></i>
                             <div>
                                 <h6 class="mb-0">Total en Caja</h6>
-                                <h5 class="mb-0" id="totalCaja">$<?= number_format($data['cajaAbierta']['monto_inicial'] + $data['cajaAbierta']['total_ventas'], 0) ?></h5>
+                                <h5 class="mb-0" id="totalCaja">$<?= number_format($data['cajaAbierta']['total_actual'] ?? ($data['cajaAbierta']['monto_inicial'] + $data['cajaAbierta']['total_ventas']), 0) ?></h5>
                             </div>
                         </div>
                     </div>
@@ -207,7 +207,7 @@
             </div>
             <div class="modal-body">
                 <form id="formMovimiento">
-                    <input type="hidden" id="cajaIdMovimiento" value="<?= $data['cajaAbierta']['id'] ?? '' ?>">
+                    <input type="hidden" id="cajaId" name="cajaId" value="<?= $data['cajaAbierta']['id'] ?? '' ?>">
                     <input type="hidden" id="tipoMovimiento" name="tipo">
                     
                     <div class="mb-3">
@@ -286,6 +286,7 @@
         document.getElementById('headerMovimiento').className = 'modal-header ' + clase;
         document.getElementById('formMovimiento').reset();
         document.getElementById('tipoMovimiento').value = tipo;
+        document.getElementById('cajaId').value = cajaId;
         
         const modal = new bootstrap.Modal(document.getElementById('modalMovimiento'));
         modal.show();
@@ -304,15 +305,30 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status) {
-                Swal.fire('Éxito', data.msg, 'success').then(() => {
-                    location.reload();
-                });
-            } else {
-                Swal.fire('Error', data.msg, 'error');
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
             }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                if(data.status) {
+                    Swal.fire('Éxito', data.msg, 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', data.msg, 'error');
+                }
+            } catch (e) {
+                console.error('Respuesta del servidor:', text);
+                Swal.fire('Error', 'Error al procesar la respuesta del servidor', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error de conexión', 'error');
         });
     }
     
@@ -365,17 +381,32 @@
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            if(data.status) {
-                Swal.fire('Éxito', data.msg, 'success');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalMovimiento'));
-                modal.hide();
-                cargarMovimientos();
-                actualizarResumen();
-            } else {
-                Swal.fire('Error', data.msg, 'error');
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error en la respuesta del servidor');
             }
+            return response.text();
+        })
+        .then(text => {
+            try {
+                const data = JSON.parse(text);
+                if(data.status) {
+                    Swal.fire('Éxito', data.msg, 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalMovimiento'));
+                    modal.hide();
+                    cargarMovimientos();
+                    actualizarResumen();
+                } else {
+                    Swal.fire('Error', data.msg, 'error');
+                }
+            } catch (e) {
+                console.error('Respuesta del servidor:', text);
+                Swal.fire('Error', 'Error al procesar la respuesta del servidor', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error de conexión', 'error');
         });
     }
     
@@ -416,9 +447,8 @@
         fetch(`<?= BASE_URL ?>caja/getResumenCaja/${cajaId}`)
             .then(response => response.json())
             .then(data => {
-                document.getElementById('totalVentas').textContent = '$' + parseFloat(data.total_ventas || 0).toLocaleString();
-                const totalCaja = parseFloat(data.monto_inicial || 0) + parseFloat(data.total_ventas || 0);
-                document.getElementById('totalCaja').textContent = '$' + totalCaja.toLocaleString();
+                document.getElementById('totalVentas').textContent = '$' + parseFloat(data.total_ventas_caja || 0).toLocaleString();
+                document.getElementById('totalCaja').textContent = '$' + parseFloat(data.total_actual || 0).toLocaleString();
             });
     }
 </script>

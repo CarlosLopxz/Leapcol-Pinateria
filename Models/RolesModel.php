@@ -52,4 +52,23 @@ class RolesModel extends Mysql
             return false;
         }
     }
+
+    public function setRol($datos)
+    {
+        if(empty($datos['idrol'])) {
+            // Crear nuevo rol
+            $sql = "INSERT INTO roles (nombrerol, descripcion) VALUES (?, ?)";
+            return $this->insert($sql, [$datos['nombrerol'], $datos['descripcion']]);
+        } else {
+            // Actualizar rol existente
+            $sql = "UPDATE roles SET nombrerol = ?, descripcion = ? WHERE idrol = ?";
+            return $this->update($sql, [$datos['nombrerol'], $datos['descripcion'], intval($datos['idrol'])]);
+        }
+    }
+
+    public function getRol($rolId)
+    {
+        $sql = "SELECT * FROM roles WHERE idrol = ?";
+        return $this->select($sql, [intval($rolId)]);
+    }
 }

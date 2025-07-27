@@ -87,4 +87,58 @@ class Roles extends AuthController
         }
         die();
     }
+    
+    public function setRol()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            
+            if($_POST) {
+                $nombrerol = strClean($_POST['nombrerol']);
+                $descripcion = strClean($_POST['descripcion']);
+                $idrol = !empty($_POST['idrol']) ? intval($_POST['idrol']) : '';
+                
+                if(empty($nombrerol)) {
+                    $arrResponse = ['status' => false, 'msg' => 'El nombre del rol es requerido'];
+                } else {
+                    $datos = [
+                        'idrol' => $idrol,
+                        'nombrerol' => $nombrerol,
+                        'descripcion' => $descripcion
+                    ];
+                    
+                    $result = $this->model->setRol($datos);
+                    if($result > 0) {
+                        $msg = empty($idrol) ? 'Rol creado correctamente' : 'Rol actualizado correctamente';
+                        $arrResponse = ['status' => true, 'msg' => $msg];
+                    } else {
+                        $arrResponse = ['status' => false, 'msg' => 'Error al guardar el rol'];
+                    }
+                }
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            }
+        } catch (Exception $e) {
+            error_log("Error en setRol: " . $e->getMessage());
+            echo json_encode(['status' => false, 'msg' => 'Error al procesar la solicitud'], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
+    
+    public function getRol($rolId)
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            $rolId = intval($rolId);
+            if($rolId > 0) {
+                $arrData = $this->model->getRol($rolId);
+                echo json_encode($arrData ?: [], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo json_encode([], JSON_UNESCAPED_UNICODE);
+            }
+        } catch (Exception $e) {
+            error_log("Error en getRol: " . $e->getMessage());
+            echo json_encode([], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
 }
