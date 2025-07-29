@@ -121,11 +121,68 @@
 
         <?php else: ?>
         <!-- Caja Cerrada -->
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-body text-center">
                 <i class="fas fa-lock fa-5x text-muted mb-3"></i>
                 <h3>Caja Cerrada</h3>
                 <p class="text-muted">Debes abrir la caja para comenzar a trabajar</p>
+            </div>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Historial de Cajas -->
+        <?php if(!empty($data['historialCajas'])): ?>
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Historial de Cajas Recientes</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha Apertura</th>
+                                <th>Fecha Cierre</th>
+                                <th>Monto Inicial</th>
+                                <th>Total Ventas</th>
+                                <th>Monto Final</th>
+                                <th>Diferencia</th>
+                                <th>Usuario</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($data['historialCajas'] as $caja): ?>
+                            <?php 
+                                $diferencia = ($caja['monto_final'] ?? 0) - (($caja['monto_inicial'] ?? 0) + ($caja['total_ventas'] ?? 0));
+                                $colorDiferencia = $diferencia == 0 ? 'text-success' : ($diferencia > 0 ? 'text-info' : 'text-danger');
+                            ?>
+                            <tr>
+                                <td><?= date('d/m/Y H:i', strtotime($caja['fecha_apertura'])) ?></td>
+                                <td>
+                                    <?= $caja['fecha_cierre'] ? date('d/m/Y H:i', strtotime($caja['fecha_cierre'])) : '<span class="badge bg-success">Abierta</span>' ?>
+                                </td>
+                                <td>$<?= number_format($caja['monto_inicial'] ?? 0, 0) ?></td>
+                                <td>$<?= number_format($caja['total_ventas'] ?? 0, 0) ?></td>
+                                <td>
+                                    <?= $caja['monto_final'] ? '$' . number_format($caja['monto_final'], 0) : '-' ?>
+                                </td>
+                                <td class="<?= $colorDiferencia ?>">
+                                    <?= $caja['fecha_cierre'] ? '$' . number_format($diferencia, 0) : '-' ?>
+                                </td>
+                                <td><?= $caja['usuario_nombre'] ?></td>
+                                <td>
+                                    <?php if($caja['fecha_cierre']): ?>
+                                    <button class="btn btn-sm btn-info" onclick="verDetallesCaja(<?= $caja['id'] ?>)" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
         <?php endif; ?>
@@ -236,6 +293,24 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" id="btnGuardarMovimiento">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalles de Caja -->
+<div class="modal fade" id="modalDetallesCaja" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Detalles de Caja Cerrada</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="contenidoDetallesCaja">
+                <!-- Se cargará dinámicamente -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -449,6 +524,61 @@
             .then(data => {
                 document.getElementById('totalVentas').textContent = '$' + parseFloat(data.total_ventas_caja || 0).toLocaleString();
                 document.getElementById('totalCaja').textContent = '$' + parseFloat(data.total_actual || 0).toLocaleString();
+            });
+    }
+    
+    function verDetallesCaja(cajaId) {
+        fetch(`<?= BASE_URL ?>caja/getResumenCaja/${cajaId}`)
+            .then(response => response.text())
+            .then(text => {
+                try {
+                    const data = JSON.parse(text);
+                    
+                    const contenido = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Información General</h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Fecha Apertura:</strong></td><td>${new Date(data.fecha_apertura).toLocaleString('es-CO')}</td></tr>
+                                    <tr><td><strong>Fecha Cierre:</strong></td><td>${data.fecha_cierre ? new Date(data.fecha_cierre).toLocaleString('es-CO') : 'N/A'}</td></tr>
+                                    <tr><td><strong>Usuario:</strong></td><td>${data.usuario_nombre}</td></tr>
+                                    <tr><td><strong>Monto Inicial:</strong></td><td>$${parseFloat(data.monto_inicial || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Monto Final:</strong></td><td>$${parseFloat(data.monto_final || 0).toLocaleString()}</td></tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Resumen de Ventas</h6>
+                                <table class="table table-sm">
+                                    <tr><td><strong>Total Ventas:</strong></td><td>$${parseFloat(data.total_ventas_caja || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Efectivo:</strong></td><td>$${parseFloat(data.efectivo_ventas || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Tarjeta:</strong></td><td>$${parseFloat(data.tarjeta_ventas || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Transferencia:</strong></td><td>$${parseFloat(data.transferencia_ventas || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Ingresos Extra:</strong></td><td>$${parseFloat(data.total_ingresos || 0).toLocaleString()}</td></tr>
+                                    <tr><td><strong>Egresos:</strong></td><td>$${parseFloat(data.total_egresos || 0).toLocaleString()}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <h6>Cálculo Final</h6>
+                                    <p><strong>Esperado en Caja:</strong> $${(parseFloat(data.monto_inicial || 0) + parseFloat(data.total_ventas_caja || 0) + parseFloat(data.total_ingresos || 0) - parseFloat(data.total_egresos || 0)).toLocaleString()}</p>
+                                    <p><strong>Real en Caja:</strong> $${parseFloat(data.monto_final || 0).toLocaleString()}</p>
+                                    <p><strong>Diferencia:</strong> <span class="${(parseFloat(data.monto_final || 0) - (parseFloat(data.monto_inicial || 0) + parseFloat(data.total_ventas_caja || 0) + parseFloat(data.total_ingresos || 0) - parseFloat(data.total_egresos || 0))) == 0 ? 'text-success' : 'text-danger'}">$${(parseFloat(data.monto_final || 0) - (parseFloat(data.monto_inicial || 0) + parseFloat(data.total_ventas_caja || 0) + parseFloat(data.total_ingresos || 0) - parseFloat(data.total_egresos || 0))).toLocaleString()}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        ${data.observaciones ? `<div class="row"><div class="col-12"><h6>Observaciones</h6><p>${data.observaciones}</p></div></div>` : ''}
+                    `;
+                    
+                    document.getElementById('contenidoDetallesCaja').innerHTML = contenido;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('modalDetallesCaja'));
+                    modal.show();
+                } catch (e) {
+                    console.error('Error al cargar detalles:', text);
+                    Swal.fire('Error', 'No se pudieron cargar los detalles de la caja', 'error');
+                }
             });
     }
 </script>

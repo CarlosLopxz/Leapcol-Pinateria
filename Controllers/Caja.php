@@ -14,6 +14,7 @@ class Caja extends AuthController
         $data['page_title'] = "Gestión de Caja";
         $data['page_name'] = "caja";
         $data['cajaAbierta'] = $this->model->getCajaAbierta($_SESSION['userData']['idusuario']);
+        $data['historialCajas'] = $this->model->getHistorialCajas($_SESSION['userData']['idusuario'], 5);
         $this->views->getView($this, "caja", $data);
     }
     

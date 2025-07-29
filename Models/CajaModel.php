@@ -103,7 +103,15 @@ class CajaModel extends Mysql
 
     public function getHistorialCajas($usuarioId = null, $limite = 20)
     {
-        $sql = "SELECT c.*, u.nombre as usuario_nombre
+        $sql = "SELECT c.*, 
+                       u.nombre as usuario_nombre,
+                       COALESCE(c.total_ventas, 0) as total_ventas,
+                       COALESCE(c.total_efectivo, 0) as total_efectivo,
+                       COALESCE(c.total_tarjeta, 0) as total_tarjeta,
+                       COALESCE(c.total_transferencia, 0) as total_transferencia,
+                       (SELECT COUNT(*) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta') as cantidad_ventas,
+                       (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') as total_ingresos_extra,
+                       (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso') as total_egresos
                 FROM cajas c
                 INNER JOIN usuarios u ON c.usuario_id = u.idusuario";
         

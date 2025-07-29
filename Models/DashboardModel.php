@@ -11,7 +11,9 @@ class DashboardModel extends Mysql
     {
         $sql = "SELECT COUNT(*) as total FROM ventas WHERE estado = 1";
         $request = $this->select($sql);
-        return isset($request['total']) ? $request['total'] : 0;
+        $total = isset($request['total']) ? $request['total'] : 0;
+        error_log("Total de ventas: " . $total);
+        return $total;
     }
     
     public function getVentasMes()
@@ -63,11 +65,17 @@ class DashboardModel extends Mysql
     {
         $sql = "SELECT 
                     MONTH(fecha_venta) as mes,
-                    SUM(total) as total
+                    SUM(total) as total,
+                    COUNT(*) as cantidad_ventas
                 FROM ventas 
                 WHERE estado = 1 AND YEAR(fecha_venta) = YEAR(CURDATE())
                 GROUP BY MONTH(fecha_venta)
                 ORDER BY MONTH(fecha_venta)";
-        return $this->select_all($sql);
+        $result = $this->select_all($sql);
+        
+        // Debug: registrar en log los datos obtenidos
+        error_log("Datos de ventas por mes: " . json_encode($result));
+        
+        return $result ?: [];
     }
 }

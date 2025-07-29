@@ -138,80 +138,91 @@
 
 <?php footerAdmin($data); ?>
 
-<!-- ApexCharts -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
 
 <script>
-// Datos reales para el gráfico
-const ventasData = <?= json_encode($data['ventasPorMes']) ?>;
-
-// Nombres de meses en español
-const mesesNombres = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                     'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-// Inicializar arrays con todos los meses en 0
-const meses = [...mesesNombres];
-const totales = new Array(12).fill(0);
-
-// Procesar datos reales
-ventasData.forEach(function(item) {
-    const mesIndex = parseInt(item.mes) - 1; // Convertir a índice (0-11)
-    if (mesIndex >= 0 && mesIndex < 12) {
-        totales[mesIndex] = parseFloat(item.total) || 0;
+document.addEventListener('DOMContentLoaded', function() {
+    // Datos de ventas del servidor
+    const ventasData = <?= json_encode($data['ventasPorMes']) ?>;
+    
+    // Meses en español
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    // Inicializar datos con 0 para todos los meses
+    const datosVentas = new Array(12).fill(0);
+    
+    // Procesar datos reales si existen
+    if (ventasData && Array.isArray(ventasData)) {
+        ventasData.forEach(function(item) {
+            const mesIndex = parseInt(item.mes) - 1;
+            if (mesIndex >= 0 && mesIndex < 12) {
+                datosVentas[mesIndex] = parseFloat(item.total) || 0;
+            }
+        });
+    }
+    
+    // Configuración del gráfico
+    const options = {
+        series: [{
+            name: 'Ventas ($)',
+            data: datosVentas
+        }],
+        chart: {
+            type: 'area',
+            height: 350,
+            toolbar: {
+                show: false
+            }
+        },
+        colors: ['#007bff'],
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2
+        },
+        fill: {
+            type: 'gradient',
+            gradient: {
+                shadeIntensity: 1,
+                opacityFrom: 0.7,
+                opacityTo: 0.3
+            }
+        },
+        xaxis: {
+            categories: meses
+        },
+        yaxis: {
+            labels: {
+                formatter: function (val) {
+                    return '$' + Math.round(val).toLocaleString('es-CO');
+                }
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return '$' + Math.round(val).toLocaleString('es-CO');
+                }
+            }
+        },
+        title: {
+            text: 'Resumen de Ventas ' + new Date().getFullYear(),
+            align: 'left',
+            style: {
+                fontSize: '16px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+    
+    // Renderizar el gráfico
+    const chartElement = document.querySelector('#d2c_dashboard_lineChart');
+    if (chartElement) {
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
     }
 });
-
-// Configuración del gráfico
-const dashboardOptions = {
-    series: [{
-        name: 'Ventas',
-        data: totales
-    }],
-    chart: {
-        height: 350,
-        type: 'line',
-        zoom: {
-            enabled: false
-        }
-    },
-    dataLabels: {
-        enabled: false
-    },
-    stroke: {
-        curve: 'smooth',
-        colors: ['#007bff'],
-        width: 3
-    },
-    title: {
-        text: 'Ventas por Mes - ' + new Date().getFullYear(),
-        align: 'left'
-    },
-    grid: {
-        row: {
-            colors: ['#f3f3f3', 'transparent'],
-            opacity: 0.5
-        },
-    },
-    xaxis: {
-        categories: meses,
-    },
-    yaxis: {
-        labels: {
-            formatter: function (val) {
-                return '$' + Math.round(val).toLocaleString('es-CO');
-            }
-        }
-    },
-    tooltip: {
-        y: {
-            formatter: function (val) {
-                return '$' + Math.round(val).toLocaleString('es-CO');
-            }
-        }
-    }
-};
-
-// Renderizar gráfico
-const chart = new ApexCharts(document.querySelector("#d2c_dashboard_lineChart"), dashboardOptions);
-chart.render();
 </script>

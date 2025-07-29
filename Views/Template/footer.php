@@ -12,7 +12,9 @@
 
         <!-- Chart Config -->
         <script src="<?= BASE_URL ?>lib/apexcharts/apexcharts.min.js"></script>
+        <?php if($data['page_name'] !== 'dashboard'): ?>
         <script src="<?= BASE_URL ?>assets/js/chart/dashboardPageChart.js"></script>
+        <?php endif; ?>
         <!-- custom js -->
         <script src="<?= BASE_URL ?>assets/js/main.js"></script>
     </body>
