@@ -118,7 +118,7 @@
                 </div>
             </div>
         </div>
-
+            <br><br>
         <?php else: ?>
         <!-- Caja Cerrada -->
         <div class="card mb-4">
@@ -175,6 +175,9 @@
                                     <?php if($caja['fecha_cierre']): ?>
                                     <button class="btn btn-sm btn-info" onclick="verDetallesCaja(<?= $caja['id'] ?>)" title="Ver detalles">
                                         <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-success" onclick="generarReporte(<?= $caja['id'] ?>)" title="Generar reporte">
+                                        <i class="fas fa-file-pdf"></i>
                                     </button>
                                     <?php endif; ?>
                                 </td>
@@ -414,7 +417,10 @@
             return;
         }
         
-        const formData = new FormData(form);
+        const formData = new FormData();
+        formData.append('cajaId', document.getElementById('cajaIdCierre').value);
+        formData.append('montoFinal', document.getElementById('montoFinal').value);
+        formData.append('observaciones', document.getElementById('observacionesCierre').value);
         
         Swal.fire({
             title: '¿Cerrar caja?',
@@ -580,5 +586,9 @@
                     Swal.fire('Error', 'No se pudieron cargar los detalles de la caja', 'error');
                 }
             });
+    }
+    
+    function generarReporte(cajaId) {
+        window.open(`<?= BASE_URL ?>caja/reporteCaja/${cajaId}`, '_blank');
     }
 </script>

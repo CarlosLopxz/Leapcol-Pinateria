@@ -125,4 +125,13 @@ class CajaModel extends Mysql
         
         return $this->select_all($sql, $params);
     }
+    
+    public function getCaja($cajaId)
+    {
+        $sql = "SELECT c.*, u.nombre as usuario_nombre
+                FROM cajas c
+                INNER JOIN usuarios u ON c.usuario_id = u.idusuario
+                WHERE c.id = ?";
+        return $this->select($sql, [intval($cajaId)]);
+    }
 }
