@@ -114,7 +114,7 @@ class VentasModel extends Mysql
     {
         $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, stock
                 FROM productos
-                WHERE estado = 1 AND stock > 0
+                WHERE estado = 1
                 ORDER BY nombre ASC";
         $request = $this->select_all($sql);
         return $request;

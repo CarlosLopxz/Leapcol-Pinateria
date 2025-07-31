@@ -189,9 +189,14 @@
             .then(data => {
                 const select = document.getElementById('rolid');
                 select.innerHTML = '<option value="">Seleccionar rol</option>';
-                data.forEach(rol => {
-                    select.innerHTML += `<option value="${rol.idrol}">${rol.nombrerol}</option>`;
-                });
+                if(data && Array.isArray(data)) {
+                    data.forEach(rol => {
+                        select.innerHTML += `<option value="${rol.idrol}">${rol.nombrerol}</option>`;
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar roles:', error);
             });
     }
     
@@ -202,20 +207,41 @@
         document.getElementById('passHelp').style.display = 'block';
         document.getElementById('password').required = false;
         
-        fetch(`<?= BASE_URL ?>usuarios/getUsuario/${id}`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('idUsuario').value = data.idusuario;
-                document.getElementById('nombre').value = data.nombre;
-                document.getElementById('apellido').value = data.apellido;
-                document.getElementById('usuario').value = data.usuario;
-                document.getElementById('email').value = data.email;
-                document.getElementById('rolid').value = data.rolid;
-                document.getElementById('status').value = data.status;
+        // Cargar roles y usuario en paralelo
+        Promise.all([
+            fetch('<?= BASE_URL ?>usuarios/getRoles').then(response => response.json()),
+            fetch(`<?= BASE_URL ?>usuarios/getUsuario/${id}`).then(response => response.json())
+        ])
+        .then(([roles, userData]) => {
+            // Cargar roles en el select
+            const select = document.getElementById('rolid');
+            select.innerHTML = '<option value="">Seleccionar rol</option>';
+            if(roles && Array.isArray(roles)) {
+                roles.forEach(rol => {
+                    select.innerHTML += `<option value="${rol.idrol}">${rol.nombrerol}</option>`;
+                });
+            }
+            
+            // Llenar formulario con datos del usuario
+            if(userData && userData.idusuario) {
+                document.getElementById('idUsuario').value = userData.idusuario;
+                document.getElementById('nombre').value = userData.nombre || '';
+                document.getElementById('apellido').value = userData.apellido || '';
+                document.getElementById('usuario').value = userData.usuario || '';
+                document.getElementById('email').value = userData.email || '';
+                document.getElementById('status').value = userData.status || '1';
+                document.getElementById('rolid').value = userData.rolid || '';
                 
                 const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
                 modal.show();
-            });
+            } else {
+                Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire('Error', 'Error al cargar los datos', 'error');
+        });
     }
     
     function guardarUsuario() {

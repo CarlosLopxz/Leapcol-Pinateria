@@ -58,7 +58,7 @@ class Usuarios extends AuthController
                     $email = strClean($_POST['email']);
                     $password = strClean($_POST['password']);
                     $rolid = intval($_POST['rolid']);
-                    $estado = intval($_POST['estado']);
+                    $status = intval($_POST['status']);
                     
                     if($idUsuario == 0) {
                         if(empty($password)) {
@@ -71,7 +71,7 @@ class Usuarios extends AuthController
                                 'email' => $email,
                                 'password' => password_hash($password, PASSWORD_DEFAULT),
                                 'rolid' => $rolid,
-                                'estado' => $estado
+                                'status' => $status
                             ];
                             
                             $result = $this->model->insertUsuario($datos);
@@ -89,7 +89,7 @@ class Usuarios extends AuthController
                             'usuario' => $usuario,
                             'email' => $email,
                             'rolid' => $rolid,
-                            'estado' => $estado
+                            'status' => $status
                         ];
                         
                         if(!empty($password)) {

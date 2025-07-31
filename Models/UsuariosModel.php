@@ -18,16 +18,16 @@ class UsuariosModel extends Mysql
 
     public function getUsuario($idUsuario)
     {
-        $sql = "SELECT u.*, r.nombrerol
+        $sql = "SELECT u.*, COALESCE(r.nombrerol, 'Sin rol') as nombrerol
                 FROM usuarios u
-                INNER JOIN roles r ON u.rolid = r.idrol
+                LEFT JOIN roles r ON u.rolid = r.idrol
                 WHERE u.idusuario = " . intval($idUsuario);
         return $this->select($sql);
     }
 
     public function getRoles()
     {
-        $sql = "SELECT * FROM roles WHERE status = 1 ORDER BY nombrerol ASC";
+        $sql = "SELECT * FROM roles WHERE estado = 1 ORDER BY nombrerol ASC";
         return $this->select_all($sql);
     }
 

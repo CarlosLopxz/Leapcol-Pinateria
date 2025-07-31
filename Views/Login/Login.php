@@ -31,40 +31,34 @@
     <section class="d2c_login_system d-flex align-items-center">
         <div class="container">
             <div class="row">
-                <div class="col-xl-10 offset-xl-1">
-                    <div class="row">
-                        <div class="col-lg-6 pe-lg-0 d2c_login_left">
-                            <div class="d2c_login_wrapper">
-                                <div class="text-center mb-4">
-                                    <h4 class="text-capitalize">Bienvenido a <?= NOMBRE_EMPRESA ?></h4>
-                                    <p class="text-muted">Inicia sesión para acceder al sistema</p>
-                                </div>
-                                <form id="formLogin" name="formLogin" class="needs-validation" method="post" onsubmit="return false;" novalidate>
-                                    <div class="mb-3">
-                                        <label class="form-label">Correo Electrónico</label>
-                                        <input type="email" id="txtEmail" name="txtEmail" class="form-control" placeholder="Ingresa tu correo" required>
-                                        <div class="invalid-feedback">
-                                            Por favor ingrese un correo electrónico válido.
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Contraseña</label>
-                                        <div class="input-group has-validation">
-                                            <input type="password" id="txtPassword" name="txtPassword" class="form-control border-0" placeholder="Ingresa tu contraseña" required>
-                                            <button class="btn ps-0 border-0 toggle-password" type="button"><i class="far fa-eye-slash"></i></button>
-                                            <div class="invalid-feedback">
-                                                Por favor ingrese su contraseña.
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <button type="submit" id="btnLogin" class="btn btn-primary w-100 text-uppercase">Iniciar Sesión</button>
-                                    </div>
-                                </form>
-                            </div>
+                <div class="col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                    <div class="d2c_login_wrapper">
+                        <div class="text-center mb-4">
+                            <h4 class="text-capitalize">Bienvenido a <?= NOMBRE_EMPRESA ?></h4>
+                            <p class="text-muted">Inicia sesión para acceder al sistema</p>
                         </div>
-                        <!-- login right image -->
-                        <div class="col-lg-6 d2c_login_right_image"></div>
+                        <form id="formLogin" name="formLogin" class="needs-validation" method="post" onsubmit="return false;" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" id="txtEmail" name="txtEmail" class="form-control" placeholder="Ingresa tu correo" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingrese un correo electrónico válido.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Contraseña</label>
+                                <div class="input-group has-validation">
+                                    <input type="password" id="txtPassword" name="txtPassword" class="form-control border-0" placeholder="Ingresa tu contraseña" required>
+                                    <button class="btn ps-0 border-0 toggle-password" type="button"><i class="far fa-eye-slash"></i></button>
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese su contraseña.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <button type="submit" id="btnLogin" class="btn btn-primary w-100 text-uppercase">Iniciar Sesión</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -22,6 +22,12 @@
     </head>
 
     <body class="d2c_theme_light">
-     
+        <!-- Modal de Carga -->
+        <div id="loadingModal" class="loading-modal">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Cargando...</p>
+            </div>
+        </div>
 
         <div class="d2c_wrapper"><?php include_once "navbar.php"; ?>
