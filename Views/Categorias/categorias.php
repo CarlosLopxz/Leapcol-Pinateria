@@ -242,7 +242,10 @@
         document.getElementById('formCategoria').reset();
         document.getElementById('idCategoria').value = '';
         
-        let modal = new bootstrap.Modal(document.getElementById('modalFormCategoria'));
+        let modal = new bootstrap.Modal(document.getElementById('modalFormCategoria'), {
+            backdrop: 'static',
+            keyboard: false
+        });
         modal.show();
     }
     
@@ -290,7 +293,10 @@
                 loadingModal.classList.add('hide');
                 
                 // Mostrar modal
-                let modal = new bootstrap.Modal(document.getElementById('modalFormCategoria'));
+                let modal = new bootstrap.Modal(document.getElementById('modalFormCategoria'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {

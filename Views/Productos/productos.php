@@ -224,6 +224,9 @@
                     "data": "id",
                     "render": function(data, type, row) {
                         return `
+                            <button class="btn btn-sm btn-info" onclick="verProducto(${data})" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
                             <button class="btn btn-sm btn-primary" onclick="editarProducto(${data})" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -244,7 +247,17 @@
             document.getElementById('tituloModal').textContent = 'Nuevo Producto';
             document.getElementById('imagenPreview').innerHTML = '';
             
-            const modal = new bootstrap.Modal(document.getElementById('modalProducto'));
+            // Habilitar todos los campos
+            const inputs = document.querySelectorAll('#formProducto input, #formProducto select, #formProducto textarea');
+            inputs.forEach(input => input.disabled = false);
+            
+            // Mostrar botón guardar
+            document.getElementById('btnGuardar').style.display = 'block';
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalProducto'), {
+                backdrop: 'static',
+                keyboard: false
+            });
             modal.show();
         });
         
@@ -269,6 +282,85 @@
             }
         });
     });
+    
+    function verProducto(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
+        // Cargar datos del producto
+        fetch(`<?= BASE_URL ?>productos/getProducto/${id}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Error al parsear JSON:', e);
+                    throw new Error('Error al procesar la respuesta del servidor');
+                }
+            })
+            .then(data => {
+                // Llenar formulario en modo solo lectura
+                document.getElementById('idProducto').value = data.id;
+                document.getElementById('codigo').value = data.codigo;
+                document.getElementById('nombre').value = data.nombre;
+                document.getElementById('descripcion').value = data.descripcion;
+                document.getElementById('precio_compra').value = data.precio_compra;
+                document.getElementById('precio_venta').value = data.precio_venta;
+                document.getElementById('stock').value = data.stock;
+                document.getElementById('stock_minimo').value = data.stock_minimo;
+                document.getElementById('categoria').value = data.categoria_id;
+                document.getElementById('estado').value = data.estado;
+                
+                // Deshabilitar todos los campos
+                const inputs = document.querySelectorAll('#formProducto input, #formProducto select, #formProducto textarea');
+                inputs.forEach(input => input.disabled = true);
+                
+                // Mostrar imagen si existe
+                document.getElementById('imagenPreview').innerHTML = '';
+                if(data.imagen) {
+                    const img = document.createElement('img');
+                    img.src = `<?= BASE_URL ?>assets/images/productos/${data.imagen}`;
+                    img.style.maxHeight = '100px';
+                    img.className = 'img-thumbnail';
+                    document.getElementById('imagenPreview').appendChild(img);
+                }
+                
+                // Cambiar título y ocultar botón guardar
+                document.getElementById('tituloModal').textContent = 'Ver Producto';
+                document.getElementById('btnGuardar').style.display = 'none';
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
+                // Mostrar modal
+                const modal = new bootstrap.Modal(document.getElementById('modalProducto'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo cargar la información del producto'
+                });
+            });
+    }
     
     function cargarCategorias() {
         fetch('<?= BASE_URL ?>productos/getCategorias')
@@ -308,12 +400,24 @@
     }
     
     function editarProducto(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         // Limpiar formulario
         document.getElementById('formProducto').reset();
         document.getElementById('imagenPreview').innerHTML = '';
         
         // Cambiar título del modal
         document.getElementById('tituloModal').textContent = 'Editar Producto';
+        
+        // Habilitar todos los campos
+        const inputs = document.querySelectorAll('#formProducto input, #formProducto select, #formProducto textarea');
+        inputs.forEach(input => input.disabled = false);
+        
+        // Mostrar botón guardar
+        document.getElementById('btnGuardar').style.display = 'block';
         
         // Cargar datos del producto
         fetch(`<?= BASE_URL ?>productos/getProducto/${id}`)
@@ -353,12 +457,24 @@
                     document.getElementById('imagenPreview').appendChild(img);
                 }
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                const modal = new bootstrap.Modal(document.getElementById('modalProducto'));
+                const modal = new bootstrap.Modal(document.getElementById('modalProducto'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -457,6 +573,11 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Mostrar modal de carga
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.remove('hide');
+                loadingModal.classList.add('show');
+                
                 const formData = new FormData();
                 formData.append('idProducto', id);
                 
@@ -479,6 +600,10 @@
                     }
                 })
                 .then(data => {
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     if(data.status) {
                         Swal.fire(
                             'Eliminado',
@@ -498,6 +623,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     Swal.fire(
                         'Error',
                         'Ocurrió un error al procesar la solicitud',
