@@ -30,14 +30,19 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            opacity: 0;
-            visibility: hidden;
+            opacity: 1;
+            visibility: visible;
             transition: all 0.3s ease;
         }
         
         .loading-modal.show {
             opacity: 1;
             visibility: visible;
+        }
+        
+        .loading-modal.hide {
+            opacity: 0;
+            visibility: hidden;
         }
         
         .loading-content {
@@ -52,6 +57,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+        
+        .d2c_theme_dark .loading-content {
+            background: #292d38;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .d2c_theme_dark .loading-content p {
+            color: #fff !important;
         }
         
         .spinner {
@@ -78,27 +92,18 @@
         </style>
         
         <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadingModal = document.getElementById('loadingModal');
-            let loadingTimeout;
-            
-            // Mostrar modal si la página demora más de 2 segundos
-            loadingTimeout = setTimeout(function() {
-                loadingModal.classList.add('show');
-            }, 2000);
-            
-            // Ocultar modal cuando la página termine de cargar
-            window.addEventListener('load', function() {
-                clearTimeout(loadingTimeout);
-                loadingModal.classList.remove('show');
-            });
-            
-            // También ocultar si el DOM está completamente cargado
-            if (document.readyState === 'complete') {
-                clearTimeout(loadingTimeout);
-                loadingModal.classList.remove('show');
-            }
+        // El modal está visible por defecto
+        const loadingModal = document.getElementById('loadingModal');
+        
+        // Ocultar modal cuando la página termine de cargar completamente
+        window.addEventListener('load', function() {
+            loadingModal.classList.add('hide');
         });
+        
+        // También verificar si ya está cargada
+        if (document.readyState === 'complete') {
+            loadingModal.classList.add('hide');
+        }
         </script>
     </body>
 </html>

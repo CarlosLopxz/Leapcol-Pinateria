@@ -15,7 +15,7 @@
                 <!-- Sub Menu -->
                 <ul class="sub-menu">
                     <!-- Sub Menu Item -->
-                    <li class="nav-item active">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'dashboard') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>dashboard">
                             <span class="d2c_icon">
                                 <i class="fas fa-home"></i>
@@ -26,7 +26,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'categorias') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>categorias">
                             <span class="d2c_icon">
                                 <i class="fas fa-tags"></i>
@@ -37,7 +37,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'productos') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>productos">
                             <span class="d2c_icon">
                                 <i class="fas fa-box"></i>
@@ -48,7 +48,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'produccion') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>produccion">
                             <span class="d2c_icon">
                                 <i class="fas fa-cogs"></i>
@@ -61,7 +61,7 @@
 
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'clientes') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>clientes">
                             <span class="d2c_icon">
                                 <i class="fas fa-users"></i>
@@ -72,7 +72,7 @@
                     <!-- End:Sub Menu Item -->
                     
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'proveedores') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>proveedores">
                             <span class="d2c_icon">
                                 <i class="fas fa-truck"></i>
@@ -83,7 +83,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'compras') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>compras">
                             <span class="d2c_icon">
                                 <i class="fas fa-truck"></i>
@@ -94,7 +94,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'ventas') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>ventas">
                             <span class="d2c_icon">
                                 <i class="fas fa-shopping-cart"></i>
@@ -105,7 +105,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'caja') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>caja">
                             <span class="d2c_icon">
                                 <i class="fas fa-cash-register"></i>
@@ -126,7 +126,7 @@
                 <!-- Sub Menu -->
                 <ul class="sub-menu collapse show" id="admin">
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'usuarios') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>usuarios">
                             <span class="d2c_icon">
                                 <i class="fas fa-user-cog"></i>
@@ -137,7 +137,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'roles') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>roles">
                             <span class="d2c_icon">
                                 <i class="fas fa-user-shield"></i>
@@ -148,7 +148,7 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
-                    <li class="nav-item">
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'reportes') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>reportes">
                             <span class="d2c_icon">
                                 <i class="fas fa-chart-bar"></i>

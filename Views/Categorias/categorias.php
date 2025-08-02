@@ -247,6 +247,11 @@
     }
     
     function editarCategoria(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         document.getElementById('modalTitle').textContent = 'Editar Categoría';
         document.getElementById('idCategoria').value = id;
         
@@ -280,12 +285,21 @@
                 document.getElementById('descripcion').value = data.descripcion || '';
                 document.getElementById('estado').value = data.estado;
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
                 let modal = new bootstrap.Modal(document.getElementById('modalFormCategoria'));
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar un mensaje de error más amigable
                 Swal.fire({
                     icon: 'error',
@@ -307,6 +321,11 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Mostrar modal de carga
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.remove('hide');
+                loadingModal.classList.add('show');
+                
                 // Enviar solicitud para eliminar la categoría
                 const formData = new FormData();
                 formData.append('idCategoria', id);
@@ -333,6 +352,10 @@
                     }
                 })
                 .then(data => {
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     if(data.status) {
                         Swal.fire(
                             'Eliminado!',
@@ -351,6 +374,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     Swal.fire(
                         'Error!',
                         'Ocurrió un error al procesar la solicitud',
