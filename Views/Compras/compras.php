@@ -387,8 +387,8 @@
                 
                 // Calcular total de compras del mes actual
                 const mesActual = new Date().getMonth() + 1;
-                const comprasMesActual = data.comprasPorMes && Array.isArray(data.comprasPorMes) ? 
-                    data.comprasPorMes.find(item => parseInt(item.mes) === mesActual) : null;
+                const comprasMesActual = data.comprasMes && Array.isArray(data.comprasMes) ? 
+                    data.comprasMes.find(item => parseInt(item.mes) === mesActual) : null;
                 document.getElementById('comprasMes').textContent = formatoPrecioCOP(comprasMesActual ? comprasMesActual.total : 0);
                 
                 // Contar proveedores únicos
@@ -404,7 +404,7 @@
                 document.getElementById('totalProductos').textContent = totalProductos;
                 
                 // Crear gráfico de compras por mes
-                crearGraficoComprasPorMes(data.comprasPorMes || []);
+                crearGraficoComprasPorMes(data.comprasMes || []);
                 
                 // Crear gráfico de compras por proveedor
                 crearGraficoComprasPorProveedor(data.comprasPorProveedor || []);
