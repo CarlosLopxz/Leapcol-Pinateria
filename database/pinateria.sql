@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 03-08-2025 a las 05:31:55
+-- Tiempo de generación: 03-08-2025 a las 06:15:17
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -322,7 +322,8 @@ INSERT INTO `modulos` (`id`, `nombre`, `descripcion`, `icono`, `url`, `estado`) 
 (9, 'Usuarios', 'Gestión de usuarios', 'fas fa-user-cog', 'usuarios', 1),
 (10, 'Reportes', 'Reportes del sistema', 'fas fa-chart-bar', 'reportes', 1),
 (11, 'Caja', 'Gestión de caja', 'fas fa-cash-register', 'caja', 1),
-(12, 'Punto de Venta', 'Punto de venta rápido', 'fas fa-cash-register', 'pos', 1);
+(12, 'Punto de Venta', 'Punto de venta rápido', 'fas fa-cash-register', 'pos', 1),
+(13, 'Roles', 'Gestión de roles y permisos', 'fas fa-user-shield', 'roles', 1);
 
 -- --------------------------------------------------------
 
@@ -369,21 +370,20 @@ CREATE TABLE `permisos` (
 --
 
 INSERT INTO `permisos` (`id`, `rol_id`, `modulo_id`) VALUES
-(122, 1, 10),
-(123, 1, 8),
-(124, 1, 12),
-(125, 2, 11),
-(126, 2, 2),
-(127, 2, 5),
-(128, 2, 7),
-(129, 2, 1),
-(130, 2, 4),
-(131, 2, 3),
-(132, 2, 6),
-(133, 2, 12),
-(134, 2, 10),
-(135, 2, 9),
-(136, 2, 8);
+(199, 2, 12),
+(212, 1, 11),
+(213, 1, 2),
+(214, 1, 5),
+(215, 1, 7),
+(216, 1, 1),
+(217, 1, 4),
+(218, 1, 3),
+(219, 1, 6),
+(220, 1, 12),
+(221, 1, 10),
+(222, 1, 13),
+(223, 1, 9),
+(224, 1, 8);
 
 -- --------------------------------------------------------
 
@@ -768,7 +768,7 @@ ALTER TABLE `detalle_venta`
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `movimientos_caja`
@@ -780,7 +780,7 @@ ALTER TABLE `movimientos_caja`
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=225;
 
 --
 -- AUTO_INCREMENT de la tabla `producciones`
