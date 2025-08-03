@@ -201,6 +201,11 @@
     }
     
     function editarUsuario(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         document.getElementById('formUsuario').reset();
         document.getElementById('tituloModal').textContent = 'Editar Usuario';
         document.getElementById('passRequired').style.display = 'none';
@@ -232,7 +237,14 @@
                 document.getElementById('status').value = userData.status || '1';
                 document.getElementById('rolid').value = userData.rolid || '';
                 
-                const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalUsuario'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             } else {
                 Swal.fire('Error', 'No se pudo cargar la información del usuario', 'error');
@@ -240,6 +252,11 @@
         })
         .catch(error => {
             console.error('Error:', error);
+            
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+            
             Swal.fire('Error', 'Error al cargar los datos', 'error');
         });
     }

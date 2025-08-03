@@ -377,6 +377,11 @@
             return;
         }
         
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         const formData = new FormData(form);
         
         fetch('<?= BASE_URL ?>caja/abrirCaja', {
@@ -392,6 +397,11 @@
         .then(text => {
             try {
                 const data = JSON.parse(text);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 if(data.status) {
                     Swal.fire('Éxito', data.msg, 'success').then(() => {
                         location.reload();
@@ -401,11 +411,21 @@
                 }
             } catch (e) {
                 console.error('Respuesta del servidor:', text);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire('Error', 'Error al procesar la respuesta del servidor', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
+            
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+            
             Swal.fire('Error', 'Error de conexión', 'error');
         });
     }
@@ -534,6 +554,11 @@
     }
     
     function verDetallesCaja(cajaId) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         fetch(`<?= BASE_URL ?>caja/getResumenCaja/${cajaId}`)
             .then(response => response.text())
             .then(text => {
@@ -579,10 +604,22 @@
                     
                     document.getElementById('contenidoDetallesCaja').innerHTML = contenido;
                     
-                    const modal = new bootstrap.Modal(document.getElementById('modalDetallesCaja'));
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('modalDetallesCaja'), {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
                     modal.show();
                 } catch (e) {
                     console.error('Error al cargar detalles:', text);
+                    
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     Swal.fire('Error', 'No se pudieron cargar los detalles de la caja', 'error');
                 }
             });
