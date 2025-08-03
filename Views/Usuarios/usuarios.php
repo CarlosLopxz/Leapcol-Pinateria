@@ -80,7 +80,12 @@
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="password" class="form-label">Contraseña <span class="text-danger" id="passRequired">*</span></label>
-                            <input type="password" class="form-control" id="password" name="password">
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye" id="eyeIcon"></i>
+                                </button>
+                            </div>
                             <small class="text-muted" id="passHelp">Dejar vacío para mantener la actual</small>
                         </div>
                         <div class="col-md-6">
@@ -181,6 +186,22 @@
         });
         
         document.getElementById('btnGuardar').addEventListener('click', guardarUsuario);
+        
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordField = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
     });
     
     function cargarRoles() {
