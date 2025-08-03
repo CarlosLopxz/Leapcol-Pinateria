@@ -365,6 +365,7 @@
                 return response.text();
             })
             .then(text => {
+                console.log('Respuesta dashboard:', text);
                 try {
                     return JSON.parse(text);
                 } catch (e) {
@@ -373,6 +374,8 @@
                 }
             })
             .then(data => {
+                console.log('Datos dashboard:', data);
+                
                 // Verificar si data es un objeto válido
                 if (!data || typeof data !== 'object') {
                     console.error('Datos de dashboard inválidos:', data);
@@ -384,8 +387,8 @@
                 
                 // Calcular total de compras del mes actual
                 const mesActual = new Date().getMonth() + 1;
-                const comprasMesActual = data.comprasMes && Array.isArray(data.comprasMes) ? 
-                    data.comprasMes.find(item => parseInt(item.mes) === mesActual) : null;
+                const comprasMesActual = data.comprasPorMes && Array.isArray(data.comprasPorMes) ? 
+                    data.comprasPorMes.find(item => parseInt(item.mes) === mesActual) : null;
                 document.getElementById('comprasMes').textContent = formatoPrecioCOP(comprasMesActual ? comprasMesActual.total : 0);
                 
                 // Contar proveedores únicos
@@ -401,13 +404,16 @@
                 document.getElementById('totalProductos').textContent = totalProductos;
                 
                 // Crear gráfico de compras por mes
-                crearGraficoComprasPorMes(data.comprasPorMes);
+                crearGraficoComprasPorMes(data.comprasPorMes || []);
                 
                 // Crear gráfico de compras por proveedor
-                crearGraficoComprasPorProveedor(data.comprasPorProveedor);
+                crearGraficoComprasPorProveedor(data.comprasPorProveedor || []);
             })
             .catch(error => {
                 console.error('Error:', error);
+                // Crear gráficos vacíos en caso de error
+                crearGraficoComprasPorMes([]);
+                crearGraficoComprasPorProveedor([]);
             });
     }
     
