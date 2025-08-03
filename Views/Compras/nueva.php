@@ -131,11 +131,12 @@
                                     <div class="row">
                                         <div class="col-md-5">
                                             <div class="mb-3">
-                                                <label for="producto" class="form-label">Producto</label>
-                                                <select class="form-select" id="producto">
-                                                    <option value="">Seleccionar...</option>
-                                                    <!-- Se cargará dinámicamente -->
-                                                </select>
+                                                <label for="buscarProducto" class="form-label">Buscar Producto</label>
+                                                <div class="position-relative">
+                                                    <input type="text" class="form-control" id="buscarProducto" placeholder="Escriba para buscar..." autocomplete="off">
+                                                    <div id="listaProductosBusqueda" class="position-absolute w-100 bg-white border rounded shadow-sm" style="z-index: 1000; max-height: 200px; overflow-y: auto; display: none;"></div>
+                                                </div>
+                                                <input type="hidden" id="producto" name="producto">
                                             </div>
                                         </div>
                                         <div class="col-md-2">
@@ -318,114 +319,122 @@
     }
     
     function cargarProductos() {
-        console.log('Iniciando carga de productos...');
-        
-        // Mostrar indicador de carga
-        const selectProducto = document.getElementById('producto');
-        selectProducto.innerHTML = '<option value="">Cargando productos...</option>';
-        selectProducto.disabled = true;
-        
-        // Usar XMLHttpRequest en lugar de fetch para mayor compatibilidad
-        const xhr = new XMLHttpRequest();
-        xhr.open('GET', '<?= BASE_URL ?>compras/getProductos', true);
-        
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                console.log('Respuesta recibida:', xhr.status);
-                console.log('Texto recibido:', xhr.responseText.substring(0, 100) + '...');
-                
+        fetch('<?= BASE_URL ?>compras/getProductos')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                return response.text();
+            })
+            .then(text => {
                 try {
-                    const data = JSON.parse(xhr.responseText);
-                    console.log('Datos parseados:', data);
+                    const data = JSON.parse(text);
                     productosData = Array.isArray(data) ? data : [];
-                    
-                    // Habilitar el select
-                    selectProducto.disabled = false;
-                    
-                    // Limpiar opciones actuales
-                    selectProducto.innerHTML = '<option value="">Seleccionar...</option>';
-                    
-                    // Verificar si hay productos
-                    if (!productosData || productosData.length === 0) {
-                        console.warn('No se encontraron productos activos');
-                        const option = document.createElement('option');
-                        option.value = "";
-                        option.textContent = "No hay productos disponibles";
-                        option.disabled = true;
-                        selectProducto.appendChild(option);
-                        return;
-                    }
-                    
-                    console.log('Agregando ' + productosData.length + ' productos al select');
-                    
-                    // Agregar productos
-                    productosData.forEach(producto => {
-                        const option = document.createElement('option');
-                        option.value = producto.id;
-                        option.textContent = `${producto.codigo} - ${producto.nombre}`;
-                        option.dataset.precio = producto.precio_compra;
-                        option.dataset.codigo = producto.codigo;
-                        selectProducto.appendChild(option);
-                    });
-                    
-                    console.log('Productos cargados correctamente');
-                    
+                    console.log('Productos cargados:', productosData.length);
+                    configurarBuscadorProductos();
                 } catch (e) {
                     console.error('Error al parsear JSON:', e);
-                    console.log('Respuesta recibida completa:', xhr.responseText);
-                    
-                    // Habilitar el select
-                    selectProducto.disabled = false;
-                    selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
-                    
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Error al procesar la respuesta del servidor'
-                    });
+                    productosData = [];
                 }
-            } else {
-                console.error('Error en la respuesta del servidor:', xhr.status);
-                
-                // Habilitar el select
-                selectProducto.disabled = false;
-                selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
-                
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudieron cargar los productos. Por favor, recargue la página.'
-                });
-            }
-        };
-        
-        xhr.onerror = function() {
-            console.error('Error de red al cargar productos');
-            
-            // Habilitar el select
-            selectProducto.disabled = false;
-            selectProducto.innerHTML = '<option value="">Error al cargar productos</option>';
-            
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Error de red al cargar productos. Por favor, verifique su conexión.'
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                productosData = [];
             });
-        };
+    }
+    
+    function configurarBuscadorProductos() {
+        const inputBuscar = document.getElementById('buscarProducto');
+        const listaResultados = document.getElementById('listaProductosBusqueda');
+        const inputProducto = document.getElementById('producto');
         
-        xhr.send();
+        inputBuscar.addEventListener('input', function() {
+            const termino = this.value.toLowerCase().trim();
+            
+            if (termino.length === 0) {
+                listaResultados.style.display = 'none';
+                return;
+            }
+            
+            if (termino.length === 1) {
+                // Mostrar todos los productos si solo hay 1 caracter
+                mostrarResultadosBusqueda(productosData);
+                return;
+            }
+            
+            const productosFiltrados = productosData.filter(producto => 
+                producto.codigo.toLowerCase().includes(termino) ||
+                producto.nombre.toLowerCase().includes(termino)
+            );
+            
+            mostrarResultadosBusqueda(productosFiltrados);
+        });
         
-        // Evento para cargar precio al seleccionar producto
-        selectProducto.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            if(selectedOption.value) {
-                document.getElementById('precio').value = selectedOption.dataset.precio;
-                calcularSubtotalProducto();
-            } else {
-                document.getElementById('precio').value = '';
-                document.getElementById('subtotal_producto').value = '';
+        inputBuscar.addEventListener('blur', function() {
+            setTimeout(() => {
+                listaResultados.style.display = 'none';
+            }, 200);
+        });
+        
+        inputBuscar.addEventListener('focus', function() {
+            const termino = this.value.toLowerCase().trim();
+            if (termino.length === 0) {
+                // Mostrar todos los productos al hacer focus sin texto
+                mostrarResultadosBusqueda(productosData);
+            } else if (termino.length >= 1) {
+                const productosFiltrados = productosData.filter(producto => 
+                    producto.codigo.toLowerCase().includes(termino) ||
+                    producto.nombre.toLowerCase().includes(termino)
+                );
+                mostrarResultadosBusqueda(productosFiltrados);
             }
         });
+    }
+    
+    function mostrarResultadosBusqueda(productos) {
+        const listaResultados = document.getElementById('listaProductosBusqueda');
+        
+        if (productos.length === 0) {
+            listaResultados.innerHTML = '<div class="p-2 text-muted">No se encontraron productos</div>';
+            listaResultados.style.display = 'block';
+            return;
+        }
+        
+        listaResultados.innerHTML = '';
+        
+        productos.slice(0, 10).forEach(producto => {
+            const item = document.createElement('div');
+            item.className = 'p-2 border-bottom cursor-pointer';
+            item.style.cursor = 'pointer';
+            item.innerHTML = `
+                <div class="fw-bold">${producto.codigo} - ${producto.nombre}</div>
+                <small class="text-muted">Precio: ${formatoPrecioCOP(producto.precio_compra)}</small>
+            `;
+            
+            item.addEventListener('click', function() {
+                seleccionarProducto(producto);
+            });
+            
+            item.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#f8f9fa';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'white';
+            });
+            
+            listaResultados.appendChild(item);
+        });
+        
+        listaResultados.style.display = 'block';
+    }
+    
+    function seleccionarProducto(producto) {
+        document.getElementById('buscarProducto').value = `${producto.codigo} - ${producto.nombre}`;
+        document.getElementById('producto').value = producto.id;
+        document.getElementById('precio').value = producto.precio_compra;
+        document.getElementById('listaProductosBusqueda').style.display = 'none';
+        calcularSubtotalProducto();
     }
     
     function cargarDatosCompra(idCompra) {
@@ -493,8 +502,7 @@
     }
     
     function agregarProducto() {
-        const productoSelect = document.getElementById('producto');
-        const productoId = productoSelect.value;
+        const productoId = document.getElementById('producto').value;
         
         if(!productoId) {
             Swal.fire({
@@ -537,16 +545,23 @@
         }
         
         // Obtener datos del producto
-        const selectedOption = productoSelect.options[productoSelect.selectedIndex];
-        const codigo = selectedOption.dataset.codigo;
-        const nombre = selectedOption.textContent.split(' - ')[1];
+        const productoSeleccionado = productosData.find(p => p.id == productoId);
+        if (!productoSeleccionado) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Producto no encontrado'
+            });
+            return;
+        }
+        
         const subtotal = cantidad * precio;
         
         // Agregar producto a la lista
         const producto = {
             id: productoId,
-            codigo: codigo,
-            nombre: nombre,
+            codigo: productoSeleccionado.codigo,
+            nombre: productoSeleccionado.nombre,
             cantidad: cantidad,
             precio: precio,
             subtotal: subtotal
@@ -561,7 +576,8 @@
         calcularSubtotal();
         
         // Limpiar campos
-        productoSelect.value = '';
+        document.getElementById('buscarProducto').value = '';
+        document.getElementById('producto').value = '';
         document.getElementById('cantidad').value = '1';
         document.getElementById('precio').value = '';
         document.getElementById('subtotal_producto').value = '';

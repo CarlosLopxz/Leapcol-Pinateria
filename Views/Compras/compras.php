@@ -12,9 +12,6 @@
                 <p class="text-muted">Administra las compras a proveedores</p>
             </div>
             <div>
-                <a href="<?= BASE_URL ?>compras/nueva" class="btn btn-success me-2">
-                    <i class="fas fa-file-excel me-2"></i>Exportar Compras
-                </a>
                 <a href="<?= BASE_URL ?>compras/nueva" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Nueva Compra
                 </a>
@@ -546,6 +543,11 @@
     }
     
     function verCompra(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         compraActualId = id;
         
         // Cargar datos de la compra
@@ -620,12 +622,24 @@
                 document.getElementById('btnEditar').style.display = data.estado != 0 ? 'block' : 'none';
                 document.getElementById('btnAnular').style.display = data.estado != 0 ? 'block' : 'none';
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                const modal = new bootstrap.Modal(document.getElementById('modalVerCompra'));
+                const modal = new bootstrap.Modal(document.getElementById('modalVerCompra'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -646,6 +660,11 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Mostrar modal de carga
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.remove('hide');
+                loadingModal.classList.add('show');
+                
                 const formData = new FormData();
                 formData.append('idCompra', id);
                 
@@ -668,6 +687,10 @@
                     }
                 })
                 .then(data => {
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     if(data.status) {
                         Swal.fire(
                             'Anulada',
@@ -697,6 +720,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     Swal.fire(
                         'Error',
                         'Ocurrió un error al procesar la solicitud',
@@ -708,15 +736,10 @@
     }
     
     function descargarCompraPDF(id) {
-        // Mostrar indicador de carga
-        Swal.fire({
-            title: 'Generando PDF',
-            text: 'Por favor espere...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
         
         // Crear un iframe oculto para la descarga
         const iframe = document.createElement('iframe');
@@ -726,8 +749,9 @@
         
         // Manejar la carga del iframe
         iframe.onload = function() {
-            // Cerrar el indicador de carga
-            Swal.close();
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
             
             // Verificar si hay un error
             try {
@@ -765,6 +789,10 @@
         
         // Manejar errores
         iframe.onerror = function() {
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+            
             Swal.fire('Error', 'No se pudo generar el PDF', 'error');
             document.body.removeChild(iframe);
         };
