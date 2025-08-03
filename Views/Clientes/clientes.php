@@ -313,7 +313,6 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Factura</th>
                                         <th>Fecha</th>
                                         <th>Total</th>
                                         <th>Estado</th>
@@ -489,6 +488,11 @@
             const btnGuardar = document.getElementById('btnGuardar');
             const formData = new FormData(this);
             
+            // Mostrar modal de carga
+            const loadingModal = document.getElementById('loadingModal');
+            loadingModal.classList.remove('hide');
+            loadingModal.classList.add('show');
+            
             // Deshabilitar botón y mostrar spinner
             btnGuardar.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
             btnGuardar.disabled = true;
@@ -513,6 +517,10 @@
                 }
             })
             .then(data => {
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 if(data.status) {
                     // Éxito
                     Swal.fire({
@@ -549,6 +557,11 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -687,11 +700,19 @@
         document.getElementById('formCliente').reset();
         document.getElementById('idCliente').value = '';
         
-        let modal = new bootstrap.Modal(document.getElementById('modalFormCliente'));
+        let modal = new bootstrap.Modal(document.getElementById('modalFormCliente'), {
+            backdrop: 'static',
+            keyboard: false
+        });
         modal.show();
     }
     
     function editarCliente(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         document.getElementById('modalTitle').textContent = 'Editar Cliente';
         document.getElementById('idCliente').value = id;
         
@@ -724,12 +745,24 @@
                 document.getElementById('fecha_nacimiento').value = data.fecha_nacimiento || '';
                 document.getElementById('estado').value = data.estado;
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                let modal = new bootstrap.Modal(document.getElementById('modalFormCliente'));
+                let modal = new bootstrap.Modal(document.getElementById('modalFormCliente'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -739,6 +772,11 @@
     }
     
     function verCliente(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         clienteActualId = id;
         
         // Cargar datos del cliente
@@ -780,12 +818,24 @@
                 // Cargar ventas
                 cargarVentasCliente(id);
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                let modal = new bootstrap.Modal(document.getElementById('modalVerCliente'));
+                let modal = new bootstrap.Modal(document.getElementById('modalVerCliente'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -878,7 +928,7 @@
                 
                 if(data.length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = '<td colspan="5" class="text-center">No hay ventas registradas</td>';
+                    tr.innerHTML = '<td colspan="4" class="text-center">No hay ventas registradas</td>';
                     tbody.appendChild(tr);
                     return;
                 }
@@ -902,7 +952,6 @@
                     
                     tr.innerHTML = `
                         <td>${venta.id}</td>
-                        <td>${venta.numero_factura || '-'}</td>
                         <td>${venta.fecha_venta}</td>
                         <td>${formatoPrecioCOP(venta.total)}</td>
                         <td><span class="badge ${estadoClass}">${estadoText}</span></td>
@@ -913,7 +962,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 const tbody = document.getElementById('tabla-ventas');
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Error al cargar las ventas</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">Error al cargar las ventas</td></tr>';
             });
     }
     

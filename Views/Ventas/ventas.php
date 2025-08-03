@@ -11,11 +11,7 @@
                 <h4 class="mb-0 text-capitalize">Gestión de Ventas</h4>
                 <p class="text-muted">Administra las ventas a clientes</p>
             </div>
-            <div>
-                <a href="<?= BASE_URL ?>ventas/pos" class="btn btn-primary">
-                    <i class="fas fa-cash-register me-2"></i>Punto de Venta
-                </a>
-            </div>
+
         </div>
 
         <!-- Dashboard Cards -->

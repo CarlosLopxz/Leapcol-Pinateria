@@ -250,7 +250,10 @@
         document.getElementById('formProduccion').reset();
         recursosSeleccionados = [];
         actualizarTablaRecursos();
-        const modal = new bootstrap.Modal(document.getElementById('modalProduccion'));
+        const modal = new bootstrap.Modal(document.getElementById('modalProduccion'), {
+            backdrop: 'static',
+            keyboard: false
+        });
         modal.show();
     }
     
@@ -331,12 +334,10 @@
         const formData = new FormData(form);
         formData.append('recursos', JSON.stringify(recursosSeleccionados));
         
-        Swal.fire({
-            title: 'Procesando',
-            text: 'Verificando stock y procesando producción...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading()
-        });
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
         
         fetch('<?= BASE_URL ?>produccion/setProduccion', {
             method: 'POST',
@@ -344,7 +345,10 @@
         })
         .then(response => response.json())
         .then(data => {
-            Swal.close();
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+            
             if(data.status) {
                 Swal.fire('Éxito', data.msg, 'success');
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalProduccion'));
@@ -356,11 +360,21 @@
         })
         .catch(error => {
             console.error('Error:', error);
+            
+            // Ocultar modal de carga
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+            
             Swal.fire('Error', 'Ocurrió un error al procesar la producción', 'error');
         });
     }
     
     function verDetalle(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         fetch(`<?= BASE_URL ?>produccion/getDetalleProduccion/${id}`)
             .then(response => response.json())
             .then(data => {
@@ -377,8 +391,24 @@
                     `;
                 });
                 
-                const modal = new bootstrap.Modal(document.getElementById('modalDetalle'));
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
+                const modal = new bootstrap.Modal(document.getElementById('modalDetalle'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
+                Swal.fire('Error', 'No se pudo cargar el detalle', 'error');
             });
     }
 </script>

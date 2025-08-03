@@ -94,6 +94,17 @@
                     <!-- End:Sub Menu Item -->
 
                     <!-- Sub Menu Item -->
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'pos') ? 'active' : '' ?>">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?>pos">
+                            <span class="d2c_icon">
+                                <i class="fas fa-cash-register"></i>
+                            </span>
+                            <span> Punto de Venta </span>
+                        </a>
+                    </li>
+                    <!-- End:Sub Menu Item -->
+
+                    <!-- Sub Menu Item -->
                     <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'ventas') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>ventas">
                             <span class="d2c_icon">
@@ -108,7 +119,7 @@
                     <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'caja') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>caja">
                             <span class="d2c_icon">
-                                <i class="fas fa-cash-register"></i>
+                                <i class="fas fa-wallet"></i>
                             </span>
                             <span> Caja </span>
                         </a>

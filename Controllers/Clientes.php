@@ -6,6 +6,7 @@ class Clientes extends AuthController
     public function __construct()
     {
         parent::__construct();
+        $this->model = new ClientesModel();
     }
 
     public function index()
@@ -108,7 +109,13 @@ class Clientes extends AuthController
                         
                         // Nuevo cliente
                         $result = $this->model->insertCliente($datos);
-                        $arrResponse = ['status' => true, 'msg' => 'Cliente registrado correctamente'];
+                        if($result > 0) {
+                            $arrResponse = ['status' => true, 'msg' => 'Cliente registrado correctamente'];
+                        } else {
+                            error_log("Error insertCliente: resultado = " . var_export($result, true));
+                            error_log("Datos enviados: " . json_encode($datos));
+                            $arrResponse = ['status' => false, 'msg' => 'Error al registrar el cliente'];
+                        }
                     } else {
                         // Verificar si ya existe otro cliente con el mismo documento
                         if(!empty($documento)) {
@@ -122,7 +129,11 @@ class Clientes extends AuthController
                         
                         // Actualizar cliente
                         $result = $this->model->updateCliente($datos);
-                        $arrResponse = ['status' => true, 'msg' => 'Cliente actualizado correctamente'];
+                        if($result) {
+                            $arrResponse = ['status' => true, 'msg' => 'Cliente actualizado correctamente'];
+                        } else {
+                            $arrResponse = ['status' => false, 'msg' => 'Error al actualizar el cliente'];
+                        }
                     }
                 }
                 echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);

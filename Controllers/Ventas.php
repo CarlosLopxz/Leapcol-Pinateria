@@ -21,13 +21,7 @@ class Ventas extends AuthController
         $this->views->getView($this, "ventas", $data);
     }
     
-    public function pos()
-    {
-        $data['page_tag'] = "Punto de Venta - " . NOMBRE_EMPRESA;
-        $data['page_title'] = "Punto de Venta";
-        $data['page_name'] = "pos";
-        $this->views->getView($this, "pos", $data);
-    }
+
     
     public function getVentas()
     {
@@ -123,6 +117,8 @@ class Ventas extends AuthController
                     if ($cliente === 0) {
                         $cliente = null;
                         error_log("Cliente general seleccionado, usando NULL para cliente_id");
+                    } else {
+                        error_log("Cliente específico seleccionado: ID {$cliente}");
                     }
                     
                     $fechaVenta = date('Y-m-d H:i:s');

@@ -193,9 +193,11 @@ class VentasModel extends Mysql
                     error_log("ERROR: El cliente ID {$cliente} no existe en la tabla clientes");
                     throw new Exception("El cliente seleccionado no existe");
                 }
+                error_log("Cliente verificado correctamente: ID {$cliente}");
             } else {
                 // Si es cliente general (0), usar NULL para evitar violación de clave foránea
                 $cliente = null;
+                error_log("Usando cliente NULL para cliente general");
             }
             
             // Verificar si el usuario existe
@@ -287,6 +289,7 @@ class VentasModel extends Mysql
             
             error_log("Ejecutando query simplificada: " . $query_insert);
             error_log("Con datos: " . json_encode($arrData));
+            error_log("Valor de cliente antes de insertar: " . ($cliente === null ? 'NULL' : $cliente));
             
             $request_insert = $this->insert($query_insert, $arrData);
             $return = $request_insert;

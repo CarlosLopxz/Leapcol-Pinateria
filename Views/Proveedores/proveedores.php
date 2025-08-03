@@ -384,11 +384,19 @@
         document.getElementById('formProveedor').reset();
         document.getElementById('idProveedor').value = '';
         
-        let modal = new bootstrap.Modal(document.getElementById('modalFormProveedor'));
+        let modal = new bootstrap.Modal(document.getElementById('modalFormProveedor'), {
+            backdrop: 'static',
+            keyboard: false
+        });
         modal.show();
     }
     
     function editarProveedor(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         document.getElementById('modalTitle').textContent = 'Editar Proveedor';
         document.getElementById('idProveedor').value = id;
         
@@ -409,6 +417,10 @@
                 }
             })
             .then(data => {
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Llenar formulario
                 document.getElementById('nombre').value = data.nombre;
                 document.getElementById('contacto').value = data.contacto || '';
@@ -418,11 +430,19 @@
                 document.getElementById('estado').value = data.estado;
                 
                 // Mostrar modal
-                let modal = new bootstrap.Modal(document.getElementById('modalFormProveedor'));
+                let modal = new bootstrap.Modal(document.getElementById('modalFormProveedor'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -432,24 +452,16 @@
     }
     
     function verProveedor(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         proveedorActualId = id;
         
         // Cargar datos del proveedor
         fetch(`<?= BASE_URL ?>proveedores/getProveedor/${id}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error en la respuesta del servidor');
-                }
-                return response.text();
-            })
-            .then(text => {
-                try {
-                    return JSON.parse(text);
-                } catch (e) {
-                    console.error('Error al parsear JSON:', e);
-                    throw new Error('Error al procesar la respuesta del servidor');
-                }
-            })
+            .then(response => response.json())
             .then(data => {
                 // Llenar datos del proveedor
                 document.getElementById('ver-nombre').textContent = data.nombre;
@@ -468,12 +480,24 @@
                 // Cargar compras
                 cargarComprasProveedor(id);
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                let modal = new bootstrap.Modal(document.getElementById('modalVerProveedor'));
+                let modal = new bootstrap.Modal(document.getElementById('modalVerProveedor'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',

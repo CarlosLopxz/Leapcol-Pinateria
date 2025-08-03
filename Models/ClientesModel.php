@@ -79,8 +79,8 @@ class ClientesModel extends Mysql
             $this->intEstado = $datos['estado'];
             
             $query = "INSERT INTO clientes (nombre, apellido, documento, tipo_documento, 
-                      telefono, email, direccion, ciudad, fecha_nacimiento, estado) 
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                      telefono, email, direccion, ciudad, estado) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $arrData = [
                 $this->strNombre,
                 $this->strApellido,
@@ -90,7 +90,6 @@ class ClientesModel extends Mysql
                 $this->strEmail,
                 $this->strDireccion,
                 $this->strCiudad,
-                $this->dateFechaNacimiento,
                 $this->intEstado
             ];
             
@@ -119,7 +118,7 @@ class ClientesModel extends Mysql
             
             $query = "UPDATE clientes SET nombre = ?, apellido = ?, documento = ?, 
                       tipo_documento = ?, telefono = ?, email = ?, direccion = ?, 
-                      ciudad = ?, fecha_nacimiento = ?, estado = ? 
+                      ciudad = ?, estado = ? 
                       WHERE id = {$this->intIdCliente}";
             $arrData = [
                 $this->strNombre,
@@ -130,7 +129,6 @@ class ClientesModel extends Mysql
                 $this->strEmail,
                 $this->strDireccion,
                 $this->strCiudad,
-                $this->dateFechaNacimiento,
                 $this->intEstado
             ];
             
@@ -188,7 +186,7 @@ class ClientesModel extends Mysql
     public function getVentasCliente(int $idCliente)
     {
         try {
-            $sql = "SELECT v.id, v.numero_factura, v.fecha_venta, v.total, v.estado 
+            $sql = "SELECT v.id, v.fecha_venta, v.total, v.estado 
                     FROM ventas v 
                     WHERE v.cliente_id = {$idCliente} 
                     ORDER BY v.fecha_venta DESC";
