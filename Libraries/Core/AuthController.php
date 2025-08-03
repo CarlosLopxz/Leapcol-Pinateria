@@ -27,6 +27,9 @@ class AuthController extends Controllers
         
         // Verificar permisos para el módulo actual
         $this->checkModulePermission();
+        
+        // Si está en dashboard y no tiene permisos, redirigir al primer módulo disponible
+        $this->redirectIfNoDashboardAccess();
     }
     
     /**
@@ -38,7 +41,7 @@ class AuthController extends Controllers
         $currentController = strtolower(get_class($this));
         
         // Módulos que no requieren validación de permisos específicos
-        $exemptModules = ['dashboard', 'logout', 'perfil'];
+        $exemptModules = ['logout', 'perfil', 'dashboard'];
         
         if (in_array($currentController, $exemptModules)) {
             return;
@@ -46,9 +49,35 @@ class AuthController extends Controllers
         
         // Verificar si tiene permisos para este módulo
         if (!hasPermission($currentController)) {
-            // Redirigir al dashboard con mensaje de error
-            $_SESSION['error_message'] = 'No tienes permisos para acceder a este módulo';
-            header('Location: ' . BASE_URL . 'dashboard');
+            // Redirigir al primer módulo disponible
+            $this->redirectToFirstAvailableModule();
+        }
+    }
+    
+    /**
+     * Redirigir si no tiene acceso al dashboard
+     */
+    private function redirectIfNoDashboardAccess()
+    {
+        // Dashboard maneja sus propios permisos internamente
+        return;
+    }
+    
+    /**
+     * Redirigir al primer módulo disponible para el usuario
+     */
+    private function redirectToFirstAvailableModule()
+    {
+        $userModules = getUserModules();
+        
+        if (!empty($userModules)) {
+            // Redirigir al primer módulo disponible
+            header('Location: ' . BASE_URL . $userModules[0]['url']);
+            exit();
+        } else {
+            // Si no tiene ningún módulo, mostrar mensaje de error
+            $_SESSION['error_message'] = 'No tienes permisos para acceder a ningún módulo del sistema';
+            header('Location: ' . BASE_URL . 'logout');
             exit();
         }
     }
