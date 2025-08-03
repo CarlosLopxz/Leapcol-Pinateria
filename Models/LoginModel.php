@@ -36,14 +36,10 @@ class LoginModel extends Mysql
                 $_SESSION['idUser'] = $request['idusuario'];
                 $_SESSION['login'] = true;
 
-                $sql = "SELECT u.idusuario, u.nombre, u.apellido, u.email, r.idrol, r.nombrerol, u.status 
-                        FROM usuarios u 
-                        INNER JOIN roles r ON u.rolid = r.idrol 
-                        WHERE u.idusuario = ?";
-                $arrValues = array($_SESSION['idUser']);
-                $request = $this->select($sql, $arrValues);
-                $_SESSION['userData'] = $request;
-                return $request;
+                // Obtener datos completos del usuario incluyendo permisos
+                $userData = $this->sessionLogin($_SESSION['idUser']);
+                $_SESSION['userData'] = $userData;
+                return $userData;
             } else {
                 return false;
             }
@@ -101,6 +97,20 @@ class LoginModel extends Mysql
                 INNER JOIN roles r ON u.rolid = r.idrol 
                 WHERE u.idusuario = {$this->intIdUsuario}";
         $request = $this->select($sql);
+        
+        // Cargar permisos del usuario
+        if (!empty($request)) {
+            $sqlPermisos = "SELECT m.url FROM permisos p 
+                           INNER JOIN modulos m ON p.modulo_id = m.id 
+                           WHERE p.rol_id = ? AND m.estado = 1";
+            $permisos = $this->select_all($sqlPermisos, [$request['idrol']]);
+            
+            $request['permisos'] = [];
+            foreach($permisos as $permiso) {
+                $request['permisos'][] = $permiso['url'];
+            }
+        }
+        
         return $request;
     }
 }

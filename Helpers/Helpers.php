@@ -130,3 +130,56 @@ function uploadImage($file, $folder = 'uploads')
     
     return '';
 }
+
+// Función para verificar permisos de usuario
+function hasPermission($moduloUrl)
+{
+    if (!isset($_SESSION['userData']) || !isset($_SESSION['userData']['idrol'])) {
+        return false;
+    }
+    
+    // El administrador (rol 1) tiene acceso a todo
+    if ($_SESSION['userData']['idrol'] == 1) {
+        return true;
+    }
+    
+    // Verificar si tiene permisos cargados en sesión
+    if (isset($_SESSION['userData']['permisos'])) {
+        return in_array($moduloUrl, $_SESSION['userData']['permisos']);
+    }
+    
+    // Si no tiene permisos en sesión, verificar en base de datos
+    require_once "Libraries/Core/Mysql.php";
+    $mysql = new Mysql();
+    
+    $sql = "SELECT p.id FROM permisos p 
+            INNER JOIN modulos m ON p.modulo_id = m.id 
+            WHERE p.rol_id = ? AND m.url = ?";
+    $result = $mysql->select($sql, [$_SESSION['userData']['idrol'], $moduloUrl]);
+    
+    return !empty($result);
+}
+
+// Función para obtener módulos con permisos del usuario
+function getUserModules()
+{
+    if (!isset($_SESSION['userData']) || !isset($_SESSION['userData']['idrol'])) {
+        return [];
+    }
+    
+    require_once "Libraries/Core/Mysql.php";
+    $mysql = new Mysql();
+    
+    // Si es administrador, obtener todos los módulos
+    if ($_SESSION['userData']['idrol'] == 1) {
+        $sql = "SELECT * FROM modulos WHERE estado = 1 ORDER BY nombre ASC";
+        return $mysql->select_all($sql);
+    }
+    
+    // Para otros roles, obtener solo módulos con permisos
+    $sql = "SELECT m.* FROM modulos m 
+            INNER JOIN permisos p ON m.id = p.modulo_id 
+            WHERE p.rol_id = ? AND m.estado = 1 
+            ORDER BY m.nombre ASC";
+    return $mysql->select_all($sql, [$_SESSION['userData']['idrol']]);
+}

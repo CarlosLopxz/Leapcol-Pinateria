@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 31-07-2025 a las 20:11:38
+-- Tiempo de generación: 03-08-2025 a las 05:31:55
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -47,10 +47,10 @@ CREATE TABLE `cajas` (
 --
 
 INSERT INTO `cajas` (`id`, `usuario_id`, `fecha_apertura`, `fecha_cierre`, `monto_inicial`, `monto_final`, `total_ventas`, `total_efectivo`, `total_tarjeta`, `total_transferencia`, `estado`, `observaciones`) VALUES
-(1, 8, '2025-07-25 00:56:01', NULL, 30000.00, NULL, 234808.00, 234808.00, 0.00, 0.00, 1, ''),
-(2, 3, '2025-07-26 23:39:04', NULL, 1.00, NULL, 0.00, 0.00, 0.00, 0.00, 1, ''),
-(3, 3, '2025-07-26 23:43:29', NULL, 12.00, NULL, 0.00, 0.00, 0.00, 0.00, 1, ''),
-(4, 3, '2025-07-26 23:43:36', NULL, 12.00, NULL, 1115552.00, 1115552.00, 0.00, 0.00, 1, '');
+(5, 3, '2025-07-31 13:58:07', '2025-07-31 13:59:20', 23.00, 3.00, 0.00, 0.00, 0.00, 0.00, 0, ' | Cierre: sd'),
+(6, 3, '2025-07-31 14:04:00', '2025-08-01 01:52:07', 12.00, 40000.00, 0.00, 0.00, 0.00, 0.00, 0, 'edsd'),
+(7, 3, '2025-08-02 22:21:07', '2025-08-02 22:21:41', 40000.00, 12.00, 0.00, 0.00, 0.00, 0.00, 0, ''),
+(8, 3, '2025-08-02 22:21:46', '2025-08-02 22:23:41', 21323.00, 100000.00, 0.00, 0.00, 0.00, 0.00, 0, '');
 
 -- --------------------------------------------------------
 
@@ -71,7 +71,7 @@ CREATE TABLE `categorias` (
 --
 
 INSERT INTO `categorias` (`id`, `nombre`, `descripcion`, `estado`, `fecha_creacion`) VALUES
-(1, 'Categoriasss', 'sadasdsd', 1, '2025-07-20 15:03:21');
+(1, 'Categoriasss', 'sadasdsdasd', 1, '2025-07-20 15:03:21');
 
 -- --------------------------------------------------------
 
@@ -99,7 +99,9 @@ CREATE TABLE `clientes` (
 --
 
 INSERT INTO `clientes` (`id`, `nombre`, `apellido`, `documento`, `tipo_documento`, `telefono`, `email`, `direccion`, `ciudad`, `estado`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, 'Cliente', 'General', '12345678', 'CC', NULL, NULL, NULL, NULL, 1, '2025-07-20 16:26:07', NULL);
+(1, 'Cliente', 'General', '000', 'CC', '123', 'Cliente@gmail.com', 'dsfsd', 'sdfdf', 1, '2025-07-20 16:26:07', '2025-08-02 20:23:52'),
+(2, 'aaa', 'aaa', '123', 'CC', '123', 'acarlos@gmail.com', 'sdf', 'xasfe', 1, '2025-08-02 20:02:43', NULL),
+(3, 'Cliente', 'Prueba', '12345678', 'CC', '3001234567', 'cliente@prueba.com', NULL, NULL, 1, '2025-08-02 20:16:13', NULL);
 
 -- --------------------------------------------------------
 
@@ -127,10 +129,13 @@ CREATE TABLE `compras` (
 --
 
 INSERT INTO `compras` (`id`, `proveedor_id`, `numero_factura`, `fecha_compra`, `fecha_registro`, `subtotal`, `impuestos`, `descuentos`, `total`, `estado`, `observaciones`, `usuario_id`) VALUES
-(2, 1, 'TEST-001', '2025-07-20', '2025-07-20 19:28:27', 10000.00, 1900.00, 0.00, 11900.00, 1, 'Compra de pruebaa', 3),
-(3, 1, 'TEST-SQL-001', '2025-07-20', '2025-07-20 19:29:45', 10000.00, 1900.00, 0.00, 11900.00, 1, 'Compra de prueba con SQL directo', 3),
+(2, 1, 'TEST-001', '2025-07-20', '2025-07-20 19:28:27', 10000.00, 1900.00, 0.00, 11900.00, 0, 'Compra de pruebaa', 3),
+(3, 1, 'TEST-SQL-001', '2025-07-20', '2025-07-20 19:29:45', 10000.00, 1900.00, 0.00, 11900.00, 0, 'Compra de prueba con SQL directo', 3),
 (4, 1, 'DSW43', '2025-07-25', '2025-07-24 22:24:06', 75000.00, 0.00, 0.00, 75000.00, 1, '', 3),
-(5, 1, 'aaaaaaaaaaaaaaaa', '2025-07-25', '2025-07-24 22:24:35', 30000.00, 0.00, 0.00, 30000.00, 2, '', 3);
+(5, 1, 'aaaaaaaaaaaaaaaa', '2025-07-25', '2025-07-24 22:24:35', 30000.00, 0.00, 0.00, 30000.00, 2, '', 3),
+(6, 1, '56765438HTG', '2025-08-03', '2025-08-02 21:39:41', 1080000.00, 0.00, 30000.00, 1050000.00, 1, 'compra de productos para la creacion de cosas', 3),
+(7, 1, '', '2025-08-03', '2025-08-02 21:47:04', 5600.00, 0.00, 0.00, 5600.00, 1, '', 3),
+(8, 1, 'ASDASDASD', '2025-08-03', '2025-08-02 22:02:42', 4815000.00, 0.00, 0.00, 4815000.00, 1, '', 3);
 
 -- --------------------------------------------------------
 
@@ -152,10 +157,13 @@ CREATE TABLE `detalle_compras` (
 --
 
 INSERT INTO `detalle_compras` (`id`, `compra_id`, `producto_id`, `cantidad`, `precio_unitario`, `subtotal`) VALUES
-(2, 3, 1, 2, 15000.00, 30000.00),
 (3, 2, 1, 2, 15000.00, 30000.00),
 (4, 4, 1, 5, 15000.00, 75000.00),
-(6, 5, 2, 6, 5000.00, 30000.00);
+(6, 5, 2, 6, 5000.00, 30000.00),
+(7, 6, 5, 90, 12000.00, 1080000.00),
+(8, 7, 4, 8, 700.00, 5600.00),
+(9, 3, 1, 2, 15000.00, 30000.00),
+(10, 8, 7, 300, 16050.00, 4815000.00);
 
 --
 -- Disparadores `detalle_compras`
@@ -187,7 +195,12 @@ CREATE TABLE `detalle_produccion` (
 --
 
 INSERT INTO `detalle_produccion` (`id`, `produccion_id`, `producto_recurso_id`, `cantidad_utilizada`) VALUES
-(1, 1, 1, 1);
+(1, 1, 1, 1),
+(2, 2, 5, 5),
+(3, 2, 4, 30),
+(4, 3, 5, 1),
+(5, 3, 6, 1),
+(6, 4, 6, 5);
 
 --
 -- Disparadores `detalle_produccion`
@@ -254,7 +267,17 @@ INSERT INTO `detalle_venta` (`id`, `venta_id`, `producto_id`, `cantidad`, `preci
 (19, 28, 4, 4, 3232.00, 652.17, 12928.00, 2608.68, 10319.32),
 (20, 29, 1, 5, 30000.00, 15000.00, 150000.00, 75000.00, 75000.00),
 (21, 30, 4, 7, 3232.00, 652.17, 22624.00, 4565.19, 18058.81),
-(22, 31, 1, 31, 30000.00, 15000.00, 930000.00, 465000.00, 465000.00);
+(22, 31, 1, 31, 30000.00, 15000.00, 930000.00, 465000.00, 465000.00),
+(23, 32, 4, 1, 3232.00, 700.00, 3232.00, 700.00, 2532.00),
+(24, 33, 1, 1, 50000.00, 0.00, 50000.00, 0.00, 0.00),
+(25, 34, 1, 1, 50000.00, 0.00, 50000.00, 0.00, 0.00),
+(26, 35, 8, 10, 10982.00, 450.00, 109820.00, 4500.00, 105320.00),
+(27, 35, 6, 5, 15000.00, 4050.00, 75000.00, 20250.00, 54750.00),
+(28, 35, 7, 7, 1000.00, 16050.00, 7000.00, 112350.00, -105350.00),
+(29, 35, 5, 5, 15000.00, 12000.00, 75000.00, 60000.00, 15000.00),
+(30, 36, 5, 17, 15000.00, 12000.00, 255000.00, 204000.00, 51000.00),
+(31, 37, 8, 2, 10982.00, 450.00, 21964.00, 900.00, 21064.00),
+(32, 37, 6, 2, 15000.00, 4050.00, 30000.00, 8100.00, 21900.00);
 
 --
 -- Disparadores `detalle_venta`
@@ -298,7 +321,8 @@ INSERT INTO `modulos` (`id`, `nombre`, `descripcion`, `icono`, `url`, `estado`) 
 (8, 'Ventas', 'Gestión de ventas', 'fas fa-shopping-cart', 'ventas', 1),
 (9, 'Usuarios', 'Gestión de usuarios', 'fas fa-user-cog', 'usuarios', 1),
 (10, 'Reportes', 'Reportes del sistema', 'fas fa-chart-bar', 'reportes', 1),
-(11, 'Caja', 'Gestión de caja', 'fas fa-cash-register', 'caja', 1);
+(11, 'Caja', 'Gestión de caja', 'fas fa-cash-register', 'caja', 1),
+(12, 'Punto de Venta', 'Punto de venta rápido', 'fas fa-cash-register', 'pos', 1);
 
 -- --------------------------------------------------------
 
@@ -323,20 +347,10 @@ CREATE TABLE `movimientos_caja` (
 --
 
 INSERT INTO `movimientos_caja` (`id`, `caja_id`, `tipo`, `concepto`, `monto`, `metodo_pago`, `venta_id`, `fecha`, `usuario_id`) VALUES
-(1, 1, 'venta', 'Venta #23', 23076.00, 1, 23, '2025-07-25 00:56:27', 8),
-(2, 1, 'venta', 'Venta #24', 142800.00, 1, 24, '2025-07-25 01:02:32', 8),
-(3, 1, 'venta', 'Venta #25', 35700.00, 1, 25, '2025-07-25 01:08:34', 8),
-(4, 1, 'venta', 'Venta #26', 30000.00, 1, 26, '2025-07-25 01:22:38', 8),
-(5, 1, 'venta', 'Venta #27', 3232.00, 1, 27, '2025-07-25 01:26:44', 8),
-(13, 2, 'egreso', 'dasds', 3.00, 1, NULL, '2025-07-26 23:41:41', 3),
-(14, 4, 'egreso', 'sadsad', 10.00, 1, NULL, '2025-07-26 23:45:07', 3),
-(15, 4, 'ingreso', 'sddsd', 23.00, 1, NULL, '2025-07-26 23:45:16', 3),
-(16, 4, 'egreso', 'sdsd', 12.00, 1, NULL, '2025-07-26 23:45:42', 3),
-(17, 4, 'ingreso', 'sdsd', 1.00, 1, NULL, '2025-07-26 23:45:46', 3),
-(18, 4, 'venta', 'Venta #28', 12928.00, 1, 28, '2025-07-26 23:46:09', 3),
-(19, 4, 'venta', 'Venta #29', 150000.00, 1, 29, '2025-07-26 23:49:56', 3),
-(20, 4, 'venta', 'Venta #30', 22624.00, 1, 30, '2025-07-27 00:01:40', 3),
-(21, 4, 'venta', 'Venta #31', 930000.00, 1, 31, '2025-07-27 00:04:40', 3);
+(23, 5, 'ingreso', 'compra', 50000.00, 1, NULL, '2025-07-31 13:58:18', 3),
+(24, 6, 'ingreso', 'asdas', 44.00, 2, NULL, '2025-07-31 14:04:28', 3),
+(25, 8, 'ingreso', 'cambio', 30000.00, 1, NULL, '2025-08-02 22:23:05', 3),
+(26, 8, 'ingreso', 'venta exterior', 80000.00, 1, NULL, '2025-08-02 22:23:25', 3);
 
 -- --------------------------------------------------------
 
@@ -355,17 +369,21 @@ CREATE TABLE `permisos` (
 --
 
 INSERT INTO `permisos` (`id`, `rol_id`, `modulo_id`) VALUES
-(16, 1, 2),
-(17, 1, 5),
-(18, 1, 7),
-(19, 1, 1),
-(20, 1, 4),
-(21, 1, 3),
-(22, 1, 6),
-(23, 1, 10),
-(24, 1, 9),
-(25, 1, 8),
-(26, 1, 11);
+(122, 1, 10),
+(123, 1, 8),
+(124, 1, 12),
+(125, 2, 11),
+(126, 2, 2),
+(127, 2, 5),
+(128, 2, 7),
+(129, 2, 1),
+(130, 2, 4),
+(131, 2, 3),
+(132, 2, 6),
+(133, 2, 12),
+(134, 2, 10),
+(135, 2, 9),
+(136, 2, 8);
 
 -- --------------------------------------------------------
 
@@ -389,7 +407,10 @@ CREATE TABLE `producciones` (
 --
 
 INSERT INTO `producciones` (`id`, `codigo`, `producto_final_id`, `cantidad_producir`, `fecha_produccion`, `estado`, `observaciones`, `usuario_id`) VALUES
-(1, 'PROD-20250724-6608', 4, 23, '2025-07-24 23:49:35', 1, 'dsd', 3);
+(1, 'PROD-20250724-6608', 4, 23, '2025-07-24 23:49:35', 1, 'dsd', 3),
+(2, 'PR25080232', 6, 20, '2025-08-02 18:33:45', 1, '', 3),
+(3, 'PR25080284', 7, 1, '2025-08-02 18:38:32', 1, '', 3),
+(4, 'PR25080279', 8, 45, '2025-08-02 18:40:04', 1, '', 3);
 
 -- --------------------------------------------------------
 
@@ -419,10 +440,14 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `codigo`, `nombre`, `descripcion`, `categoria_id`, `unidad_venta`, `precio_compra`, `precio_venta`, `stock`, `stock_minimo`, `imagen`, `estado`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(1, 'CHSTY', 'Dulce de coco', 'Hola', 1, 'unidad', 15000.00, 30000.00, -31, 5, '', 1, '2025-07-20 15:04:03', '2025-07-27 00:04:40'),
-(2, 'P001', 'Producto de Prueba', 'Descripción del producto', 1, 'unidad', 5000.00, 10000.00, -3, 5, NULL, 1, '2025-07-20 16:26:45', '2025-07-25 01:02:32'),
-(3, 'asdasd', 'asda', 'dasd', 1, 'unidad', 22.00, 222.00, 0, 5, '', 1, '2025-07-24 22:25:40', NULL),
-(4, 'PROD-20250724-1884', '23123', '3', 1, 'unidad', 652.17, 3232.00, 0, 5, NULL, 1, '2025-07-24 23:49:35', '2025-07-27 00:01:40');
+(1, 'CHSTY', 'Dulce de coco', 'Hola', 1, 'unidad', 15000.00, 30000.00, -31, 5, '', 3, '2025-07-20 15:04:03', '2025-08-02 21:52:00'),
+(2, 'P001', 'Producto de Prueba', 'Descripción del producto', 1, 'unidad', 5000.00, 10000.00, -1, 5, NULL, 3, '2025-07-20 16:26:45', '2025-08-02 22:12:06'),
+(3, 'asdasd', 'asda', 'dasd', 1, 'unidad', 22.00, 222.00, 0, 5, '', 3, '2025-07-24 22:25:40', '2025-08-02 18:24:37'),
+(4, 'PROD-20250724-1884', '23123', '3', 1, 'unidad', 700.00, 3232.00, -22, 5, NULL, 1, '2025-07-24 23:49:35', '2025-08-02 21:47:04'),
+(5, 'TGTDF6753', 'Producto pruebaaaaa', 'producto xxxxx', 1, 'unidad', 12000.00, 15000.00, 84, 5, '', 1, '2025-08-02 18:18:15', '2025-08-02 21:39:41'),
+(6, 'P250802447', 'decoraciones de fiestas', '', 1, 'unidad', 4050.00, 15000.00, 14, 5, NULL, 1, '2025-08-02 18:33:45', '2025-08-02 21:17:36'),
+(7, 'P250802267', 'easd', 'asdasd', 1, 'unidad', 16050.00, 1000.00, 288, 5, NULL, 1, '2025-08-02 18:38:32', '2025-08-02 22:02:42'),
+(8, 'P250802974', 'asadasd', 'sad', 1, 'unidad', 450.00, 10982.00, 66, 5, NULL, 1, '2025-08-02 18:40:04', '2025-08-02 21:17:36');
 
 -- --------------------------------------------------------
 
@@ -446,7 +471,8 @@ CREATE TABLE `proveedores` (
 --
 
 INSERT INTO `proveedores` (`id`, `nombre`, `contacto`, `telefono`, `email`, `direccion`, `estado`, `fecha_creacion`) VALUES
-(1, 'Leapcol S.A.S', '3123', '123123', 'acarlos@gmail.com', '3123123', 1, '2025-07-20 17:24:03');
+(1, 'Leapcol S.A.S', '3123', '123123123', 'acarlos@gmail.com', '3123123', 1, '2025-07-20 17:24:03'),
+(2, 'ssa', 'cascas', '1', 'sx@gmail.copm', 'asdsad', 1, '2025-08-02 20:56:34');
 
 -- --------------------------------------------------------
 
@@ -494,8 +520,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`idusuario`, `nombre`, `apellido`, `usuario`, `email`, `password`, `token`, `rolid`, `status`, `fecha_creacion`, `fecha_actualizacion`) VALUES
-(3, 'Admin', 'Sistema', 'admin', 'admin@pinateria.com', '$2y$10$FPUFqgrodngHdqBNUfMAc.n6Em1V.wYjnCQ.LehtUiPejUVqjyx6S', NULL, 1, 1, '2025-07-20 16:27:33', '2025-07-25 00:29:16'),
-(8, 'carlos', 'Sistema', 'admin', 'a@pinateria.com', '$2y$10$UWnl.kwVw51vrRioHVSTSuzUWJTOVXM1GeDT.x48nOyL4WhYOtc1q', NULL, 1, 1, '2025-07-20 16:27:33', '2025-07-25 00:30:17');
+(3, 'Admin', 'Sistema', 'admin', 'admin@pinateria.com', '$2y$10$PdEEfkMLWcdpaIcG2vP0sOhz3DlYm1rcsrjFBZMrBGhJprHe/ZFTy', NULL, 1, 1, '2025-07-20 16:27:33', '2025-07-31 13:33:33'),
+(8, 'carlos', 'Sistema', 'admin', 'a@pinateria.com', '$2y$10$go55avXC6En4plONOmVUS.IS7L2x04qgfM19P8y1CHQHjDwefZ3mG', NULL, 2, 1, '2025-07-20 16:27:33', '2025-07-31 13:33:52'),
+(9, 'carlos', 'Lopez Tapia', 'carlos lopez', 'carlos@gmail.com', '$2y$10$ELk1X3of7oyObu0CYkzsbuXQ53XeDC2oZe.9pOmjdje/c/Ahd.luy', NULL, 2, 1, '2025-08-02 22:25:49', '2025-08-02 22:29:03');
 
 -- --------------------------------------------------------
 
@@ -528,7 +555,7 @@ CREATE TABLE `ventas` (
 
 INSERT INTO `ventas` (`id`, `cliente_id`, `fecha_venta`, `subtotal`, `impuestos`, `descuentos`, `total`, `pago_con`, `cambio`, `costo_total`, `ganancia`, `metodo_pago`, `estado`, `observaciones`, `usuario_id`, `fecha_creacion`) VALUES
 (12, NULL, '2025-07-20 16:28:14', 0.00, 0.00, 0.00, 11900.00, NULL, NULL, 0.00, 0.00, 1, 0, NULL, 3, '2025-07-20 16:28:14'),
-(13, NULL, '2025-07-20 16:28:36', 0.00, 0.00, 0.00, 11900.00, NULL, NULL, 0.00, 0.00, 1, 1, NULL, 3, '2025-07-20 16:28:36'),
+(13, NULL, '2025-07-20 16:28:36', 0.00, 0.00, 0.00, 11900.00, NULL, NULL, 0.00, 0.00, 1, 0, NULL, 3, '2025-07-20 16:28:36'),
 (14, NULL, '2025-07-20 16:53:50', 0.00, 0.00, 0.00, 11900.00, NULL, NULL, 0.00, 0.00, 1, 1, NULL, 3, '2025-07-20 16:53:50'),
 (15, NULL, '2025-07-20 16:58:18', 90000.00, 17100.00, 0.00, 107100.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 3, '2025-07-20 16:58:18'),
 (16, NULL, '2025-07-24 22:25:01', 40000.00, 7600.00, 0.00, 47600.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 3, '2025-07-24 22:25:01'),
@@ -543,10 +570,16 @@ INSERT INTO `ventas` (`id`, `cliente_id`, `fecha_venta`, `subtotal`, `impuestos`
 (25, NULL, '2025-07-25 01:08:34', 30000.00, 5700.00, 0.00, 35700.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 8, '2025-07-25 01:08:34'),
 (26, NULL, '2025-07-25 01:22:38', 30000.00, 0.00, 0.00, 30000.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 8, '2025-07-25 01:22:38'),
 (27, NULL, '2025-07-25 01:26:44', 3232.00, 0.00, 0.00, 3232.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 8, '2025-07-25 01:26:44'),
-(28, NULL, '2025-07-26 23:46:09', 12928.00, 0.00, 0.00, 12928.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 3, '2025-07-26 23:46:09'),
-(29, NULL, '2025-07-26 23:49:55', 150000.00, 0.00, 0.00, 150000.00, 200000.00, 50000.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-26 23:49:55'),
-(30, NULL, '2025-07-27 00:01:40', 22624.00, 0.00, 0.00, 22624.00, 30000.00, 7376.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-27 00:01:40'),
-(31, NULL, '2025-07-27 00:04:40', 930000.00, 0.00, 0.00, 930000.00, 1000000.00, 70000.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-27 00:04:40');
+(28, 2, '2025-07-26 23:46:09', 12928.00, 0.00, 0.00, 12928.00, NULL, NULL, 0.00, 0.00, 1, 1, '', 3, '2025-07-26 23:46:09'),
+(29, 3, '2025-07-26 23:49:55', 150000.00, 0.00, 0.00, 150000.00, 200000.00, 50000.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-26 23:49:55'),
+(30, 2, '2025-07-27 00:01:40', 22624.00, 0.00, 0.00, 22624.00, 30000.00, 7376.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-27 00:01:40'),
+(31, 3, '2025-07-27 00:04:40', 930000.00, 0.00, 0.00, 930000.00, 1000000.00, 70000.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-27 00:04:40'),
+(32, 2, '2025-07-31 13:28:17', 3232.00, 0.00, 0.00, 3232.00, 4000.00, 768.00, 0.00, 0.00, 1, 1, '', 3, '2025-07-31 13:28:17'),
+(33, 3, '2025-08-02 20:16:13', 50000.00, 0.00, 0.00, 50000.00, NULL, NULL, 0.00, 0.00, 1, 1, NULL, 3, '2025-08-02 20:16:13'),
+(34, 3, '2025-08-02 20:16:55', 50000.00, 0.00, 0.00, 50000.00, NULL, NULL, 0.00, 0.00, 1, 1, NULL, 3, '2025-08-02 20:16:55'),
+(35, NULL, '2025-08-02 20:41:21', 266820.00, 0.00, 0.00, 266820.00, 300000.00, 33180.00, 0.00, 0.00, 1, 1, '', 3, '2025-08-02 20:41:21'),
+(36, NULL, '2025-08-02 20:48:04', 255000.00, 0.00, 0.00, 255000.00, 300000.00, 45000.00, 0.00, 0.00, 1, 1, '', 3, '2025-08-02 20:48:04'),
+(37, NULL, '2025-08-02 21:17:36', 51964.00, 0.00, 0.00, 51964.00, 52000.00, 36.00, 0.00, 0.00, 1, 1, '', 3, '2025-08-02 21:17:36');
 
 --
 -- Disparadores `ventas`
@@ -693,7 +726,7 @@ ALTER TABLE `ventas`
 -- AUTO_INCREMENT de la tabla `cajas`
 --
 ALTER TABLE `cajas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `categorias`
@@ -705,67 +738,67 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `clientes`
 --
 ALTER TABLE `clientes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `compras`
 --
 ALTER TABLE `compras`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_compras`
 --
 ALTER TABLE `detalle_compras`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_produccion`
 --
 ALTER TABLE `detalle_produccion`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `detalle_venta`
 --
 ALTER TABLE `detalle_venta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT de la tabla `movimientos_caja`
 --
 ALTER TABLE `movimientos_caja`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
 
 --
 -- AUTO_INCREMENT de la tabla `producciones`
 --
 ALTER TABLE `producciones`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`
 --
 ALTER TABLE `productos`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `proveedores`
 --
 ALTER TABLE `proveedores`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -777,13 +810,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idusuario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- Restricciones para tablas volcadas

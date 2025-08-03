@@ -24,5 +24,6 @@ $public_routes = [
     'login',
     'register',
     'recover',
-    'error'
+    'error',
+    'logout'
 ];

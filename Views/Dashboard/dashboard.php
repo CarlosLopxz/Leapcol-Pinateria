@@ -5,6 +5,14 @@
 <!-- Main Body-->
 <div class="d2c_main px-0 px-md-2 py-4">
     <div class="container-fluid">
+        <?php if(isset($_SESSION['error_message'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <?= $_SESSION['error_message'] ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php unset($_SESSION['error_message']); endif; ?>
+        
         <!-- Title -->
         <p class="mb-1">Bienvenido a</p>
         <h4 class="mb-4 text-capitalize"><?= NOMBRE_EMPRESA ?></h4>

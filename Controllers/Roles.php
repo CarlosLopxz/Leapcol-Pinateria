@@ -1,4 +1,8 @@
 <?php
+require_once "Libraries/Core/Conexion.php";
+require_once "Libraries/Core/Mysql.php";
+require_once "Libraries/Core/Views.php";
+require_once "Libraries/Core/Controllers.php";
 require_once "Libraries/Core/AuthController.php";
 
 class Roles extends AuthController

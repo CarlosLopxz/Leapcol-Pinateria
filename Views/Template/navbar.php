@@ -14,7 +14,7 @@
                 <h6 class="d2c_nav_title">Menu</h6>
                 <!-- Sub Menu -->
                 <ul class="sub-menu">
-                    <!-- Sub Menu Item -->
+                    <!-- Dashboard siempre visible -->
                     <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'dashboard') ? 'active' : '' ?>">
                         <a class="sub-menu-link" href="<?= BASE_URL ?>dashboard">
                             <span class="d2c_icon">
@@ -23,155 +23,72 @@
                             <span> Inicio </span>
                         </a>
                     </li>
-                    <!-- End:Sub Menu Item -->
 
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'categorias') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>categorias">
-                            <span class="d2c_icon">
-                                <i class="fas fa-tags"></i>
-                            </span>
-                            <span> Categorías </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'productos') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>productos">
-                            <span class="d2c_icon">
-                                <i class="fas fa-box"></i>
-                            </span>
-                            <span> Productos </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'produccion') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>produccion">
-                            <span class="d2c_icon">
-                                <i class="fas fa-cogs"></i>
-                            </span>
-                            <span> Producción </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'clientes') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>clientes">
-                            <span class="d2c_icon">
-                                <i class="fas fa-users"></i>
-                            </span>
-                            <span> Clientes </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
+                    <?php 
+                    // Obtener módulos del usuario
+                    $userModules = getUserModules();
+                    $mainModules = ['categorias', 'productos', 'produccion', 'clientes', 'proveedores', 'compras', 'pos', 'ventas', 'caja'];
                     
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'proveedores') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>proveedores">
+                    foreach($userModules as $module): 
+                        if(in_array($module['url'], $mainModules)):
+                    ?>
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == $module['url']) ? 'active' : '' ?>">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?><?= $module['url'] ?>">
                             <span class="d2c_icon">
-                                <i class="fas fa-truck"></i>
+                                <i class="<?= $module['icono'] ?>"></i>
                             </span>
-                            <span> Proveedores </span>
+                            <span> <?= $module['nombre'] ?> </span>
                         </a>
                     </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'compras') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>compras">
-                            <span class="d2c_icon">
-                                <i class="fas fa-truck"></i>
-                            </span>
-                            <span> Compras </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'pos') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>pos">
-                            <span class="d2c_icon">
-                                <i class="fas fa-cash-register"></i>
-                            </span>
-                            <span> Punto de Venta </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'ventas') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>ventas">
-                            <span class="d2c_icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </span>
-                            <span> Ventas </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'caja') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>caja">
-                            <span class="d2c_icon">
-                                <i class="fas fa-wallet"></i>
-                            </span>
-                            <span> Caja </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
+                    <?php 
+                        endif;
+                    endforeach; 
+                    ?>
                 </ul>
                 <!-- End:Sub Menu -->
             </li>
             <!-- End:Menu Item -->
 
+            <?php 
+            // Verificar si tiene módulos de administración
+            $adminModules = ['usuarios', 'roles', 'reportes'];
+            $hasAdminModules = false;
+            foreach($userModules as $module) {
+                if(in_array($module['url'], $adminModules)) {
+                    $hasAdminModules = true;
+                    break;
+                }
+            }
+            
+            if($hasAdminModules): 
+            ?>
             <!-- Menu Item -->
             <li class="nav-item">
                 <h6 class="d2c_nav_title">Administración</h6>
 
                 <!-- Sub Menu -->
                 <ul class="sub-menu collapse show" id="admin">
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'usuarios') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>usuarios">
+                    <?php 
+                    foreach($userModules as $module): 
+                        if(in_array($module['url'], $adminModules)):
+                    ?>
+                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == $module['url']) ? 'active' : '' ?>">
+                        <a class="sub-menu-link" href="<?= BASE_URL ?><?= $module['url'] ?>">
                             <span class="d2c_icon">
-                                <i class="fas fa-user-cog"></i>
+                                <i class="<?= $module['icono'] ?>"></i>
                             </span>
-                            <span> Usuarios </span>
+                            <span> <?= $module['nombre'] ?> </span>
                         </a>
                     </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'roles') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>roles">
-                            <span class="d2c_icon">
-                                <i class="fas fa-user-shield"></i>
-                            </span>
-                            <span> Roles </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
-
-                    <!-- Sub Menu Item -->
-                    <li class="nav-item <?= (isset($data['page_name']) && $data['page_name'] == 'reportes') ? 'active' : '' ?>">
-                        <a class="sub-menu-link" href="<?= BASE_URL ?>reportes">
-                            <span class="d2c_icon">
-                                <i class="fas fa-chart-bar"></i>
-                            </span>
-                            <span> Reportes </span>
-                        </a>
-                    </li>
-                    <!-- End:Sub Menu Item -->
+                    <?php 
+                        endif;
+                    endforeach; 
+                    ?>
                 </ul>
                 <!-- End:Sub Menu -->
             </li>
             <!-- End:Menu Item -->
+            <?php endif; ?>
         </ul>
         <!-- End:Menu -->
 

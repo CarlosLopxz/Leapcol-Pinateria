@@ -24,5 +24,32 @@ class AuthController extends Controllers
             header('Location: ' . BASE_URL . 'login');
             exit();
         }
+        
+        // Verificar permisos para el módulo actual
+        $this->checkModulePermission();
+    }
+    
+    /**
+     * Verificar si el usuario tiene permisos para acceder al módulo actual
+     */
+    private function checkModulePermission()
+    {
+        // Obtener el nombre del controlador actual
+        $currentController = strtolower(get_class($this));
+        
+        // Módulos que no requieren validación de permisos específicos
+        $exemptModules = ['dashboard', 'logout', 'perfil'];
+        
+        if (in_array($currentController, $exemptModules)) {
+            return;
+        }
+        
+        // Verificar si tiene permisos para este módulo
+        if (!hasPermission($currentController)) {
+            // Redirigir al dashboard con mensaje de error
+            $_SESSION['error_message'] = 'No tienes permisos para acceder a este módulo';
+            header('Location: ' . BASE_URL . 'dashboard');
+            exit();
+        }
     }
 }
