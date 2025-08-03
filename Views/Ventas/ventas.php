@@ -309,6 +309,11 @@
     });
     
     function verVenta(id) {
+        // Mostrar modal de carga
+        const loadingModal = document.getElementById('loadingModal');
+        loadingModal.classList.remove('hide');
+        loadingModal.classList.add('show');
+        
         ventaActualId = id;
         
         // Cargar datos de la venta
@@ -378,12 +383,24 @@
                 // Mostrar/ocultar botones según estado
                 document.getElementById('btnAnular').style.display = data.estado == 1 ? 'block' : 'none';
                 
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 // Mostrar modal
-                const modal = new bootstrap.Modal(document.getElementById('modalVerVenta'));
+                const modal = new bootstrap.Modal(document.getElementById('modalVerVenta'), {
+                    backdrop: 'static',
+                    keyboard: false
+                });
                 modal.show();
             })
             .catch(error => {
                 console.error('Error:', error);
+                
+                // Ocultar modal de carga
+                loadingModal.classList.remove('show');
+                loadingModal.classList.add('hide');
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -453,7 +470,7 @@
             });
         
         // Cargar total de productos vendidos
-        fetch('<?= BASE_URL ?>dashboard/getTotalProductosVendidos')
+        fetch('<?= BASE_URL ?>ventas/getTotalProductosVendidos')
             .then(handleResponse)
             .then(data => {
                 document.getElementById('totalProductos').textContent = data.total || 0;
@@ -476,6 +493,11 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
+                // Mostrar modal de carga
+                const loadingModal = document.getElementById('loadingModal');
+                loadingModal.classList.remove('hide');
+                loadingModal.classList.add('show');
+                
                 const formData = new FormData();
                 formData.append('idVenta', id);
                 
@@ -498,6 +520,10 @@
                     }
                 })
                 .then(data => {
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     if(data.status) {
                         Swal.fire(
                             'Anulada',
@@ -526,6 +552,11 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    
+                    // Ocultar modal de carga
+                    loadingModal.classList.remove('show');
+                    loadingModal.classList.add('hide');
+                    
                     Swal.fire(
                         'Error',
                         'Ocurrió un error al procesar la solicitud',

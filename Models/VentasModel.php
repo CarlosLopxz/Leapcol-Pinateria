@@ -445,4 +445,14 @@ class VentasModel extends Mysql
         $request = $this->select_all($sql);
         return $request;
     }
+    
+    public function getTotalProductosVendidos()
+    {
+        $sql = "SELECT SUM(d.cantidad) as total
+                FROM detalle_venta d
+                INNER JOIN ventas v ON d.venta_id = v.id
+                WHERE v.estado != 0";
+        $request = $this->select($sql);
+        return $request ? intval($request['total']) : 0;
+    }
 }
