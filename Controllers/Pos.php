@@ -61,6 +61,7 @@ class Pos extends AuthController
                         'subtotal' => floatval($_POST['subtotal']),
                         'impuestos' => floatval($_POST['impuestos']),
                         'descuentos' => floatval($_POST['descuentos']),
+                        'manoObra' => floatval($_POST['manoObra'] ?? 0),
                         'total' => floatval($_POST['total']),
                         'metodoPago' => intval($_POST['metodo_pago']),
                         'pagoCon' => floatval($_POST['pagoCon'] ?? 0),

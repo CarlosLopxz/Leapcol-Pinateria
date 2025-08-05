@@ -266,9 +266,15 @@
             return;
         }
         
-        const recursoId = parseInt(recursoSelect.value);
+        const recursoId = recursoSelect.value;
         const cantidad = parseInt(cantidadInput.value);
-        const recurso = productosRecursos.find(p => p.id === recursoId);
+        
+        const recurso = productosRecursos.find(p => p.id == recursoId);
+        
+        if(!recurso) {
+            Swal.fire('Error', 'Recurso no encontrado', 'error');
+            return;
+        }
         
         if(cantidad > recurso.stock) {
             Swal.fire('Error', 'La cantidad supera el stock disponible', 'error');
@@ -276,7 +282,7 @@
         }
         
         // Verificar si ya existe
-        const existeIndex = recursosSeleccionados.findIndex(r => r.id === recursoId);
+        const existeIndex = recursosSeleccionados.findIndex(r => r.id == recursoId);
         if(existeIndex >= 0) {
             recursosSeleccionados[existeIndex].cantidad = cantidad;
         } else {
@@ -284,7 +290,7 @@
                 id: recursoId,
                 nombre: recurso.nombre,
                 cantidad: cantidad,
-                stock: recurso.stock
+                stock: parseInt(recurso.stock)
             });
         }
         

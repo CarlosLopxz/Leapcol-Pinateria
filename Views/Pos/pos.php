@@ -14,19 +14,18 @@
                 <!-- Búsqueda de productos -->
                 <div class="card mb-4">
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8 mb-3 mb-md-0">
-                                <div class="input-group">
-                                    <input type="text" id="buscarProducto" class="form-control" placeholder="Buscar producto por código o nombre...">
-                                    <button class="btn btn-primary" type="button" id="btnBuscarProducto">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                </div>
+                        <div class="position-relative">
+                            <div class="input-group">
+                                <input type="text" id="buscarProducto" class="form-control" placeholder="Buscar producto por código o nombre...">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-success w-100" id="btnMostrarProductos">
-                                    <i class="fas fa-th me-2"></i>Ver Productos
-                                </button>
+                            <!-- Dropdown de productos filtrados -->
+                            <div id="dropdownProductos" class="card position-absolute w-100" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto; top: 100%; margin-top: 2px; background-color: #efefef;">
+                                <div class="card-body p-2">
+                                    <div id="listaProductosFiltrados"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -94,6 +93,13 @@
                             </div>
                         </div>
                         <div class="mb-3">
+                            <label class="form-label">Mano de Obra:</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="manoObra" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label fw-bold">TOTAL:</label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -148,23 +154,7 @@
     </div>
 </div>
 
-<!-- Modal Productos -->
-<div class="modal fade" id="modalProductos" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Seleccionar Productos</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row" id="listaProductos"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <?php footerAdmin($data); ?>
 
@@ -184,13 +174,24 @@ document.addEventListener('DOMContentLoaded', function() {
     cargarClientes();
     cargarProductos();
     
-    document.getElementById('btnBuscarProducto').addEventListener('click', buscarProducto);
-    document.getElementById('btnMostrarProductos').addEventListener('click', () => {
-        new bootstrap.Modal(document.getElementById('modalProductos')).show();
+    const inputBuscar = document.getElementById('buscarProducto');
+    inputBuscar.addEventListener('input', filtrarProductos);
+    inputBuscar.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            buscarProductoDirecto();
+        }
     });
+    inputBuscar.addEventListener('blur', function() {
+        setTimeout(() => {
+            document.getElementById('dropdownProductos').style.display = 'none';
+        }, 200);
+    });
+    
     document.getElementById('btnProcesarVenta').addEventListener('click', procesarVenta);
     document.getElementById('btnCancelarVenta').addEventListener('click', cancelarVenta);
     document.getElementById('descuento').addEventListener('input', calcularTotales);
+    document.getElementById('manoObra').addEventListener('input', calcularTotales);
     document.getElementById('metodoPago').addEventListener('change', manejarMetodoPago);
     document.getElementById('pagaCon').addEventListener('input', calcularCambio);
 });
@@ -214,47 +215,84 @@ function cargarProductos() {
         .then(response => response.json())
         .then(data => {
             productos = data;
-            const lista = document.getElementById('listaProductos');
-            lista.innerHTML = '';
-            
-            productos.forEach(producto => {
-                const col = document.createElement('div');
-                col.className = 'col-md-3 mb-3';
-                
-                const stockDisponible = producto.stock;
-                const btnDisabled = stockDisponible <= 0 ? 'disabled' : '';
-                const btnText = stockDisponible <= 0 ? 'Sin Stock' : 'Agregar';
-                
-                col.innerHTML = `
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h6 class="card-title">${producto.nombre}</h6>
-                            <p class="card-text mb-1">Código: ${producto.codigo}</p>
-                            <p class="card-text mb-1">Precio: ${formatoPrecioCOP(producto.precio_venta)}</p>
-                            <p class="card-text mb-2">Stock: ${stockDisponible}</p>
-                            <button class="btn btn-sm btn-primary w-100" onclick="agregarAlCarrito(${producto.id}, 1); cerrarModal();" ${btnDisabled}>
-                                <i class="fas fa-plus me-1"></i> ${btnText}
-                            </button>
-                        </div>
-                    </div>
-                `;
-                lista.appendChild(col);
-            });
         });
 }
 
-function buscarProducto() {
+function filtrarProductos() {
+    const busqueda = document.getElementById('buscarProducto').value.trim().toLowerCase();
+    const dropdown = document.getElementById('dropdownProductos');
+    const lista = document.getElementById('listaProductosFiltrados');
+    
+    if (!busqueda || busqueda.length < 2) {
+        dropdown.style.display = 'none';
+        return;
+    }
+    
+    const productosFiltrados = productos.filter(p => 
+        p.codigo.toLowerCase().includes(busqueda) || 
+        p.nombre.toLowerCase().includes(busqueda)
+    ).slice(0, 10); // Limitar a 10 resultados
+    
+    if (productosFiltrados.length === 0) {
+        lista.innerHTML = '<div class="text-center text-muted py-2">No se encontraron productos</div>';
+        dropdown.style.display = 'block';
+        return;
+    }
+    
+    lista.innerHTML = '';
+    productosFiltrados.forEach(producto => {
+        const stockDisponible = producto.stock;
+        const item = document.createElement('div');
+        item.className = 'border-bottom py-2 px-2 producto-item';
+        item.style.cursor = stockDisponible > 0 ? 'pointer' : 'not-allowed';
+        item.style.opacity = stockDisponible > 0 ? '1' : '0.5';
+        
+        item.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>${producto.nombre}</strong><br>
+                    <small class="text-muted">Código: ${producto.codigo} | Stock: ${stockDisponible}</small>
+                </div>
+                <div class="text-end">
+                    <span class="fw-bold">${formatoPrecioCOP(producto.precio_venta)}</span>
+                </div>
+            </div>
+        `;
+        
+        if (stockDisponible > 0) {
+            item.addEventListener('click', function() {
+                agregarAlCarrito(producto.id, 1);
+                document.getElementById('buscarProducto').value = '';
+                dropdown.style.display = 'none';
+            });
+            
+            item.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = '#d4d4d4';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'transparent';
+            });
+        }
+        
+        lista.appendChild(item);
+    });
+    
+    dropdown.style.display = 'block';
+}
+
+function buscarProductoDirecto() {
     const busqueda = document.getElementById('buscarProducto').value.trim().toLowerCase();
     if (!busqueda) return;
     
     const producto = productos.find(p => 
-        p.codigo.toLowerCase() === busqueda || 
-        p.nombre.toLowerCase().includes(busqueda)
+        p.codigo.toLowerCase() === busqueda
     );
     
     if (producto && producto.stock > 0) {
         agregarAlCarrito(producto.id, 1);
         document.getElementById('buscarProducto').value = '';
+        document.getElementById('dropdownProductos').style.display = 'none';
     }
 }
 
@@ -350,7 +388,8 @@ function eliminarDelCarrito(index) {
 function calcularTotales() {
     const subtotal = carrito.reduce((sum, item) => sum + item.subtotal, 0);
     const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-    const total = subtotal - descuento;
+    const manoObra = parseFloat(document.getElementById('manoObra').value) || 0;
+    const total = subtotal - descuento + manoObra;
     
     document.getElementById('subtotal').value = subtotal.toFixed(0);
     document.getElementById('total').value = total.toFixed(0);
@@ -408,6 +447,7 @@ function procesarVenta() {
     formData.append('subtotal', document.getElementById('subtotal').value);
     formData.append('impuestos', 0);
     formData.append('descuentos', document.getElementById('descuento').value || 0);
+    formData.append('manoObra', document.getElementById('manoObra').value || 0);
     formData.append('total', document.getElementById('total').value);
     formData.append('metodo_pago', document.getElementById('metodoPago').value);
     formData.append('observaciones', '');
@@ -475,10 +515,7 @@ function cancelarVenta() {
     }
 }
 
-function cerrarModal() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('modalProductos'));
-    if (modal) modal.hide();
-}
+
 
 function limpiarVenta() {
     carrito = [];
@@ -486,6 +523,7 @@ function limpiarVenta() {
     document.getElementById('clienteSelect').value = 0;
     document.getElementById('subtotal').value = 0;
     document.getElementById('descuento').value = 0;
+    document.getElementById('manoObra').value = 0;
     document.getElementById('total').value = 0;
     document.getElementById('metodoPago').value = 1;
     document.getElementById('pagaCon').value = '';

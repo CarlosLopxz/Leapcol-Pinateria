@@ -25,13 +25,13 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            opacity: 1;
-            visibility: visible;
+            opacity: 0;
+            visibility: hidden;
             transition: all 0.3s ease;
         }
         
@@ -75,7 +75,7 @@
             border-top: 4px solid #007bff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 20px;
+           
         }
         
         @keyframes spin {
@@ -92,18 +92,32 @@
         </style>
         
         <script>
-        // El modal está visible por defecto
+        // Funciones para mostrar y ocultar el modal de carga
         const loadingModal = document.getElementById('loadingModal');
+        
+        function showLoading() {
+            loadingModal.classList.remove('hide');
+            loadingModal.classList.add('show');
+        }
+        
+        function hideLoading() {
+            loadingModal.classList.remove('show');
+            loadingModal.classList.add('hide');
+        }
         
         // Ocultar modal cuando la página termine de cargar completamente
         window.addEventListener('load', function() {
-            loadingModal.classList.add('hide');
+            hideLoading();
         });
         
         // También verificar si ya está cargada
         if (document.readyState === 'complete') {
-            loadingModal.classList.add('hide');
+            hideLoading();
         }
+        
+        // Función global para usar en formularios y peticiones AJAX
+        window.showLoading = showLoading;
+        window.hideLoading = hideLoading;
         </script>
     </body>
 </html>

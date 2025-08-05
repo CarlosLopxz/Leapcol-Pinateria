@@ -26,7 +26,6 @@
         <div id="loadingModal" class="loading-modal">
             <div class="loading-content">
                 <div class="spinner"></div>
-                <p>Cargando...</p>
             </div>
         </div>
 

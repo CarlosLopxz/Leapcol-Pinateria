@@ -7,7 +7,7 @@ define('BASE_URL', 'http://localhost/Leapcol-Pinateria/');
 date_default_timezone_set('America/Bogota');
 
 // Configuración de la base de datos
-define('DB_HOST', 'localhost:3306');     
+define('DB_HOST', 'localhost:3307');     
 define('DB_USER', 'root');          
 define('DB_PASSWORD', '');          
 define('DB_NAME', 'pinateria');     
