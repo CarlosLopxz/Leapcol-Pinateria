@@ -11,7 +11,11 @@
                 <h4 class="mb-0 text-capitalize">Gestión de Ventas</h4>
                 <p class="text-muted">Administra las ventas a clientes</p>
             </div>
-
+            <div>
+                <a href="<?= BASE_URL ?>creacion" class="btn btn-success">
+                    <i class="fas fa-hammer me-1"></i> Creación
+                </a>
+            </div>
         </div>
 
         <!-- Dashboard Cards -->

@@ -20,14 +20,13 @@ class ProductosModel extends Mysql
 
     public function getProductos()
     {
-        $sql = "SELECT p.*, c.nombre as categoria, 
-                COALESCE(p.mano_obra, 0) as mano_obra
+        $sql = "SELECT p.*, c.nombre as categoria
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
-                WHERE p.estado != 3
+                WHERE p.estado = 1
                 ORDER BY p.id DESC";
         $request = $this->select_all($sql);
-        return $request;
+        return $request ?: [];
     }
 
     public function getProducto($idProducto)
@@ -143,9 +142,9 @@ class ProductosModel extends Mysql
     {
         $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, stock
                 FROM productos
-                WHERE estado = 1 AND stock > 0
+                WHERE estado = 1
                 ORDER BY nombre ASC";
         $request = $this->select_all($sql);
-        return $request;
+        return $request ?: [];
     }
 }
