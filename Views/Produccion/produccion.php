@@ -92,21 +92,42 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-3" id="seccionRecursos">
                         <label class="form-label">Recursos Necesarios <span class="text-danger">*</span></label>
-                        <div class="row mb-2">
-                            <div class="col-md-6">
-                                <select class="form-select" id="recurso_select">
-                                    <option value="">Seleccionar recurso</option>
-                                </select>
+                        
+                        <!-- Sección para seleccionar del inventario -->
+                        <div id="recursosInventario">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <select class="form-select" id="recurso_select">
+                                        <option value="">Seleccionar recurso</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" id="cantidad_recurso" placeholder="Cantidad" min="1">
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-success" id="btnAgregarRecurso">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <input type="number" class="form-control" id="cantidad_recurso" placeholder="Cantidad" min="1">
-                            </div>
-                            <div class="col-md-3">
-                                <button type="button" class="btn btn-success" id="btnAgregarRecurso">
-                                    <i class="fas fa-plus"></i> Agregar
-                                </button>
+                        </div>
+                        
+                        <!-- Sección para agregar manualmente -->
+                        <div id="recursosManual" style="display: none;">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" id="recurso_manual" placeholder="Nombre del recurso">
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="number" class="form-control" id="cantidad_manual" placeholder="Cantidad" min="1">
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-success" id="btnAgregarManual">
+                                        <i class="fas fa-plus"></i> Agregar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         
@@ -116,7 +137,7 @@
                                     <tr>
                                         <th>Recurso</th>
                                         <th>Cantidad</th>
-                                        <th>Stock Disponible</th>
+                                        <th id="stockHeader">Stock Disponible</th>
                                         <th>Acciones</th>
                                     </tr>
                                 </thead>
@@ -125,9 +146,26 @@
                         </div>
                     </div>
                     
-                    <div class="mb-3">
-                        <label for="observaciones" class="form-label">Observaciones</label>
-                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="observaciones" class="form-label">Observaciones</label>
+                            <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Descontar del Inventario</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="descontar_inventario" id="descontar_si" value="1" checked>
+                                <label class="form-check-label" for="descontar_si">
+                                    Sí, descontar recursos del inventario
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="descontar_inventario" id="descontar_no" value="0">
+                                <label class="form-check-label" for="descontar_no">
+                                    No descontar del inventario
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -229,6 +267,9 @@
         document.getElementById('btnProcesarProduccion').addEventListener('click', procesarProduccion);
         document.getElementById('precio_venta').addEventListener('input', actualizarPrecioTotal);
         document.getElementById('mano_obra').addEventListener('input', actualizarPrecioTotal);
+        document.getElementById('descontar_si').addEventListener('change', toggleRecursos);
+        document.getElementById('descontar_no').addEventListener('change', toggleRecursos);
+        document.getElementById('btnAgregarManual').addEventListener('click', agregarRecursoManual);
     });
     
     function cargarCategorias() {
@@ -314,12 +355,21 @@
         tbody.innerHTML = '';
         
         recursosSeleccionados.forEach((recurso, index) => {
-            const stockClass = recurso.cantidad > recurso.stock ? 'text-danger' : 'text-success';
+            let stockDisplay, stockClass = '';
+            
+            if(recurso.manual) {
+                stockDisplay = 'Manual';
+                stockClass = 'text-info';
+            } else {
+                stockDisplay = recurso.stock;
+                stockClass = recurso.cantidad > recurso.stock ? 'text-danger' : 'text-success';
+            }
+            
             tbody.innerHTML += `
                 <tr>
                     <td>${recurso.nombre}</td>
                     <td>${recurso.cantidad}</td>
-                    <td class="${stockClass}">${recurso.stock}</td>
+                    <td class="${stockClass}">${stockDisplay}</td>
                     <td>
                         <button type="button" class="btn btn-sm btn-danger" onclick="eliminarRecurso(${index})">
                             <i class="fas fa-trash"></i>
@@ -434,5 +484,62 @@
         const precioTotal = precioVenta + manoObra;
         
         document.getElementById('precio_total').textContent = precioTotal.toLocaleString('es-CO');
+    }
+    
+    function toggleRecursos() {
+        const descontarSi = document.getElementById('descontar_si').checked;
+        const recursosInventario = document.getElementById('recursosInventario');
+        const recursosManual = document.getElementById('recursosManual');
+        const stockHeader = document.getElementById('stockHeader');
+        
+        if(descontarSi) {
+            recursosInventario.style.display = 'block';
+            recursosManual.style.display = 'none';
+            stockHeader.textContent = 'Stock Disponible';
+        } else {
+            recursosInventario.style.display = 'none';
+            recursosManual.style.display = 'block';
+            stockHeader.textContent = 'Descripción';
+        }
+        
+        // Limpiar recursos seleccionados
+        recursosSeleccionados = [];
+        actualizarTablaRecursos();
+    }
+    
+    function agregarRecursoManual() {
+        const nombreInput = document.getElementById('recurso_manual');
+        const cantidadInput = document.getElementById('cantidad_manual');
+        
+        if(!nombreInput.value || !cantidadInput.value) {
+            Swal.fire('Error', 'Complete el nombre del recurso y la cantidad', 'error');
+            return;
+        }
+        
+        const nombre = nombreInput.value.trim();
+        const cantidad = parseInt(cantidadInput.value);
+        
+        if(cantidad <= 0) {
+            Swal.fire('Error', 'La cantidad debe ser mayor a 0', 'error');
+            return;
+        }
+        
+        // Verificar si ya existe
+        const existeIndex = recursosSeleccionados.findIndex(r => r.nombre === nombre);
+        if(existeIndex >= 0) {
+            recursosSeleccionados[existeIndex].cantidad = cantidad;
+        } else {
+            recursosSeleccionados.push({
+                id: 'manual_' + Date.now(),
+                nombre: nombre,
+                cantidad: cantidad,
+                stock: 'N/A',
+                manual: true
+            });
+        }
+        
+        actualizarTablaRecursos();
+        nombreInput.value = '';
+        cantidadInput.value = '';
     }
 </script>

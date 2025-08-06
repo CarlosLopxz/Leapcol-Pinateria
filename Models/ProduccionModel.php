@@ -29,6 +29,11 @@ class ProduccionModel extends Mysql
     public function verificarStockRecursos($recursos)
     {
         foreach($recursos as $recurso) {
+            // Omitir verificación para recursos manuales
+            if(isset($recurso['manual']) && $recurso['manual']) {
+                continue;
+            }
+            
             $sql = "SELECT stock FROM productos WHERE id = " . intval($recurso['id']);
             $producto = $this->select($sql);
             
@@ -50,16 +55,19 @@ class ProduccionModel extends Mysql
             // Iniciar transacción
             $this->beginTransaction();
             
-            // Calcular precio de compra basado en recursos
+            // Calcular precio de compra basado en recursos (excluyendo manuales)
             $precioCompra = 0;
             foreach($datos['recursos'] as $recurso) {
-                $sql = "SELECT precio_compra FROM productos WHERE id = " . intval($recurso['id']);
-                $producto = $this->select($sql);
-                if($producto) {
-                    $precioCompra += ($producto['precio_compra'] * intval($recurso['cantidad']));
+                // Solo calcular precio para recursos del inventario, no manuales
+                if(!isset($recurso['manual']) || !$recurso['manual']) {
+                    $sql = "SELECT precio_compra FROM productos WHERE id = " . intval($recurso['id']);
+                    $producto = $this->select($sql);
+                    if($producto) {
+                        $precioCompra += ($producto['precio_compra'] * intval($recurso['cantidad']));
+                    }
                 }
             }
-            $precioCompra = $precioCompra / $datos['cantidad']; // Precio por unidad
+            $precioCompra = $datos['cantidad'] > 0 ? $precioCompra / $datos['cantidad'] : 0; // Precio por unidad
             
             // Calcular precio de venta final (precio base + mano de obra)
             $precioVentaFinal = $datos['precio_venta'] + $datos['mano_obra'];
@@ -101,17 +109,35 @@ class ProduccionModel extends Mysql
                 $produccionId = $this->insert($query_produccion, $arrProduccion);
                 
                 if($produccionId > 0) {
-                    // Insertar detalle de producción (el trigger se encarga del descuento de stock)
+                    // Insertar detalle de producción
                     foreach($datos['recursos'] as $recurso) {
-                        $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada) 
-                                        VALUES(?, ?, ?)";
-                        $arrDetalle = [
-                            $produccionId,
-                            intval($recurso['id']),
-                            intval($recurso['cantidad'])
-                        ];
+                        if(isset($recurso['manual']) && $recurso['manual']) {
+                            // Para recursos manuales, usar NULL en producto_recurso_id
+                            $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada, recurso_manual) 
+                                            VALUES(?, NULL, ?, ?)";
+                            $arrDetalle = [
+                                $produccionId,
+                                intval($recurso['cantidad']),
+                                $recurso['nombre']
+                            ];
+                        } else {
+                            // Para recursos del inventario
+                            $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada, recurso_manual) 
+                                            VALUES(?, ?, ?, NULL)";
+                            $arrDetalle = [
+                                $produccionId,
+                                intval($recurso['id']),
+                                intval($recurso['cantidad'])
+                            ];
+                        }
                         
                         $this->insert($query_detalle, $arrDetalle);
+                        
+                        // Descontar del inventario solo si está habilitado y no es recurso manual
+                        if($datos['descontar_inventario'] == 1 && (!isset($recurso['manual']) || !$recurso['manual'])) {
+                            $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
+                            $this->update($query_stock, [intval($recurso['cantidad']), intval($recurso['id'])]);
+                        }
                     }
                     
                     // Confirmar transacción
@@ -138,9 +164,11 @@ class ProduccionModel extends Mysql
 
     public function getDetalleProduccion($idProduccion)
     {
-        $sql = "SELECT dp.*, p.nombre as producto_recurso, p.codigo
+        $sql = "SELECT dp.*, 
+                COALESCE(p.nombre, dp.recurso_manual) as producto_recurso, 
+                COALESCE(p.codigo, 'MANUAL') as codigo
                 FROM detalle_produccion dp
-                INNER JOIN productos p ON dp.producto_recurso_id = p.id
+                LEFT JOIN productos p ON dp.producto_recurso_id = p.id
                 WHERE dp.produccion_id = " . intval($idProduccion);
         return $this->select_all($sql);
     }

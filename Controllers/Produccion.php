@@ -91,6 +91,7 @@ class Produccion extends AuthController
                     $cantidad = intval($_POST['cantidad']);
                     $recursos = json_decode($_POST['recursos'], true);
                     $observaciones = strClean($_POST['observaciones'] ?? '');
+                    $descontarInventario = intval($_POST['descontar_inventario'] ?? 1);
                     
                     if($cantidad <= 0) {
                         $arrResponse = ['status' => false, 'msg' => 'La cantidad debe ser mayor a 0'];
@@ -111,6 +112,7 @@ class Produccion extends AuthController
                                 'cantidad' => $cantidad,
                                 'recursos' => $recursos,
                                 'observaciones' => $observaciones,
+                                'descontar_inventario' => $descontarInventario,
                                 'usuario_id' => $_SESSION['userData']['idusuario']
                             ];
                             
