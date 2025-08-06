@@ -192,6 +192,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Recurso</th>
+                                <th>Tipo</th>
                                 <th>Cantidad Utilizada</th>
                             </tr>
                         </thead>
@@ -436,30 +437,38 @@
     }
     
     function verDetalle(id) {
-        // Mostrar modal de carga
-        const loadingModal = document.getElementById('loadingModal');
-        loadingModal.classList.remove('hide');
-        loadingModal.classList.add('show');
+        console.log('Solicitando detalle para producción ID:', id);
         
         fetch(`<?= BASE_URL ?>produccion/getDetalleProduccion/${id}`)
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Datos recibidos:', data);
+                
                 const tbody = document.querySelector('#tablaDetalle tbody');
                 tbody.innerHTML = '';
                 
-                data.forEach(item => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${item.codigo}</td>
-                            <td>${item.producto_recurso}</td>
-                            <td>${item.cantidad_utilizada}</td>
-                        </tr>
-                    `;
-                });
-                
-                // Ocultar modal de carga
-                loadingModal.classList.remove('show');
-                loadingModal.classList.add('hide');
+                // Verificar si hay error en la respuesta
+                if(data.error) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="text-center text-danger">${data.error}</td></tr>`;
+                    Swal.fire('Error', data.error, 'error');
+                } else if(!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron detalles para esta producción</td></tr>';
+                } else {
+                    data.forEach(item => {
+                        const tipoClass = item.tipo_recurso === 'Manual' ? 'badge bg-info' : 'badge bg-success';
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${item.codigo || 'N/A'}</td>
+                                <td>${item.producto_recurso || 'Sin nombre'}</td>
+                                <td><span class="${tipoClass}">${item.tipo_recurso || 'Inventario'}</span></td>
+                                <td>${item.cantidad_utilizada}</td>
+                            </tr>
+                        `;
+                    });
+                }
                 
                 const modal = new bootstrap.Modal(document.getElementById('modalDetalle'), {
                     backdrop: 'static',
@@ -468,13 +477,12 @@
                 modal.show();
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Error completo:', error);
                 
-                // Ocultar modal de carga
-                loadingModal.classList.remove('show');
-                loadingModal.classList.add('hide');
+                const tbody = document.querySelector('#tablaDetalle tbody');
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error al cargar los datos</td></tr>';
                 
-                Swal.fire('Error', 'No se pudo cargar el detalle', 'error');
+                Swal.fire('Error', 'No se pudo cargar el detalle: ' + error.message, 'error');
             });
     }
     

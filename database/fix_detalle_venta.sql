@@ -1,2 +1,0 @@
-INSERT INTO `detalle_venta` (`id`, `venta_id`, `producto_id`, `cantidad`, `precio_unitario`, `costo_unitario`, `subtotal`, `costo_total`, `ganancia`) VALUES
-(37, 41, 17, 1, 56.00, 0.00, 56.00, 0.00, 56.00);

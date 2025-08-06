@@ -1,31 +1,47 @@
-<?php headerAdmin($data); ?>
+<?php 
+    headerAdmin($data); 
+?>
 
+<!-- Main Body-->
 <div class="d2c_main px-0 px-md-2 py-4">
     <div class="container-fluid">
+        <!-- Title -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-0">Módulo de Creación</h4>
-                <p class="text-muted">Caja e inventario independiente</p>
+                <h4 class="mb-0 text-capitalize">Módulo de Creación</h4>
+                <p class="text-muted">Inventario de productos comprados para creaciones</p>
             </div>
         </div>
 
-        <!-- Cards -->
+        <!-- Resumen Cards -->
         <div class="row mb-4">
             <div class="col-md-6">
-                <div class="card">
+                <div class="card bg-primary text-white">
                     <div class="card-body">
-                        <h5 class="card-title">Total Gastado</h5>
-                        <h3 id="totalGastado">$0</h3>
-                        <p class="text-muted">Dinero invertido</p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Total Gastado</h6>
+                                <h4 id="totalGastado">$0</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
-                <div class="card">
+                <div class="card bg-info text-white">
                     <div class="card-body">
-                        <h5 class="card-title">Productos</h5>
-                        <h3 id="totalProductos">0</h3>
-                        <p class="text-muted">En inventario</p>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Productos en Stock</h6>
+                                <h4 id="totalProductos">0</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-box fa-2x"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -33,17 +49,20 @@
 
         <!-- Inventario -->
         <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Inventario de Creación</h5>
+            </div>
             <div class="card-body">
-                <h5 class="card-title">Inventario</h5>
                 <div class="table-responsive">
-                    <table class="table table-striped" id="tableInventario">
+                    <table class="table table-hover table-striped" id="tablaInventario" width="100%">
                         <thead>
                             <tr>
                                 <th>Código</th>
                                 <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th>Total</th>
+                                <th>Categoría</th>
+                                <th>Stock</th>
+                                <th>Costo Promedio</th>
+                                <th>Valor Total</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -53,49 +72,67 @@
         </div>
     </div>
 </div>
+<!-- End:Main Body -->
+
+
 
 <?php footerAdmin($data); ?>
 
+<!-- DataTables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function formatoPrecioCOP(precio) {
-        return '$' + parseFloat(precio).toLocaleString('es-CO');
-    }
+    var tablaInventario;
     
     document.addEventListener('DOMContentLoaded', function() {
-        cargarCaja();
-        
-        $('#tableInventario').DataTable({
+        // Inicializar DataTable
+        tablaInventario = $('#tablaInventario').DataTable({
             "language": {"url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json"},
             "ajax": {
                 "url": "<?= BASE_URL ?>creacion/getInventarioCreacion",
-                "dataSrc": function(json) { return json || []; }
+                "dataSrc": function(json) { 
+                    cargarResumen(json);
+                    return json || []; 
+                }
             },
             "columns": [
                 {"data": "codigo"},
                 {"data": "nombre"},
-                {"data": "cantidad"},
-                {"data": "precio_venta", "render": function(data) { return formatoPrecioCOP(data); }},
-                {"data": null, "render": function(data) { return formatoPrecioCOP(data.cantidad * data.precio_venta); }}
+                {"data": "categoria"},
+                {"data": "stock_creacion"},
+                {
+                    "data": "costo_promedio",
+                    "render": function(data) {
+                        return '$' + parseFloat(data).toLocaleString('es-CO');
+                    }
+                },
+                {
+                    "data": null,
+                    "render": function(data) {
+                        const valor = data.stock_creacion * data.costo_promedio;
+                        return '$' + valor.toLocaleString('es-CO');
+                    }
+                }
             ]
         });
     });
     
-    function cargarCaja() {
-        fetch('<?= BASE_URL ?>creacion/getCajaCreacion')
-            .then(response => response.json())
-            .then(data => {
-                if(data) {
-                    document.getElementById('totalGastado').textContent = formatoPrecioCOP(data.monto_actual || 0);
-                }
-            });
+    function cargarResumen(data) {
+        let totalGastado = 0;
+        let totalProductos = data ? data.length : 0;
         
-        fetch('<?= BASE_URL ?>creacion/getInventarioCreacion')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('totalProductos').textContent = data.length || 0;
-            });
+        if(data) {
+            totalGastado = data.reduce((sum, item) => {
+                return sum + (item.stock_creacion * item.costo_promedio);
+            }, 0);
+        }
+        
+        document.getElementById('totalGastado').textContent = '$' + totalGastado.toLocaleString('es-CO');
+        document.getElementById('totalProductos').textContent = totalProductos;
     }
 </script>

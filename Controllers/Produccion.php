@@ -139,15 +139,35 @@ class Produccion extends AuthController
         try {
             header('Content-Type: application/json; charset=utf-8');
             $idProduccion = intval($idProduccion);
-            if($idProduccion > 0) {
-                $arrData = $this->model->getDetalleProduccion($idProduccion);
-                echo json_encode($arrData ?: [], JSON_UNESCAPED_UNICODE);
-            } else {
+            
+            if($idProduccion <= 0) {
                 echo json_encode(['error' => 'ID de producción inválido'], JSON_UNESCAPED_UNICODE);
+                die();
             }
+            
+            // Verificar si la producción existe
+            if(!$this->model->verificarProduccionExiste($idProduccion)) {
+                echo json_encode(['error' => 'Producción no encontrada'], JSON_UNESCAPED_UNICODE);
+                die();
+            }
+            
+            // Obtener el detalle
+            $arrData = $this->model->getDetalleProduccion($idProduccion);
+            $totalDetalles = $this->model->contarDetallesProduccion($idProduccion);
+            
+            error_log("Producción ID $idProduccion - Total detalles: $totalDetalles");
+            error_log("Detalle obtenido: " . json_encode($arrData));
+            
+            if(empty($arrData)) {
+                echo json_encode(['error' => 'No se encontraron detalles para esta producción'], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo json_encode($arrData, JSON_UNESCAPED_UNICODE);
+            }
+            
         } catch (Exception $e) {
             error_log("Error en getDetalleProduccion: " . $e->getMessage());
-            echo json_encode(['error' => 'Error al obtener el detalle'], JSON_UNESCAPED_UNICODE);
+            error_log("Stack trace: " . $e->getTraceAsString());
+            echo json_encode(['error' => 'Error al obtener el detalle: ' . $e->getMessage()], JSON_UNESCAPED_UNICODE);
         }
         die();
     }

@@ -1,1 +1,0 @@
-ALTER TABLE detalle_produccion ADD recurso_manual VARCHAR(255) NULL AFTER cantidad_utilizada;

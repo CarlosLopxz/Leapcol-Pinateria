@@ -6,57 +6,85 @@ class CreacionModel extends Mysql
         parent::__construct();
     }
 
-    public function getCajaCreacion()
-    {
-        $sql = "SELECT monto_actual FROM caja_creacion WHERE id = 1";
-        $result = $this->select($sql);
-        return $result ?: ['monto_actual' => 0];
-    }
-    
     public function getInventarioCreacion()
     {
-        $sql = "SELECT ic.cantidad, p.codigo, p.nombre, p.precio_venta
+        $sql = "SELECT ic.*, p.codigo, p.nombre, p.precio_venta, c.nombre as categoria
                 FROM inventario_creacion ic
                 INNER JOIN productos p ON ic.producto_id = p.id
-                WHERE ic.cantidad > 0
+                INNER JOIN categorias c ON p.categoria_id = c.id
+                WHERE ic.stock_creacion > 0
                 ORDER BY p.nombre ASC";
-        return $this->select_all($sql) ?: [];
+        return $this->select_all($sql);
     }
     
-    public function crearClienteCreacion()
+    public function getCajaCreacionActual()
     {
-        $sql = "INSERT IGNORE INTO clientes (nombre, apellido, documento, tipo_documento, estado) 
-                VALUES ('Cliente', 'Creación', '00000000', 'CC', 1)";
-        $this->insert($sql, []);
-        
-        // Crear tablas si no existen
-        $this->crearTablasCreacion();
+        $sql = "SELECT cc.*, u.nombre as usuario
+                FROM caja_creacion cc
+                INNER JOIN usuarios u ON cc.usuario_id = u.idusuario
+                WHERE cc.estado = 1
+                ORDER BY cc.id DESC LIMIT 1";
+        return $this->select($sql);
     }
     
-    private function crearTablasCreacion()
+    public function getMovimientosCajaCreacion($limit = 50)
     {
-        // Crear caja_creacion
-        $sql1 = "CREATE TABLE IF NOT EXISTS caja_creacion (
-                    id INT(11) NOT NULL AUTO_INCREMENT,
-                    monto_actual DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-                    estado TINYINT(1) NOT NULL DEFAULT 1,
-                    PRIMARY KEY (id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-        $this->insert($sql1, []);
+        $sql = "SELECT mcc.*, p.nombre as producto_nombre
+                FROM movimientos_caja_creacion mcc
+                LEFT JOIN ventas v ON mcc.venta_id = v.id
+                LEFT JOIN detalle_venta dv ON v.id = dv.venta_id
+                LEFT JOIN productos p ON dv.producto_id = p.id
+                WHERE mcc.caja_creacion_id = (
+                    SELECT id FROM caja_creacion WHERE estado = 1 ORDER BY id DESC LIMIT 1
+                )
+                ORDER BY mcc.fecha DESC
+                LIMIT " . intval($limit);
+        return $this->select_all($sql);
+    }
+    
+    public function abrirCajaCreacion($montoInicial, $observaciones, $usuarioId)
+    {
+        // Verificar si hay una caja abierta
+        $cajaAbierta = $this->select("SELECT id FROM caja_creacion WHERE estado = 1");
+        if($cajaAbierta) {
+            return false; // Ya hay una caja abierta
+        }
         
-        // Insertar registro inicial
-        $sql2 = "INSERT IGNORE INTO caja_creacion (id, monto_actual) VALUES (1, 0.00)";
-        $this->insert($sql2, []);
-        
-        // Crear inventario_creacion
-        $sql3 = "CREATE TABLE IF NOT EXISTS inventario_creacion (
-                    id INT(11) NOT NULL AUTO_INCREMENT,
-                    producto_id INT(11) NOT NULL,
-                    cantidad INT(11) NOT NULL DEFAULT 0,
-                    PRIMARY KEY (id),
-                    UNIQUE KEY unique_producto (producto_id),
-                    FOREIGN KEY (producto_id) REFERENCES productos(id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-        $this->insert($sql3, []);
+        $sql = "INSERT INTO caja_creacion (usuario_id, monto_inicial, observaciones) VALUES (?, ?, ?)";
+        return $this->insert($sql, [$usuarioId, $montoInicial, $observaciones]);
+    }
+    
+    public function cerrarCajaCreacion($montoFinal, $observaciones)
+    {
+        $sql = "UPDATE caja_creacion 
+                SET fecha_cierre = NOW(), monto_final = ?, observaciones = CONCAT(observaciones, ' - Cierre: ', ?), estado = 0
+                WHERE estado = 1";
+        return $this->update($sql, [$montoFinal, $observaciones]);
+    }
+    
+    public function getClienteCreacion()
+    {
+        $sql = "SELECT id FROM clientes WHERE nombre = 'Creacion' AND apellido = 'Especial' LIMIT 1";
+        return $this->select($sql);
+    }
+    
+    public function getResumenCreacion()
+    {
+        $sql = "SELECT 
+                    COUNT(DISTINCT ic.producto_id) as total_productos,
+                    COALESCE(SUM(ic.stock_creacion), 0) as total_stock,
+                    COALESCE(SUM(ic.stock_creacion * ic.costo_promedio), 0) as valor_inventario,
+                    COALESCE((SELECT total_gastos FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_gastos,
+                    COALESCE((SELECT total_ventas FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_ventas
+                FROM inventario_creacion ic
+                WHERE ic.stock_creacion > 0";
+        return $this->select($sql);
+    }
+    
+    public function getClienteCreacionId()
+    {
+        $sql = "SELECT id FROM clientes WHERE nombre = 'Creacion' AND apellido = 'Especial' LIMIT 1";
+        $result = $this->select($sql);
+        return $result ? $result['id'] : null;
     }
 }

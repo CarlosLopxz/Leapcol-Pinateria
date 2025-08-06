@@ -69,15 +69,15 @@ class ProduccionModel extends Mysql
             }
             $precioCompra = $datos['cantidad'] > 0 ? $precioCompra / $datos['cantidad'] : 0; // Precio por unidad
             
-            // Calcular precio de venta final (precio base + mano de obra)
-            $precioVentaFinal = $datos['precio_venta'] + $datos['mano_obra'];
+            // Calcular precio de venta final
+            $precioVentaFinal = $datos['precio_venta'];
             
             // Generar código único para el producto
             $codigoProducto = 'P' . date('ymd') . rand(100, 999);
             
             // Crear el producto nuevo
-            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, mano_obra, stock, estado) 
-                             VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)";
+            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock, estado) 
+                             VALUES(?, ?, ?, ?, ?, ?, ?, 1)";
             $arrProducto = [
                 $codigoProducto,
                 $datos['nombre_producto'],
@@ -85,7 +85,6 @@ class ProduccionModel extends Mysql
                 $datos['categoria_producto'],
                 $precioCompra,
                 $precioVentaFinal,
-                $datos['mano_obra'],
                 $datos['cantidad']
             ];
             
@@ -112,31 +111,33 @@ class ProduccionModel extends Mysql
                     // Insertar detalle de producción
                     foreach($datos['recursos'] as $recurso) {
                         if(isset($recurso['manual']) && $recurso['manual']) {
-                            // Para recursos manuales, usar NULL en producto_recurso_id
-                            $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada, recurso_manual) 
-                                            VALUES(?, NULL, ?, ?)";
-                            $arrDetalle = [
-                                $produccionId,
-                                intval($recurso['cantidad']),
-                                $recurso['nombre']
-                            ];
+                            // Para recursos manuales, crear un producto temporal
+                            $codigoManual = 'MANUAL_' . $produccionId . '_' . time();
+                            $query_temp = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock, estado) 
+                                          VALUES(?, ?, ?, ?, 0, 0, 0, 3)";
+                            $tempId = $this->insert($query_temp, [
+                                $codigoManual,
+                                $recurso['nombre'],
+                                'Recurso manual para producción',
+                                $datos['categoria_producto']
+                            ]);
+                            
+                            if($tempId > 0) {
+                                $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada) 
+                                                VALUES(?, ?, ?)";
+                                $this->insert($query_detalle, [$produccionId, $tempId, intval($recurso['cantidad'])]);
+                            }
                         } else {
                             // Para recursos del inventario
-                            $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada, recurso_manual) 
-                                            VALUES(?, ?, ?, NULL)";
-                            $arrDetalle = [
-                                $produccionId,
-                                intval($recurso['id']),
-                                intval($recurso['cantidad'])
-                            ];
-                        }
-                        
-                        $this->insert($query_detalle, $arrDetalle);
-                        
-                        // Descontar del inventario solo si está habilitado y no es recurso manual
-                        if($datos['descontar_inventario'] == 1 && (!isset($recurso['manual']) || !$recurso['manual'])) {
-                            $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
-                            $this->update($query_stock, [intval($recurso['cantidad']), intval($recurso['id'])]);
+                            $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada) 
+                                            VALUES(?, ?, ?)";
+                            $this->insert($query_detalle, [$produccionId, intval($recurso['id']), intval($recurso['cantidad'])]);
+                            
+                            // Descontar del inventario solo si está habilitado
+                            if($datos['descontar_inventario'] == 1) {
+                                $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
+                                $this->update($query_stock, [intval($recurso['cantidad']), intval($recurso['id'])]);
+                            }
                         }
                     }
                     
@@ -152,6 +153,7 @@ class ProduccionModel extends Mysql
         } catch (Exception $e) {
             $this->rollback();
             error_log("Error en insertProduccion: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return false;
         }
     }
@@ -164,12 +166,35 @@ class ProduccionModel extends Mysql
 
     public function getDetalleProduccion($idProduccion)
     {
-        $sql = "SELECT dp.*, 
-                COALESCE(p.nombre, dp.recurso_manual) as producto_recurso, 
-                COALESCE(p.codigo, 'MANUAL') as codigo
+        $sql = "SELECT dp.*, p.nombre as producto_recurso, p.codigo,
+                       CASE 
+                           WHEN p.estado = 3 THEN 'Manual'
+                           ELSE 'Inventario'
+                       END as tipo_recurso
                 FROM detalle_produccion dp
-                LEFT JOIN productos p ON dp.producto_recurso_id = p.id
-                WHERE dp.produccion_id = " . intval($idProduccion);
-        return $this->select_all($sql);
+                INNER JOIN productos p ON dp.producto_recurso_id = p.id
+                WHERE dp.produccion_id = " . intval($idProduccion) . "
+                ORDER BY dp.id ASC";
+        $result = $this->select_all($sql);
+        
+        // Log para debugging
+        error_log("SQL ejecutado: " . $sql);
+        error_log("Resultado: " . json_encode($result));
+        
+        return $result ?: [];
+    }
+    
+    public function verificarProduccionExiste($idProduccion)
+    {
+        $sql = "SELECT COUNT(*) as total FROM producciones WHERE id = " . intval($idProduccion);
+        $result = $this->select($sql);
+        return $result ? intval($result['total']) > 0 : false;
+    }
+    
+    public function contarDetallesProduccion($idProduccion)
+    {
+        $sql = "SELECT COUNT(*) as total FROM detalle_produccion WHERE produccion_id = " . intval($idProduccion);
+        $result = $this->select($sql);
+        return $result ? intval($result['total']) : 0;
     }
 }

@@ -32,8 +32,9 @@ class ProductosModel extends Mysql
     public function getProducto($idProducto)
     {
         $this->intIdProducto = $idProducto;
-        $sql = "SELECT p.*, c.nombre as categoria,
-                COALESCE(p.mano_obra, 0) as mano_obra
+        $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.categoria_id, 
+                       p.precio_compra, p.precio_venta, p.stock, p.stock_minimo, 
+                       p.imagen, p.estado, c.nombre as categoria_nombre
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
                 WHERE p.id = {$this->intIdProducto}";

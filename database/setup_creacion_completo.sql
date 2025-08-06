@@ -1,13 +1,19 @@
--- Crear cliente especial para creación
-INSERT INTO `clientes` (`nombre`, `apellido`, `documento`, `tipo_documento`, `telefono`, `email`, `direccion`, `ciudad`, `estado`) 
+-- Script completo para configurar el módulo de creación
+
+-- 1. Crear cliente especial para creación
+INSERT IGNORE INTO `clientes` (`nombre`, `apellido`, `documento`, `tipo_documento`, `telefono`, `email`, `direccion`, `ciudad`, `estado`) 
 VALUES ('Creacion', 'Especial', '00000000', 'CC', '0000000000', 'creacion@pinateria.com', 'Interno', 'Sistema', 1);
 
--- Agregar módulo de creación
-INSERT INTO `modulos` (`nombre`, `descripcion`, `icono`, `url`, `estado`) 
+-- 2. Agregar módulo de creación
+INSERT IGNORE INTO `modulos` (`nombre`, `descripcion`, `icono`, `url`, `estado`) 
 VALUES ('Creación', 'Módulo de creación independiente', 'fas fa-magic', 'creacion', 1);
 
--- Crear tabla para inventario de creación
-CREATE TABLE `inventario_creacion` (
+-- 3. Dar permisos al rol administrador para el módulo de creación
+INSERT IGNORE INTO `permisos` (`rol_id`, `modulo_id`) 
+SELECT 1, id FROM `modulos` WHERE `url` = 'creacion';
+
+-- 4. Crear tabla para inventario de creación
+CREATE TABLE IF NOT EXISTS `inventario_creacion` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `producto_id` int(11) NOT NULL,
   `stock_creacion` int(11) NOT NULL DEFAULT 0,
@@ -18,8 +24,8 @@ CREATE TABLE `inventario_creacion` (
   FOREIGN KEY (`producto_id`) REFERENCES `productos` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Crear tabla para caja de creación
-CREATE TABLE `caja_creacion` (
+-- 5. Crear tabla para caja de creación
+CREATE TABLE IF NOT EXISTS `caja_creacion` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `usuario_id` int(11) NOT NULL,
   `fecha_apertura` datetime NOT NULL DEFAULT current_timestamp(),
@@ -34,8 +40,8 @@ CREATE TABLE `caja_creacion` (
   FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`idusuario`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Crear tabla para movimientos de caja de creación
-CREATE TABLE `movimientos_caja_creacion` (
+-- 6. Crear tabla para movimientos de caja de creación
+CREATE TABLE IF NOT EXISTS `movimientos_caja_creacion` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `caja_creacion_id` int(11) NOT NULL,
   `tipo` enum('ingreso','egreso','venta','gasto') NOT NULL,
@@ -50,17 +56,19 @@ CREATE TABLE `movimientos_caja_creacion` (
   FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`idusuario`) ON DELETE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Trigger para detectar ventas al cliente "creacion" y mover a inventario de creación
+-- 7. Modificar el trigger existente para incluir lógica de creación
+DROP TRIGGER IF EXISTS `actualizar_stock_venta`;
+
 DELIMITER $$
-CREATE TRIGGER `procesar_venta_creacion` AFTER INSERT ON `detalle_venta` FOR EACH ROW 
+CREATE TRIGGER `actualizar_stock_venta` AFTER INSERT ON `detalle_venta` FOR EACH ROW 
 BEGIN
-    DECLARE cliente_nombre VARCHAR(100);
+    DECLARE cliente_nombre VARCHAR(100) DEFAULT '';
     DECLARE es_creacion INT DEFAULT 0;
     
     -- Verificar si la venta es para el cliente "creacion"
-    SELECT c.nombre INTO cliente_nombre
+    SELECT COALESCE(c.nombre, '') INTO cliente_nombre
     FROM ventas v 
-    INNER JOIN clientes c ON v.cliente_id = c.id
+    LEFT JOIN clientes c ON v.cliente_id = c.id
     WHERE v.id = NEW.venta_id;
     
     IF cliente_nombre = 'Creacion' THEN
@@ -71,14 +79,24 @@ BEGIN
         VALUES (NEW.producto_id, NEW.cantidad, NEW.costo_unitario)
         ON DUPLICATE KEY UPDATE 
             stock_creacion = stock_creacion + NEW.cantidad,
-            costo_promedio = ((costo_promedio * stock_creacion) + (NEW.costo_unitario * NEW.cantidad)) / (stock_creacion + NEW.cantidad);
+            costo_promedio = CASE 
+                WHEN stock_creacion = 0 THEN NEW.costo_unitario
+                ELSE ((costo_promedio * stock_creacion) + (NEW.costo_unitario * NEW.cantidad)) / (stock_creacion + NEW.cantidad)
+            END;
+        
+        -- Verificar si hay caja de creación abierta, si no, crear una automáticamente
+        IF (SELECT COUNT(*) FROM caja_creacion WHERE estado = 1) = 0 THEN
+            INSERT INTO caja_creacion (usuario_id, monto_inicial, observaciones)
+            SELECT usuario_id, 0, 'Caja abierta automáticamente por venta a creación'
+            FROM ventas WHERE id = NEW.venta_id;
+        END IF;
         
         -- Registrar movimiento en caja de creación
         INSERT INTO movimientos_caja_creacion (caja_creacion_id, tipo, concepto, monto, venta_id, usuario_id)
         SELECT 
             (SELECT id FROM caja_creacion WHERE estado = 1 ORDER BY id DESC LIMIT 1),
             'gasto',
-            CONCAT('Compra: ', p.nombre),
+            CONCAT('Compra: ', p.nombre, ' (Cant: ', NEW.cantidad, ')'),
             NEW.subtotal,
             NEW.venta_id,
             (SELECT usuario_id FROM ventas WHERE id = NEW.venta_id)
@@ -89,6 +107,14 @@ BEGIN
         SET total_gastos = total_gastos + NEW.subtotal
         WHERE estado = 1 
         ORDER BY id DESC LIMIT 1;
+    ELSE
+        -- Lógica normal para otras ventas (descontar stock)
+        UPDATE productos 
+        SET stock = stock - NEW.cantidad
+        WHERE id = NEW.producto_id;
     END IF;
 END$$
 DELIMITER ;
+
+-- 8. Mensaje de confirmación
+SELECT 'Módulo de creación configurado correctamente' as mensaje;
