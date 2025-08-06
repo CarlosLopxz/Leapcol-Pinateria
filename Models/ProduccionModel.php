@@ -97,12 +97,8 @@ class ProduccionModel extends Mysql
                 $produccionId = $this->insert($query_produccion, $arrProduccion);
                 
                 if($produccionId > 0) {
-                    // Descontar stock de recursos
+                    // Insertar detalle de producción (el trigger se encarga del descuento de stock)
                     foreach($datos['recursos'] as $recurso) {
-                        $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
-                        $this->update($query_stock, [intval($recurso['cantidad']), intval($recurso['id'])]);
-                        
-                        // Insertar detalle de producción
                         $query_detalle = "INSERT INTO detalle_produccion(produccion_id, producto_recurso_id, cantidad_utilizada) 
                                         VALUES(?, ?, ?)";
                         $arrDetalle = [
