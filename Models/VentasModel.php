@@ -455,4 +455,15 @@ class VentasModel extends Mysql
         $request = $this->select($sql);
         return $request ? intval($request['total']) : 0;
     }
+    
+    public function getTotalManoObra()
+    {
+        $sql = "SELECT SUM(p.mano_obra * d.cantidad) as total
+                FROM detalle_venta d
+                INNER JOIN productos p ON d.producto_id = p.id
+                INNER JOIN ventas v ON d.venta_id = v.id
+                WHERE v.estado != 0 AND p.mano_obra > 0";
+        $request = $this->select($sql);
+        return $request ? floatval($request['total']) : 0;
+    }
 }

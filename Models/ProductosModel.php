@@ -20,7 +20,8 @@ class ProductosModel extends Mysql
 
     public function getProductos()
     {
-        $sql = "SELECT p.*, c.nombre as categoria
+        $sql = "SELECT p.*, c.nombre as categoria, 
+                COALESCE(p.mano_obra, 0) as mano_obra
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
                 WHERE p.estado != 3
@@ -32,7 +33,8 @@ class ProductosModel extends Mysql
     public function getProducto($idProducto)
     {
         $this->intIdProducto = $idProducto;
-        $sql = "SELECT p.*, c.nombre as categoria
+        $sql = "SELECT p.*, c.nombre as categoria,
+                COALESCE(p.mano_obra, 0) as mano_obra
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
                 WHERE p.id = {$this->intIdProducto}";

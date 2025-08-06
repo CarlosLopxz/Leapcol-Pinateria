@@ -71,16 +71,24 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="descripcion_producto" class="form-label">Descripción</label>
                             <textarea class="form-control" id="descripcion_producto" name="descripcion_producto" rows="2"></textarea>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="precio_venta" class="form-label">Precio de Venta <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="precio_venta" name="precio_venta" min="0" step="0.01" required>
                             </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="mano_obra" class="form-label">Mano de Obra</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="mano_obra" name="mano_obra" min="0" step="0.01" value="0">
+                            </div>
+                            <small class="text-muted">Precio Final: $<span id="precio_total">0</span></small>
                         </div>
                     </div>
                     
@@ -219,6 +227,8 @@
         document.getElementById('btnNuevaProduccion').addEventListener('click', abrirModalProduccion);
         document.getElementById('btnAgregarRecurso').addEventListener('click', agregarRecurso);
         document.getElementById('btnProcesarProduccion').addEventListener('click', procesarProduccion);
+        document.getElementById('precio_venta').addEventListener('input', actualizarPrecioTotal);
+        document.getElementById('mano_obra').addEventListener('input', actualizarPrecioTotal);
     });
     
     function cargarCategorias() {
@@ -416,5 +426,13 @@
                 
                 Swal.fire('Error', 'No se pudo cargar el detalle', 'error');
             });
+    }
+    
+    function actualizarPrecioTotal() {
+        const precioVenta = parseFloat(document.getElementById('precio_venta').value) || 0;
+        const manoObra = parseFloat(document.getElementById('mano_obra').value) || 0;
+        const precioTotal = precioVenta + manoObra;
+        
+        document.getElementById('precio_total').textContent = precioTotal.toLocaleString('es-CO');
     }
 </script>

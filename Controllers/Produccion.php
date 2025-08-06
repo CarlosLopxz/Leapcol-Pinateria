@@ -87,6 +87,7 @@ class Produccion extends AuthController
                     $descripcion = strClean($_POST['descripcion_producto'] ?? '');
                     $categoria = intval($_POST['categoria_producto']);
                     $precioVenta = floatval($_POST['precio_venta']);
+                    $manoObra = floatval($_POST['mano_obra'] ?? 0);
                     $cantidad = intval($_POST['cantidad']);
                     $recursos = json_decode($_POST['recursos'], true);
                     $observaciones = strClean($_POST['observaciones'] ?? '');
@@ -106,6 +107,7 @@ class Produccion extends AuthController
                                 'descripcion_producto' => $descripcion,
                                 'categoria_producto' => $categoria,
                                 'precio_venta' => $precioVenta,
+                                'mano_obra' => $manoObra,
                                 'cantidad' => $cantidad,
                                 'recursos' => $recursos,
                                 'observaciones' => $observaciones,

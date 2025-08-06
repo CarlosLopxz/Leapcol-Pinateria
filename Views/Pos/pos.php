@@ -92,13 +92,7 @@
                                 <input type="number" class="form-control" id="descuento" value="0" min="0">
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Mano de Obra:</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="manoObra" value="0" min="0">
-                            </div>
-                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-bold">TOTAL:</label>
                             <div class="input-group">
@@ -191,7 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnProcesarVenta').addEventListener('click', procesarVenta);
     document.getElementById('btnCancelarVenta').addEventListener('click', cancelarVenta);
     document.getElementById('descuento').addEventListener('input', calcularTotales);
-    document.getElementById('manoObra').addEventListener('input', calcularTotales);
     document.getElementById('metodoPago').addEventListener('change', manejarMetodoPago);
     document.getElementById('pagaCon').addEventListener('input', calcularCambio);
 });
@@ -388,8 +381,7 @@ function eliminarDelCarrito(index) {
 function calcularTotales() {
     const subtotal = carrito.reduce((sum, item) => sum + item.subtotal, 0);
     const descuento = parseFloat(document.getElementById('descuento').value) || 0;
-    const manoObra = parseFloat(document.getElementById('manoObra').value) || 0;
-    const total = subtotal - descuento + manoObra;
+    const total = subtotal - descuento;
     
     document.getElementById('subtotal').value = subtotal.toFixed(0);
     document.getElementById('total').value = total.toFixed(0);
@@ -447,7 +439,6 @@ function procesarVenta() {
     formData.append('subtotal', document.getElementById('subtotal').value);
     formData.append('impuestos', 0);
     formData.append('descuentos', document.getElementById('descuento').value || 0);
-    formData.append('manoObra', document.getElementById('manoObra').value || 0);
     formData.append('total', document.getElementById('total').value);
     formData.append('metodo_pago', document.getElementById('metodoPago').value);
     formData.append('observaciones', '');
@@ -523,7 +514,6 @@ function limpiarVenta() {
     document.getElementById('clienteSelect').value = 0;
     document.getElementById('subtotal').value = 0;
     document.getElementById('descuento').value = 0;
-    document.getElementById('manoObra').value = 0;
     document.getElementById('total').value = 0;
     document.getElementById('metodoPago').value = 1;
     document.getElementById('pagaCon').value = '';

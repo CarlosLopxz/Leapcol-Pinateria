@@ -29,7 +29,8 @@
                                 <th>Código</th>
                                 <th>Nombre</th>
                                 <th>Categoría</th>
-                                <th>Precio</th>
+                                <th>Precio Total</th>
+                                <th>Mano de Obra</th>
                                 <th>Stock</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
@@ -198,6 +199,12 @@
                     "data": "precio_venta",
                     "render": function(data) {
                         return formatoPrecioCOP(data);
+                    }
+                },
+                {
+                    "data": "mano_obra",
+                    "render": function(data) {
+                        return data > 0 ? formatoPrecioCOP(data) : '-';
                     }
                 },
                 {

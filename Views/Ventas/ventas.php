@@ -16,7 +16,7 @@
 
         <!-- Dashboard Cards -->
         <div class="row mb-4">
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -31,7 +31,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -46,7 +46,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -61,7 +61,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 mb-3">
+            <div class="col-md-2 mb-3">
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
@@ -71,6 +71,21 @@
                             </div>
                             <div class="bg-warning text-white rounded-circle p-3">
                                 <i class="fas fa-box"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-1">Mano de Obra</h6>
+                                <h4 class="mb-0" id="totalManoObra">$0</h4>
+                            </div>
+                            <div class="bg-secondary text-white rounded-circle p-3">
+                                <i class="fas fa-tools"></i>
                             </div>
                         </div>
                     </div>
@@ -478,6 +493,17 @@
             .catch(error => {
                 console.error('Error al cargar total de productos vendidos:', error);
                 document.getElementById('totalProductos').textContent = '0';
+            });
+        
+        // Cargar total de mano de obra
+        fetch('<?= BASE_URL ?>ventas/getTotalManoObra')
+            .then(handleResponse)
+            .then(data => {
+                document.getElementById('totalManoObra').textContent = formatoPrecioCOP(data.total || 0);
+            })
+            .catch(error => {
+                console.error('Error al cargar total de mano de obra:', error);
+                document.getElementById('totalManoObra').textContent = '$0';
             });
     }
     

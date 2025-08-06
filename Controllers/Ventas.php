@@ -301,6 +301,19 @@ class Ventas extends AuthController
         die();
     }
     
+    public function getTotalManoObra()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            $total = $this->model->getTotalManoObra();
+            echo json_encode(['total' => $total], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            error_log("Error en getTotalManoObra: " . $e->getMessage());
+            echo json_encode(['total' => 0], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
+    
     public function imprimirTicket($idVenta)
     {
         try {

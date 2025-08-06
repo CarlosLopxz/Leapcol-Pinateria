@@ -61,19 +61,23 @@ class ProduccionModel extends Mysql
             }
             $precioCompra = $precioCompra / $datos['cantidad']; // Precio por unidad
             
+            // Calcular precio de venta final (precio base + mano de obra)
+            $precioVentaFinal = $datos['precio_venta'] + $datos['mano_obra'];
+            
             // Generar código único para el producto
             $codigoProducto = 'P' . date('ymd') . rand(100, 999);
             
             // Crear el producto nuevo
-            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock, estado) 
-                             VALUES(?, ?, ?, ?, ?, ?, ?, 1)";
+            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, mano_obra, stock, estado) 
+                             VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)";
             $arrProducto = [
                 $codigoProducto,
                 $datos['nombre_producto'],
                 $datos['descripcion_producto'],
                 $datos['categoria_producto'],
                 $precioCompra,
-                $datos['precio_venta'],
+                $precioVentaFinal,
+                $datos['mano_obra'],
                 $datos['cantidad']
             ];
             
