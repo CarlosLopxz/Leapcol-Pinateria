@@ -93,9 +93,10 @@ class Productos extends AuthController
                     $categoria = intval($_POST['categoria']);
                     $estado = intval($_POST['estado']);
                     
-                    // Validar que el precio de venta sea mayor que el de compra
-                    if($precioVenta <= $precioCompra) {
-                        $arrResponse = ['status' => false, 'msg' => 'El precio de venta debe ser mayor al precio de compra'];
+                    // Validar que el precio total (venta + mano de obra) sea mayor que el de compra
+                    $precioTotal = $precioVenta + $manoObra;
+                    if($precioTotal <= $precioCompra) {
+                        $arrResponse = ['status' => false, 'msg' => 'El precio total (venta + mano de obra) debe ser mayor al precio de compra'];
                         echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
                         die();
                     }
