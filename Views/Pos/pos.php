@@ -491,6 +491,14 @@ function procesarVenta() {
     .then(data => {
         Swal.close();
         if (data.status) {
+            // Actualizar stock localmente
+            carrito.forEach(item => {
+                const producto = productos.find(p => p.id === item.id);
+                if (producto) {
+                    producto.stock -= item.cantidad;
+                }
+            });
+            
             Swal.fire({
                 icon: 'success',
                 title: '¡Venta Realizada!',
