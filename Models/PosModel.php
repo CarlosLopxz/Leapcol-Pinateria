@@ -66,6 +66,17 @@ class PosModel extends Mysql
             $ventaId = $this->insert($query, $arrData);
             
             if ($ventaId > 0) {
+                // Verificar stock antes de insertar detalles
+                foreach ($datos['productos'] as $producto) {
+                    $stockActual = $this->verificarStock($producto['id']);
+                    if ($stockActual < $producto['cantidad']) {
+                        $sql = "SELECT nombre FROM productos WHERE id = ?";
+                        $prod = $this->select($sql, [$producto['id']]);
+                        $nombreProducto = $prod ? $prod['nombre'] : 'Producto';
+                        throw new Exception("Stock insuficiente para {$nombreProducto}. Stock disponible: {$stockActual}, solicitado: {$producto['cantidad']}");
+                    }
+                }
+                
                 // Insertar detalles
                 foreach ($datos['productos'] as $producto) {
                     $sql = "SELECT precio_compra FROM productos WHERE id = ?";

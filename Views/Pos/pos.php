@@ -300,9 +300,18 @@ function agregarAlCarrito(productoId, cantidad) {
     const index = carrito.findIndex(item => item.id === productoId);
     
     if (index !== -1) {
-        carrito[index].cantidad += cantidad;
+        const nuevaCantidad = carrito[index].cantidad + cantidad;
+        if (nuevaCantidad > producto.stock) {
+            Swal.fire('Error', `Stock insuficiente. Disponible: ${producto.stock}`, 'error');
+            return;
+        }
+        carrito[index].cantidad = nuevaCantidad;
         carrito[index].subtotal = carrito[index].cantidad * precioTotal;
     } else {
+        if (cantidad > producto.stock) {
+            Swal.fire('Error', `Stock insuficiente. Disponible: ${producto.stock}`, 'error');
+            return;
+        }
         carrito.push({
             id: producto.id,
             codigo: producto.codigo,
@@ -370,6 +379,13 @@ function cambiarCantidad(index, cambio) {
     const nuevaCantidad = carrito[index].cantidad + cambio;
     if (nuevaCantidad <= 0) {
         eliminarDelCarrito(index);
+        return;
+    }
+    
+    // Verificar stock disponible
+    const producto = productos.find(p => p.id === carrito[index].id);
+    if (producto && nuevaCantidad > producto.stock) {
+        Swal.fire('Error', `Stock insuficiente. Disponible: ${producto.stock}`, 'error');
         return;
     }
     
