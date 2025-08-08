@@ -134,11 +134,8 @@ class ProduccionModel extends Mysql
                                             VALUES(?, ?, ?)";
                             $this->insert($query_detalle, [$produccionId, intval($recurso['id']), intval($recurso['cantidad'])]);
                             
-                            // Descontar del inventario solo si está habilitado
-                            if($datos['descontar_inventario'] == 1) {
-                                $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
-                                $this->update($query_stock, [intval($recurso['cantidad']), intval($recurso['id'])]);
-                            }
+                            // El stock se descuenta automáticamente por el trigger procesar_produccion
+                            // Solo si descontar_inventario está habilitado, pero el trigger ya lo maneja
                         }
                     }
                     

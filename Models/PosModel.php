@@ -87,9 +87,7 @@ class PosModel extends Mysql
                         $ganancia
                     ]);
                     
-                    // Actualizar stock
-                    $this->update("UPDATE productos SET stock = stock - ? WHERE id = ?", 
-                                 [$producto['cantidad'], $producto['id']]);
+                    // El stock se actualiza automáticamente por el trigger actualizar_stock_venta
                 }
                 
                 $this->commit();

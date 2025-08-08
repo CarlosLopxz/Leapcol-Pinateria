@@ -336,10 +336,8 @@ class VentasModel extends Mysql
                             throw new Exception("Error al insertar detalle de venta");
                         }
                         
-                        // Actualizar stock
-                        $query_stock = "UPDATE productos SET stock = stock - ? WHERE id = ?";
-                        $arrDataStock = array($cantidad, $idProducto);
-                        $this->update($query_stock, $arrDataStock);
+                        // El stock se actualiza automáticamente por el trigger actualizar_stock_venta
+                        // No necesitamos actualizar manualmente
                     }
                 } catch (Exception $e) {
                     error_log("Error al procesar productos: " . $e->getMessage());
