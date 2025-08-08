@@ -87,6 +87,7 @@ class Productos extends AuthController
                     $descripcion = strClean($_POST['descripcion']);
                     $precioCompra = floatval($_POST['precio_compra']);
                     $precioVenta = floatval($_POST['precio_venta']);
+                    $manoObra = floatval($_POST['mano_obra'] ?? 0);
                     $stock = intval($_POST['stock']);
                     $stockMinimo = intval($_POST['stock_minimo']);
                     $categoria = intval($_POST['categoria']);
@@ -112,6 +113,7 @@ class Productos extends AuthController
                         'descripcion' => $descripcion,
                         'precioCompra' => $precioCompra,
                         'precioVenta' => $precioVenta,
+                        'manoObra' => $manoObra,
                         'stock' => $stock,
                         'stockMinimo' => $stockMinimo,
                         'categoria' => $categoria,

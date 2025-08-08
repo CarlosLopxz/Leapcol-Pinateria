@@ -43,14 +43,15 @@
                                     <tr>
                                         <th>Producto</th>
                                         <th width="100">Cantidad</th>
-                                        <th width="120">Precio</th>
+                                        <th width="100">Precio</th>
+                                        <th width="100">Mano Obra</th>
                                         <th width="120">Subtotal</th>
                                         <th width="50">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody id="carritoItems">
                                     <tr id="carritoVacio">
-                                        <td colspan="5" class="text-center">No hay productos en el carrito</td>
+                                        <td colspan="6" class="text-center">No hay productos en el carrito</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -85,6 +86,7 @@
                                 <input type="text" class="form-control" id="subtotal" readonly value="0">
                             </div>
                         </div>
+
                         <div class="mb-3">
                             <label class="form-label">Descuento:</label>
                             <div class="input-group">
@@ -245,9 +247,10 @@ function filtrarProductos() {
                 <div>
                     <strong>${producto.nombre}</strong><br>
                     <small class="text-muted">Código: ${producto.codigo} | Stock: ${stockDisponible}</small>
+                    ${producto.mano_obra > 0 ? `<br><small class="text-info">Mano de obra: ${formatoPrecioCOP(producto.mano_obra)}</small>` : ''}
                 </div>
                 <div class="text-end">
-                    <span class="fw-bold">${formatoPrecioCOP(producto.precio_venta)}</span>
+                    <span class="fw-bold">${formatoPrecioCOP(parseFloat(producto.precio_venta) + parseFloat(producto.mano_obra || 0))}</span>
                 </div>
             </div>
         `;
@@ -293,19 +296,22 @@ function agregarAlCarrito(productoId, cantidad) {
     const producto = productos.find(p => p.id === productoId);
     if (!producto || producto.stock <= 0) return;
     
+    const precioTotal = parseFloat(producto.precio_venta) + parseFloat(producto.mano_obra || 0);
     const index = carrito.findIndex(item => item.id === productoId);
     
     if (index !== -1) {
         carrito[index].cantidad += cantidad;
-        carrito[index].subtotal = carrito[index].cantidad * producto.precio_venta;
+        carrito[index].subtotal = carrito[index].cantidad * precioTotal;
     } else {
         carrito.push({
             id: producto.id,
             codigo: producto.codigo,
             nombre: producto.nombre,
             precio: producto.precio_venta,
+            manoObra: producto.mano_obra || 0,
+            precioTotal: precioTotal,
             cantidad: cantidad,
-            subtotal: cantidad * producto.precio_venta
+            subtotal: cantidad * precioTotal
         });
     }
     
@@ -332,7 +338,7 @@ function actualizarTablaCarrito() {
     tbody.innerHTML = '';
     
     if (carrito.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">No hay productos en el carrito</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No hay productos en el carrito</td></tr>';
         return;
     }
     
@@ -348,6 +354,7 @@ function actualizarTablaCarrito() {
                 </div>
             </td>
             <td class="text-end">${formatoPrecioCOP(item.precio)}</td>
+            <td class="text-end">${item.manoObra > 0 ? formatoPrecioCOP(item.manoObra) : '-'}</td>
             <td class="text-end">${formatoPrecioCOP(item.subtotal)}</td>
             <td class="text-center">
                 <button class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${index})">
@@ -367,7 +374,7 @@ function cambiarCantidad(index, cambio) {
     }
     
     carrito[index].cantidad = nuevaCantidad;
-    carrito[index].subtotal = nuevaCantidad * carrito[index].precio;
+    carrito[index].subtotal = nuevaCantidad * carrito[index].precioTotal;
     actualizarTablaCarrito();
     calcularTotales();
 }

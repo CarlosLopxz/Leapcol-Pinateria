@@ -7,6 +7,7 @@ class ProductosModel extends Mysql
     private $strDescripcion;
     private $decPrecioCompra;
     private $decPrecioVenta;
+    private $decManoObra;
     private $intStock;
     private $intStockMinimo;
     private $intCategoria;
@@ -33,7 +34,7 @@ class ProductosModel extends Mysql
     {
         $this->intIdProducto = $idProducto;
         $sql = "SELECT p.id, p.codigo, p.nombre, p.descripcion, p.categoria_id, 
-                       p.precio_compra, p.precio_venta, p.stock, p.stock_minimo, 
+                       p.precio_compra, p.precio_venta, p.mano_obra, p.stock, p.stock_minimo, 
                        p.imagen, p.estado, c.nombre as categoria_nombre
                 FROM productos p
                 INNER JOIN categorias c ON p.categoria_id = c.id
@@ -64,20 +65,22 @@ class ProductosModel extends Mysql
         $this->strDescripcion = $datos['descripcion'];
         $this->decPrecioCompra = $datos['precioCompra'];
         $this->decPrecioVenta = $datos['precioVenta'];
+        $this->decManoObra = $datos['manoObra'];
         $this->intStock = $datos['stock'];
         $this->intStockMinimo = $datos['stockMinimo'];
         $this->intCategoria = $datos['categoria'];
         $this->strImagen = $datos['imagen'];
         $this->intEstado = $datos['estado'];
 
-        $query_insert = "INSERT INTO productos(codigo, nombre, descripcion, precio_compra, precio_venta, stock, stock_minimo, categoria_id, imagen, estado) 
-                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $query_insert = "INSERT INTO productos(codigo, nombre, descripcion, precio_compra, precio_venta, mano_obra, stock, stock_minimo, categoria_id, imagen, estado) 
+                        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $arrData = array(
             $this->strCodigo,
             $this->strNombre,
             $this->strDescripcion,
             $this->decPrecioCompra,
             $this->decPrecioVenta,
+            $this->decManoObra,
             $this->intStock,
             $this->intStockMinimo,
             $this->intCategoria,
@@ -96,13 +99,14 @@ class ProductosModel extends Mysql
         $this->strDescripcion = $datos['descripcion'];
         $this->decPrecioCompra = $datos['precioCompra'];
         $this->decPrecioVenta = $datos['precioVenta'];
+        $this->decManoObra = $datos['manoObra'];
         $this->intStock = $datos['stock'];
         $this->intStockMinimo = $datos['stockMinimo'];
         $this->intCategoria = $datos['categoria'];
         $this->intEstado = $datos['estado'];
 
         $sql = "UPDATE productos 
-                SET codigo = ?, nombre = ?, descripcion = ?, precio_compra = ?, precio_venta = ?, 
+                SET codigo = ?, nombre = ?, descripcion = ?, precio_compra = ?, precio_venta = ?, mano_obra = ?, 
                     stock = ?, stock_minimo = ?, categoria_id = ?, estado = ?";
         $arrData = array(
             $this->strCodigo,
@@ -110,6 +114,7 @@ class ProductosModel extends Mysql
             $this->strDescripcion,
             $this->decPrecioCompra,
             $this->decPrecioVenta,
+            $this->decManoObra,
             $this->intStock,
             $this->intStockMinimo,
             $this->intCategoria,
@@ -141,7 +146,7 @@ class ProductosModel extends Mysql
 
     public function getProductosActivos()
     {
-        $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, stock
+        $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, mano_obra, stock
                 FROM productos
                 WHERE estado = 1
                 ORDER BY nombre ASC";

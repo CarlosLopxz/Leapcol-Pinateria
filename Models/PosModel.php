@@ -17,7 +17,7 @@ class PosModel extends Mysql
 
     public function getProductosActivos()
     {
-        $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, stock
+        $sql = "SELECT id, codigo, nombre, descripcion, precio_venta, mano_obra, stock
                 FROM productos
                 WHERE estado = 1
                 ORDER BY nombre ASC";

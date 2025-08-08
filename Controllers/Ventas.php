@@ -458,19 +458,12 @@ class Ventas extends AuthController
                     $pdf->Cell(28, 4, $nombreCorto, 0, 0, 'L', $fill);
                     $pdf->Cell(8, 4, $producto['cantidad'], 0, 0, 'C', $fill);
                     
-                    // Obtener precio directamente si no está disponible
-                    if (empty($producto['precio_unitario']) || $producto['precio_unitario'] == 0) {
-                        // Consultar el precio directamente de la tabla productos
-                        $sql = "SELECT precio_venta FROM productos WHERE id = {$producto['producto_id']}";
-                        $stmt = $this->model->conexion->prepare($sql);
-                        $stmt->execute();
-                        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                        
-                        if ($result) {
-                            $producto['precio_unitario'] = $result['precio_venta'];
-                        } else {
-                            $producto['precio_unitario'] = 0;
-                        }
+                    // Siempre obtener el precio completo (precio_venta + mano_obra) actual del producto
+                    $sql = "SELECT (precio_venta + mano_obra) as precio_total FROM productos WHERE id = ?";
+                    $result = $this->model->select($sql, [$producto['producto_id']]);
+                    
+                    if ($result && $result['precio_total'] > 0) {
+                        $producto['precio_unitario'] = $result['precio_total'];
                     }
                     
                     // Calcular subtotal si no está disponible

@@ -48,8 +48,9 @@ class VentasModel extends Mysql
     {
         $this->intIdVenta = $idVenta;
         
-        // Primero obtenemos los detalles básicos
-        $sql = "SELECT d.*, p.codigo, p.nombre, p.precio_venta 
+        // Obtener detalles incluyendo mano de obra
+        $sql = "SELECT d.*, p.codigo, p.nombre, p.precio_venta, p.mano_obra,
+                       (p.precio_venta + p.mano_obra) as precio_total
                 FROM detalle_venta d 
                 INNER JOIN productos p ON d.producto_id = p.id 
                 WHERE d.venta_id = {$this->intIdVenta}";
@@ -58,9 +59,9 @@ class VentasModel extends Mysql
         // Procesamos cada detalle para asegurar que tenga precios correctos
         if (!empty($request)) {
             foreach ($request as &$item) {
-                // Si no hay precio unitario o es cero, usar el precio de venta del producto
+                // Si no hay precio unitario o es cero, usar el precio total (precio_venta + mano_obra)
                 if (empty($item['precio_unitario'])) {
-                    $item['precio_unitario'] = $item['precio_venta'];
+                    $item['precio_unitario'] = $item['precio_total'];
                     
                     // Actualizar en la base de datos para futuras consultas
                     $updateSql = "UPDATE detalle_venta SET precio_unitario = ? WHERE id = ?";

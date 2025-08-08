@@ -76,8 +76,8 @@ class ProduccionModel extends Mysql
             $codigoProducto = 'P' . date('ymd') . rand(100, 999);
             
             // Crear el producto nuevo
-            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock, estado) 
-                             VALUES(?, ?, ?, ?, ?, ?, ?, 1)";
+            $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, mano_obra, stock, estado) 
+                             VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)";
             $arrProducto = [
                 $codigoProducto,
                 $datos['nombre_producto'],
@@ -85,6 +85,7 @@ class ProduccionModel extends Mysql
                 $datos['categoria_producto'],
                 $precioCompra,
                 $precioVentaFinal,
+                $datos['mano_obra'],
                 $datos['cantidad']
             ];
             
@@ -113,8 +114,8 @@ class ProduccionModel extends Mysql
                         if(isset($recurso['manual']) && $recurso['manual']) {
                             // Para recursos manuales, crear un producto temporal
                             $codigoManual = 'MANUAL_' . $produccionId . '_' . time();
-                            $query_temp = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, stock, estado) 
-                                          VALUES(?, ?, ?, ?, 0, 0, 0, 3)";
+                            $query_temp = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, mano_obra, stock, estado) 
+                                          VALUES(?, ?, ?, ?, 0, 0, 0, 0, 3)";
                             $tempId = $this->insert($query_temp, [
                                 $codigoManual,
                                 $recurso['nombre'],

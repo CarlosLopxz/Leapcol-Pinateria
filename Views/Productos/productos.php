@@ -93,7 +93,7 @@
                     </div>
                     
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label for="precio_compra" class="form-label">Precio de Compra <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -103,7 +103,14 @@
                                 El precio de compra es obligatorio
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <label for="mano_obra" class="form-label">Mano de Obra</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" class="form-control" id="mano_obra" name="mano_obra" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <label for="precio_venta" class="form-label">Precio de Venta <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text">$</span>
@@ -320,6 +327,7 @@
                 document.getElementById('descripcion').value = data.descripcion;
                 document.getElementById('precio_compra').value = data.precio_compra;
                 document.getElementById('precio_venta').value = data.precio_venta;
+                document.getElementById('mano_obra').value = data.mano_obra || 0;
                 document.getElementById('stock').value = data.stock;
                 document.getElementById('stock_minimo').value = data.stock_minimo;
                 document.getElementById('categoria').value = data.categoria_id;
@@ -450,6 +458,7 @@
                 document.getElementById('descripcion').value = data.descripcion;
                 document.getElementById('precio_compra').value = data.precio_compra;
                 document.getElementById('precio_venta').value = data.precio_venta;
+                document.getElementById('mano_obra').value = data.mano_obra || 0;
                 document.getElementById('stock').value = data.stock;
                 document.getElementById('stock_minimo').value = data.stock_minimo;
                 document.getElementById('categoria').value = data.categoria_id;
