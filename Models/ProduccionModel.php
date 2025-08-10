@@ -75,9 +75,9 @@ class ProduccionModel extends Mysql
             // Generar código único para el producto
             $codigoProducto = 'P' . date('ymd') . rand(100, 999);
             
-            // Crear el producto nuevo
+            // Crear el producto nuevo SIN stock (el trigger lo agregará)
             $query_producto = "INSERT INTO productos(codigo, nombre, descripcion, categoria_id, precio_compra, precio_venta, mano_obra, stock, estado) 
-                             VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)";
+                             VALUES(?, ?, ?, ?, ?, ?, ?, 0, 1)";
             $arrProducto = [
                 $codigoProducto,
                 $datos['nombre_producto'],
@@ -85,8 +85,7 @@ class ProduccionModel extends Mysql
                 $datos['categoria_producto'],
                 $precioCompra,
                 $precioVentaFinal,
-                $datos['mano_obra'],
-                $datos['cantidad']
+                $datos['mano_obra']
             ];
             
             $productoId = $this->insert($query_producto, $arrProducto);

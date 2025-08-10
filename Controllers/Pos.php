@@ -7,6 +7,7 @@ class Pos extends AuthController
     {
         parent::__construct();
         $this->model = new PosModel();
+        $this->cajaModel = new CajaModel();
     }
 
     public function index()
@@ -14,6 +15,7 @@ class Pos extends AuthController
         $data['page_tag'] = "Punto de Venta - " . NOMBRE_EMPRESA;
         $data['page_title'] = "Punto de Venta";
         $data['page_name'] = "pos";
+        $data['cajaAbierta'] = $this->cajaModel->getCajaAbierta($_SESSION['userData']['idusuario']);
         $this->views->getView($this, "pos", $data);
     }
     
@@ -74,6 +76,9 @@ class Pos extends AuthController
                     $result = $this->model->insertVenta($datos);
                     
                     if($result > 0) {
+                        // Registrar la venta en la caja abierta del usuario
+                        $this->registrarVentaEnCaja($result, $datos['total'], $datos['metodoPago']);
+                        
                         $arrResponse = [
                             'status' => true, 
                             'msg' => 'Venta registrada correctamente', 
@@ -111,5 +116,28 @@ class Pos extends AuthController
         // Redirigir al método de impresión de tickets del controlador de ventas
         header("Location: " . BASE_URL . "ventas/imprimirTicket/" . $idVenta);
         die();
+    }
+    
+    private function registrarVentaEnCaja($ventaId, $total, $metodoPago)
+    {
+        try {
+            $cajaAbierta = $this->cajaModel->getCajaAbierta($_SESSION['userData']['idusuario']);
+            if($cajaAbierta) {
+                $datos = [
+                    'caja_id' => $cajaAbierta['id'],
+                    'tipo' => 'venta',
+                    'concepto' => 'Venta #' . $ventaId,
+                    'monto' => $total,
+                    'metodo_pago' => $metodoPago,
+                    'venta_id' => $ventaId,
+                    'usuario_id' => $_SESSION['userData']['idusuario']
+                ];
+                
+                $this->cajaModel->registrarMovimiento($datos);
+                $this->cajaModel->actualizarTotalesCaja($cajaAbierta['id']);
+            }
+        } catch (Exception $e) {
+            error_log("Error al registrar venta en caja: " . $e->getMessage());
+        }
     }
 }

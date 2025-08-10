@@ -13,7 +13,7 @@ BEGIN
     LEFT JOIN clientes c ON v.cliente_id = c.id
     WHERE v.id = NEW.venta_id;
     
-    IF cliente_nombre = 'Creacion' THEN
+    IF cliente_nombre = 'Cliente' THEN
         SET es_creacion = 1;
         
         -- Agregar al inventario de creación

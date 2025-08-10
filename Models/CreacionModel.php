@@ -64,7 +64,7 @@ class CreacionModel extends Mysql
     
     public function getClienteCreacion()
     {
-        $sql = "SELECT id FROM clientes WHERE nombre = 'Creacion' AND apellido = 'Especial' LIMIT 1";
+        $sql = "SELECT id FROM clientes WHERE nombre = 'Cliente' AND apellido = 'Chela' LIMIT 1";
         return $this->select($sql);
     }
     
@@ -83,7 +83,7 @@ class CreacionModel extends Mysql
     
     public function getClienteCreacionId()
     {
-        $sql = "SELECT id FROM clientes WHERE nombre = 'Creacion' AND apellido = 'Especial' LIMIT 1";
+        $sql = "SELECT id FROM clientes WHERE nombre = 'Cliente' AND apellido = 'Chela' LIMIT 1";
         $result = $this->select($sql);
         return $result ? $result['id'] : null;
     }

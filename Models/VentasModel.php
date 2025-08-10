@@ -465,4 +465,13 @@ class VentasModel extends Mysql
         $request = $this->select($sql);
         return $request ? floatval($request['total']) : 0;
     }
+    
+    public function getVentasDiarias()
+    {
+        $sql = "SELECT COALESCE(SUM(total), 0) as total
+                FROM ventas
+                WHERE DATE(fecha_venta) = CURDATE() AND estado != 0";
+        $request = $this->select($sql);
+        return $request ? floatval($request['total']) : 0;
+    }
 }

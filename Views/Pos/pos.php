@@ -8,6 +8,19 @@
                 <p class="text-muted">Registra ventas y genera tickets</p>
             </div>
         </div>
+        
+        <?php if(!isset($data['cajaAbierta']) || !$data['cajaAbierta']): ?>
+        <div class="alert alert-warning mb-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Atención:</strong> No tienes una caja abierta. Las ventas se registrarán pero no se contabilizarán en caja.
+            <a href="<?= BASE_URL ?>caja" class="btn btn-sm btn-warning ms-2">Abrir Caja</a>
+        </div>
+        <?php else: ?>
+        <div class="alert alert-success mb-4">
+            <i class="fas fa-cash-register me-2"></i>
+            <strong>Caja Abierta:</strong> #<?= $data['cajaAbierta']['id'] ?> - Monto inicial: $<?= number_format($data['cajaAbierta']['monto_inicial'], 0) ?>
+        </div>
+        <?php endif; ?>
 
         <div class="row">
             <div class="col-lg-8">
@@ -445,6 +458,27 @@ function procesarVenta() {
         Swal.fire('Error', 'No hay productos en el carrito', 'error');
         return;
     }
+    
+    <?php if(!isset($data['cajaAbierta']) || !$data['cajaAbierta']): ?>
+    Swal.fire({
+        title: '¿Continuar sin caja abierta?',
+        text: 'No tienes una caja abierta. La venta se registrará pero no se contabilizará en caja.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            ejecutarVenta();
+        }
+    });
+    return;
+    <?php endif; ?>
+    
+    ejecutarVenta();
+}
+
+function ejecutarVenta() {
     
     const metodoSeleccionado = document.getElementById('metodoPago').value;
     if(metodoSeleccionado === '1') {

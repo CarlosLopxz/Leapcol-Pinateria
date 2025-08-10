@@ -55,11 +55,11 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="text-muted mb-1">Clientes</h6>
-                                <h4 class="mb-0" id="totalClientes">0</h4>
+                                <h6 class="text-muted mb-1">Ventas Diarias</h6>
+                                <h4 class="mb-0" id="ventasDiarias">$0</h4>
                             </div>
                             <div class="bg-info text-white rounded-circle p-3">
-                                <i class="fas fa-users"></i>
+                                <i class="fas fa-calendar-day"></i>
                             </div>
                         </div>
                     </div>
@@ -477,15 +477,15 @@
                 document.getElementById('ventasMes').textContent = '$0';
             });
         
-        // Cargar total de clientes
-        fetch('<?= BASE_URL ?>dashboard/getTotalClientes')
+        // Cargar ventas diarias
+        fetch('<?= BASE_URL ?>ventas/getVentasDiarias')
             .then(handleResponse)
             .then(data => {
-                document.getElementById('totalClientes').textContent = data.total || 0;
+                document.getElementById('ventasDiarias').textContent = formatoPrecioCOP(data.total || 0);
             })
             .catch(error => {
-                console.error('Error al cargar total de clientes:', error);
-                document.getElementById('totalClientes').textContent = '0';
+                console.error('Error al cargar ventas diarias:', error);
+                document.getElementById('ventasDiarias').textContent = '$0';
             });
         
         // Cargar total de productos vendidos
