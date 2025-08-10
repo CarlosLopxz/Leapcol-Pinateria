@@ -411,7 +411,17 @@
                 },
                 {
                     "data": "id",
-                    "render": function(data) {
+                    "render": function(data, type, row) {
+                        // Si es Cliente Chela, solo mostrar botón de ver
+                        if(row.nombre_completo && row.nombre_completo.includes('Cliente Chela')) {
+                            return `
+                                <button class="btn btn-sm btn-info" onclick="verCliente(${data})" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <span class="badge bg-warning">Cliente Sistema</span>
+                            `;
+                        }
+                        
                         return `
                             <button class="btn btn-sm btn-info" onclick="verCliente(${data})" title="Ver detalles">
                                 <i class="fas fa-eye"></i>
