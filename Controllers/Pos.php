@@ -54,8 +54,17 @@ class Pos extends AuthController
                 if(empty($_POST['productos']) || empty($_POST['total'])) {
                     $arrResponse = ['status' => false, 'msg' => 'Debe agregar al menos un producto'];
                 } else {
-                    $cliente = intval($_POST['cliente']);
-                    if ($cliente === 0) $cliente = null;
+                    $destinoCaja = $_POST['destino_caja'] ?? 'general';
+                    $cliente = $_POST['cliente'];
+                    
+                    // Si el destino es creación, obtener el ID del cliente especial de creación
+                    if($destinoCaja === 'creacion' || $cliente === 'creacion') {
+                        $clienteCreacion = $this->model->getClienteCreacion();
+                        $cliente = $clienteCreacion ? $clienteCreacion['id'] : null;
+                    } else {
+                        $cliente = intval($cliente);
+                        if ($cliente === 0) $cliente = null;
+                    }
                     
                     $datos = [
                         'cliente' => $cliente,
@@ -70,7 +79,8 @@ class Pos extends AuthController
                         'cambio' => floatval($_POST['cambio'] ?? 0),
                         'observaciones' => strClean($_POST['observaciones']),
                         'usuario' => $_SESSION['userData']['idusuario'] ?? 1,
-                        'productos' => json_decode($_POST['productos'], true)
+                        'productos' => json_decode($_POST['productos'], true),
+                        'destino_caja' => $destinoCaja
                     ];
                     
                     $result = $this->model->insertVenta($datos);
@@ -78,6 +88,14 @@ class Pos extends AuthController
                     if($result > 0) {
                         // Registrar la venta en la caja abierta del usuario
                         $this->registrarVentaEnCaja($result, $datos['total'], $datos['metodoPago']);
+                        
+                        // Actualizar totales de caja_creacion
+                        $creacionModel = new CreacionModel();
+                        if($destinoCaja === 'creacion') {
+                            $creacionModel->actualizarTotalVendido($datos['total']);
+                        } elseif($cliente && $cliente == $creacionModel->getClienteCreacionId()) {
+                            $creacionModel->actualizarTotalGastado($datos['total']);
+                        }
                         
                         $arrResponse = [
                             'status' => true, 

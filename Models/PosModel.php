@@ -125,4 +125,10 @@ class PosModel extends Mysql
                 WHERE v.id = ?";
         return $this->select($sql, [$idVenta]);
     }
+    
+    public function getClienteCreacion()
+    {
+        $sql = "SELECT id FROM clientes WHERE nombre = 'Cliente' AND apellido = 'Chela' LIMIT 1";
+        return $this->select($sql);
+    }
 }

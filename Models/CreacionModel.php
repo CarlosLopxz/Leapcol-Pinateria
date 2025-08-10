@@ -74,8 +74,8 @@ class CreacionModel extends Mysql
                     COUNT(DISTINCT ic.producto_id) as total_productos,
                     COALESCE(SUM(ic.stock_creacion), 0) as total_stock,
                     COALESCE(SUM(ic.stock_creacion * ic.costo_promedio), 0) as valor_inventario,
-                    COALESCE((SELECT total_gastos FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_gastos,
-                    COALESCE((SELECT total_ventas FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_ventas
+                    COALESCE((SELECT total_gastado FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_gastos,
+                    COALESCE((SELECT total_vendido FROM caja_creacion WHERE estado = 1 LIMIT 1), 0) as total_ventas
                 FROM inventario_creacion ic
                 WHERE ic.stock_creacion > 0";
         return $this->select($sql);
@@ -86,5 +86,17 @@ class CreacionModel extends Mysql
         $sql = "SELECT id FROM clientes WHERE nombre = 'Cliente' AND apellido = 'Chela' LIMIT 1";
         $result = $this->select($sql);
         return $result ? $result['id'] : null;
+    }
+    
+    public function actualizarTotalGastado($monto)
+    {
+        $sql = "UPDATE caja_creacion SET total_gastado = total_gastado + ? WHERE estado = 1";
+        return $this->update($sql, [$monto]);
+    }
+    
+    public function actualizarTotalVendido($monto)
+    {
+        $sql = "UPDATE caja_creacion SET total_vendido = total_vendido + ? WHERE estado = 1";
+        return $this->update($sql, [$monto]);
     }
 }

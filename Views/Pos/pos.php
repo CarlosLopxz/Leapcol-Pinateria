@@ -124,6 +124,14 @@
                         <h5 class="card-title mb-0">Método de Pago</h5>
                     </div>
                     <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Destino del dinero:</label>
+                            <select class="form-select" id="destinoCaja">
+                                <option value="general">Caja General</option>
+                                <option value="creacion">Caja Creación</option>
+                            </select>
+                        </div>
+                        
                         <select class="form-select mb-3" id="metodoPago">
                             <option value="1">Efectivo</option>
                             <option value="2">Tarjeta de Crédito</option>
@@ -202,20 +210,38 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('descuento').addEventListener('input', calcularTotales);
     document.getElementById('metodoPago').addEventListener('change', manejarMetodoPago);
     document.getElementById('pagaCon').addEventListener('input', calcularCambio);
+    document.getElementById('destinoCaja').addEventListener('change', actualizarListaClientes);
 });
+
+let todosLosClientes = [];
 
 function cargarClientes() {
     fetch('<?= BASE_URL ?>pos/getClientes')
         .then(response => response.json())
         .then(data => {
-            const select = document.getElementById('clienteSelect');
-            data.forEach(cliente => {
-                const option = document.createElement('option');
-                option.value = cliente.id;
-                option.textContent = cliente.nombre;
-                select.appendChild(option);
-            });
+            todosLosClientes = data;
+            actualizarListaClientes();
         });
+}
+
+function actualizarListaClientes() {
+    const select = document.getElementById('clienteSelect');
+    const destinoCaja = document.getElementById('destinoCaja').value;
+    
+    // Limpiar opciones existentes excepto Cliente General
+    select.innerHTML = '<option value="0">Cliente General</option>';
+    
+    todosLosClientes.forEach(cliente => {
+        // Si destino es creación, no mostrar Cliente Chela
+        if(destinoCaja === 'creacion' && cliente.nombre.includes('Cliente Chela')) {
+            return;
+        }
+        
+        const option = document.createElement('option');
+        option.value = cliente.id;
+        option.textContent = cliente.nombre;
+        select.appendChild(option);
+    });
 }
 
 function cargarProductos() {
@@ -480,6 +506,8 @@ function procesarVenta() {
 
 function ejecutarVenta() {
     
+
+    
     const metodoSeleccionado = document.getElementById('metodoPago').value;
     if(metodoSeleccionado === '1') {
         const totalVenta = parseFloat(document.getElementById('total').value);
@@ -492,13 +520,22 @@ function ejecutarVenta() {
     }
     
     const formData = new FormData();
-    formData.append('cliente', document.getElementById('clienteSelect').value);
+    const destinoCaja = document.getElementById('destinoCaja').value;
+    let clienteId = document.getElementById('clienteSelect').value;
+    
+    // Si el destino es creación, usar el cliente especial de creación
+    if(destinoCaja === 'creacion') {
+        clienteId = 'creacion';
+    }
+    
+    formData.append('cliente', clienteId);
     formData.append('subtotal', document.getElementById('subtotal').value);
     formData.append('impuestos', 0);
     formData.append('descuentos', document.getElementById('descuento').value || 0);
     formData.append('total', document.getElementById('total').value);
     formData.append('metodo_pago', document.getElementById('metodoPago').value);
     formData.append('observaciones', '');
+    formData.append('destino_caja', destinoCaja);
     formData.append('productos', JSON.stringify(carrito.map(item => ({
         id: item.id,
         cantidad: item.cantidad,
@@ -581,6 +618,7 @@ function limpiarVenta() {
     document.getElementById('descuento').value = 0;
     document.getElementById('total').value = 0;
     document.getElementById('metodoPago').value = 1;
+    document.getElementById('destinoCaja').value = 'general';
     document.getElementById('pagaCon').value = '';
     document.getElementById('cambio').value = '';
     document.getElementById('pagoEfectivoContainer').style.display = 'block';

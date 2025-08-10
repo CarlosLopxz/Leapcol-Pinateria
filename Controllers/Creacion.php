@@ -119,4 +119,17 @@ class Creacion extends AuthController
         }
         die();
     }
+    
+    public function getDestinoVentas()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            $arrData = $this->model->getDestinoVentas();
+            echo json_encode($arrData ?: [], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            error_log("Error en getDestinoVentas: " . $e->getMessage());
+            echo json_encode([], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
 }
