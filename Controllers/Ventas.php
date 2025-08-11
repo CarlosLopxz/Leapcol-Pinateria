@@ -113,6 +113,9 @@ class Ventas extends AuthController
                     $idVenta = intval($_POST['idVenta']);
                     $cliente = intval($_POST['cliente']);
                     
+                    // Determinar destino basado en cliente
+                    $destino = ($cliente == 8) ? 'creacion' : 'normal';
+                    
                     // Si es cliente general (0), usar NULL para evitar violación de clave foránea
                     if ($cliente === 0) {
                         $cliente = null;
@@ -154,6 +157,7 @@ class Ventas extends AuthController
                         $datos = [
                             'idVenta' => $idVenta,
                             'cliente' => $cliente,
+                            'destino' => $destino,
                             'fechaVenta' => $fechaVenta,
                             'subtotal' => $subtotal,
                             'impuestos' => $impuestos,

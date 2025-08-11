@@ -173,6 +173,9 @@ class VentasModel extends Mysql
     {
         error_log("Iniciando insertVenta con datos: " . json_encode($datos));
         
+        // Verificar y recrear trigger si es necesario
+        $this->verificarTrigger();
+        
         // Extraer datos básicos para una inserción mínima
         $cliente = intval($datos['cliente']);
         $fechaVenta = $datos['fechaVenta'];
@@ -268,6 +271,7 @@ class VentasModel extends Mysql
             $metodoPago = isset($datos['metodoPago']) ? intval($datos['metodoPago']) : 1;
             $estado = isset($datos['estado']) ? intval($datos['estado']) : 1;
             $observaciones = isset($datos['observaciones']) ? $datos['observaciones'] : '';
+            $destino = isset($datos['destino']) ? $datos['destino'] : 'normal';
             
             // Verificar si existen los campos pago_con y cambio
             $sql = "SHOW COLUMNS FROM ventas LIKE 'pago_con'";
@@ -278,14 +282,14 @@ class VentasModel extends Mysql
                 $pagoCon = isset($datos['pagoCon']) ? floatval($datos['pagoCon']) : null;
                 $cambio = isset($datos['cambio']) ? floatval($datos['cambio']) : null;
                 
-                $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, pago_con, cambio, estado, observaciones, usuario_id) 
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $pagoCon, $cambio, $estado, $observaciones, $usuario);
+                $query_insert = "INSERT INTO ventas(cliente_id, destino, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, pago_con, cambio, estado, observaciones, usuario_id) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $arrData = array($cliente, $destino, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $pagoCon, $cambio, $estado, $observaciones, $usuario);
             } else {
                 // Los campos no existen, usar consulta sin ellos
-                $query_insert = "INSERT INTO ventas(cliente_id, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, estado, observaciones, usuario_id) 
-                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                $arrData = array($cliente, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $estado, $observaciones, $usuario);
+                $query_insert = "INSERT INTO ventas(cliente_id, destino, fecha_venta, subtotal, impuestos, descuentos, total, metodo_pago, estado, observaciones, usuario_id) 
+                                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $arrData = array($cliente, $destino, $fechaVenta, $subtotal, $impuestos, $descuentos, $total, $metodoPago, $estado, $observaciones, $usuario);
             }
             
             error_log("Ejecutando query simplificada: " . $query_insert);
@@ -473,5 +477,54 @@ class VentasModel extends Mysql
                 WHERE DATE(fecha_venta) = CURDATE() AND estado != 0";
         $request = $this->select($sql);
         return $request ? floatval($request['total']) : 0;
+    }
+    
+    private function verificarTrigger()
+    {
+        try {
+            // Verificar si el trigger existe
+            $sql = "SHOW TRIGGERS WHERE `Trigger` = 'manejar_stock_venta'";
+            $result = $this->select_all($sql);
+            
+            if (empty($result)) {
+                // Recrear el trigger
+                $this->crearTrigger();
+                error_log("Trigger recreado automáticamente");
+            }
+        } catch (Exception $e) {
+            error_log("Error verificando trigger: " . $e->getMessage());
+        }
+    }
+    
+    private function crearTrigger()
+    {
+        $sql = "DROP TRIGGER IF EXISTS `manejar_stock_venta`";
+        $this->update($sql, []);
+        
+        $sql = "
+        CREATE TRIGGER `manejar_stock_venta` AFTER INSERT ON `detalle_venta` FOR EACH ROW 
+        BEGIN
+            DECLARE venta_destino VARCHAR(20) DEFAULT 'normal';
+            DECLARE cliente_venta INT DEFAULT 0;
+            
+            SELECT COALESCE(cliente_id, 0), COALESCE(destino, 'normal') 
+            INTO cliente_venta, venta_destino 
+            FROM ventas WHERE id = NEW.venta_id;
+            
+            IF cliente_venta = 8 OR venta_destino = 'creacion' THEN
+                UPDATE productos SET stock = stock - NEW.cantidad WHERE id = NEW.producto_id;
+                
+                INSERT INTO inventario_creacion (producto_id, stock_creacion, costo_promedio, fecha_actualizacion)
+                VALUES (NEW.producto_id, NEW.cantidad, NEW.precio_unitario, NOW())
+                ON DUPLICATE KEY UPDATE 
+                    stock_creacion = stock_creacion + NEW.cantidad,
+                    fecha_actualizacion = NOW();
+            ELSE
+                UPDATE productos SET stock = stock - NEW.cantidad WHERE id = NEW.producto_id;
+            END IF;
+        END
+        ";
+        
+        $this->update($sql, []);
     }
 }
