@@ -15,7 +15,7 @@
 
         <!-- Resumen Cards -->
         <div class="row mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-primary text-white">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-success text-white">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
@@ -45,16 +45,31 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title">Gastado Hoy</h6>
+                                <h4 id="gastadoHoy">$0</h4>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-calendar-day fa-2x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <div class="card bg-info text-white">
                     <div class="card-body">
                         <div class="d-flex justify-content-between">
                             <div>
-                                <h6 class="card-title">Productos en Stock</h6>
-                                <h4 id="totalProductos">0</h4>
+                                <h6 class="card-title">Vendido Hoy</h6>
+                                <h4 id="vendidoHoy">$0</h4>
                             </div>
                             <div class="align-self-center">
-                                <i class="fas fa-box fa-2x"></i>
+                                <i class="fas fa-chart-line fa-2x"></i>
                             </div>
                         </div>
                     </div>
@@ -146,6 +161,7 @@
     }
     
     function cargarResumenCompleto() {
+        // Cargar totales generales
         fetch('<?= BASE_URL ?>creacion/getResumen')
             .then(response => response.json())
             .then(data => {
@@ -156,6 +172,19 @@
             })
             .catch(error => {
                 console.error('Error al cargar resumen:', error);
+            });
+            
+        // Cargar totales diarios
+        fetch('<?= BASE_URL ?>creacion/getResumenDiario')
+            .then(response => response.json())
+            .then(data => {
+                if(data) {
+                    document.getElementById('gastadoHoy').textContent = '$' + parseFloat(data.gastos_diarios || 0).toLocaleString('es-CO');
+                    document.getElementById('vendidoHoy').textContent = '$' + parseFloat(data.ventas_diarias || 0).toLocaleString('es-CO');
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar resumen diario:', error);
             });
     }
 </script>

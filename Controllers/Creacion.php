@@ -132,4 +132,17 @@ class Creacion extends AuthController
         }
         die();
     }
+    
+    public function getResumenDiario()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            $arrData = $this->model->getResumenDiario();
+            echo json_encode($arrData ?: [], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            error_log("Error en getResumenDiario: " . $e->getMessage());
+            echo json_encode([], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
 }

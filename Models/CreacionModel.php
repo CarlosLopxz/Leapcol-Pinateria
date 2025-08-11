@@ -99,4 +99,15 @@ class CreacionModel extends Mysql
         $sql = "UPDATE caja_creacion SET total_vendido = total_vendido + ? WHERE estado = 1";
         return $this->update($sql, [$monto]);
     }
+    
+    public function getResumenDiario()
+    {
+        $sql = "SELECT 
+                    COALESCE(SUM(CASE WHEN tipo = 'gasto' THEN monto ELSE 0 END), 0) as gastos_diarios,
+                    COALESCE(SUM(CASE WHEN tipo = 'venta' THEN monto ELSE 0 END), 0) as ventas_diarias
+                FROM movimientos_caja_creacion 
+                WHERE DATE(fecha) = CURDATE() 
+                AND caja_creacion_id = (SELECT id FROM caja_creacion WHERE estado = 1 LIMIT 1)";
+        return $this->select($sql);
+    }
 }
