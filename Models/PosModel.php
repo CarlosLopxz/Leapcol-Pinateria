@@ -66,8 +66,13 @@ class PosModel extends Mysql
             $ventaId = $this->insert($query, $arrData);
             
             if ($ventaId > 0) {
-                // Verificar stock antes de insertar detalles
+                // Verificar stock antes de insertar detalles (solo para productos normales)
                 foreach ($datos['productos'] as $producto) {
+                    // Saltar productos temporales
+                    if (is_string($producto['id']) && strpos($producto['id'], 'temp_') === 0) {
+                        continue;
+                    }
+                    
                     $stockActual = $this->verificarStock($producto['id']);
                     if ($stockActual < $producto['cantidad']) {
                         $sql = "SELECT nombre FROM productos WHERE id = ?";
@@ -79,26 +84,39 @@ class PosModel extends Mysql
                 
                 // Insertar detalles
                 foreach ($datos['productos'] as $producto) {
-                    $sql = "SELECT precio_compra FROM productos WHERE id = ?";
-                    $prod = $this->select($sql, [$producto['id']]);
-                    $costoUnitario = $prod ? $prod['precio_compra'] : 0;
-                    $costoTotal = $costoUnitario * $producto['cantidad'];
-                    $ganancia = $producto['subtotal'] - $costoTotal;
-                    
-                    $query = "INSERT INTO detalle_venta(venta_id, producto_id, cantidad, precio_unitario, costo_unitario, subtotal, costo_total, ganancia) 
-                              VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-                    $this->insert($query, [
-                        $ventaId, 
-                        $producto['id'], 
-                        $producto['cantidad'], 
-                        $producto['precio'], 
-                        $costoUnitario, 
-                        $producto['subtotal'], 
-                        $costoTotal, 
-                        $ganancia
-                    ]);
-                    
-                    // El stock se actualiza automáticamente por el trigger actualizar_stock_venta
+                    // Manejar productos temporales
+                    if (is_string($producto['id']) && strpos($producto['id'], 'temp_') === 0) {
+                        $query = "INSERT INTO detalle_venta(venta_id, producto_id, cantidad, precio_unitario, costo_unitario, subtotal, costo_total, ganancia) 
+                                  VALUES(?, NULL, ?, ?, ?, ?, ?, ?)";
+                        $this->insert($query, [
+                            $ventaId, 
+                            $producto['cantidad'], 
+                            $producto['precio'], 
+                            0, 
+                            $producto['subtotal'], 
+                            0, 
+                            $producto['subtotal']
+                        ]);
+                    } else {
+                        $sql = "SELECT precio_compra FROM productos WHERE id = ?";
+                        $prod = $this->select($sql, [$producto['id']]);
+                        $costoUnitario = $prod ? $prod['precio_compra'] : 0;
+                        $costoTotal = $costoUnitario * $producto['cantidad'];
+                        $ganancia = $producto['subtotal'] - $costoTotal;
+                        
+                        $query = "INSERT INTO detalle_venta(venta_id, producto_id, cantidad, precio_unitario, costo_unitario, subtotal, costo_total, ganancia) 
+                                  VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+                        $this->insert($query, [
+                            $ventaId, 
+                            $producto['id'], 
+                            $producto['cantidad'], 
+                            $producto['precio'], 
+                            $costoUnitario, 
+                            $producto['subtotal'], 
+                            $costoTotal, 
+                            $ganancia
+                        ]);
+                    }
                 }
                 
                 $this->commit();

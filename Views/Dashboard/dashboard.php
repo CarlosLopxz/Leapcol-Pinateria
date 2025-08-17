@@ -22,7 +22,7 @@
                 <div class="card d2c_currency_card_wrapper animate__animated animate__fadeInUp">
                     <div class="card-body d-flex align-items-center">
                         <div>
-                            <div class="d2c_coin_icon_wrapper bg-warning text-warning bg-opacity-10 d-flex align-items-center justify-content-center me-3">
+                            <div class="d2c_coin_icon_wrapper bg-secondary text-secondary bg-opacity-10 d-flex align-items-center justify-content-center me-3">
                                 <i class="fas fa-box"></i>
                             </div>
                         </div>
@@ -41,7 +41,7 @@
                 <div class="card d2c_currency_card_wrapper animate__animated animate__fadeInUp">
                     <div class="card-body d-flex align-items-center">
                         <div>
-                            <div class="d2c_coin_icon_wrapper bg-primary text-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3">
+                            <div class="d2c_coin_icon_wrapper bg-dark text-dark bg-opacity-10 d-flex align-items-center justify-content-center me-3">
                                 <i class="fas fa-users"></i>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                 <div class="card d2c_currency_card_wrapper animate__animated animate__fadeInUp">
                     <div class="card-body d-flex align-items-center">
                         <div>
-                            <div class="d2c_coin_icon_wrapper bg-info text-info bg-opacity-10 d-flex align-items-center justify-content-center me-3">
+                            <div class="d2c_coin_icon_wrapper bg-primary text-primary bg-opacity-10 d-flex align-items-center justify-content-center me-3">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
                         </div>

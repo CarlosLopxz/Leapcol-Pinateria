@@ -182,7 +182,12 @@ class Ventas extends AuthController
                             $idProducto = $producto['id'];
                             $cantidad = $producto['cantidad'];
                             
-                            // Verificar stock actual
+                            // Saltar productos temporales
+                            if (strpos($idProducto, 'temp_') === 0) {
+                                continue;
+                            }
+                            
+                            // Verificar stock actual solo para productos reales
                             $stockActual = $this->model->verificarStock($idProducto);
                             if ($stockActual < $cantidad) {
                                 $stockSuficiente = false;
@@ -475,12 +480,20 @@ class Ventas extends AuthController
                     $pdf->Cell(28, 4, $nombreCorto, 0, 0, 'L', $fill);
                     $pdf->Cell(8, 4, $producto['cantidad'], 0, 0, 'C', $fill);
                     
-                    // Siempre obtener el precio completo (precio_venta + mano_obra) actual del producto
-                    $sql = "SELECT (precio_venta + mano_obra) as precio_total FROM productos WHERE id = ?";
-                    $result = $this->model->select($sql, [$producto['producto_id']]);
-                    
-                    if ($result && $result['precio_total'] > 0) {
-                        $producto['precio_unitario'] = $result['precio_total'];
+                    // Para productos temporales, usar el precio guardado en detalle_venta
+                    if ($producto['producto_id'] === null) {
+                        // Producto temporal - usar precio del detalle
+                        if (empty($producto['precio_unitario']) || $producto['precio_unitario'] == 0) {
+                            $producto['precio_unitario'] = $producto['subtotal'] / $producto['cantidad'];
+                        }
+                    } else {
+                        // Producto normal - obtener precio actual
+                        $sql = "SELECT (precio_venta + mano_obra) as precio_total FROM productos WHERE id = ?";
+                        $result = $this->model->select($sql, [$producto['producto_id']]);
+                        
+                        if ($result && $result['precio_total'] > 0) {
+                            $producto['precio_unitario'] = $result['precio_total'];
+                        }
                     }
                     
                     // Calcular subtotal si no está disponible

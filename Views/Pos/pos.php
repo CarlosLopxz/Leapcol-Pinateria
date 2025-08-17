@@ -7,6 +7,76 @@
                 <h4 class="mb-0 text-capitalize">Punto de Venta</h4>
                 <p class="text-muted">Registra ventas y genera tickets</p>
             </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-warning btn-sm" id="btnProductoNoInventariadoHeader">
+                    <i class="fas fa-plus-circle me-1"></i>Producto No Inventariado
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tarjetas de Estado de Caja -->
+        <div class="row mb-4">
+            <?php if($data['cajaAbierta']): ?>
+            <div class="col-md-2">
+                <div class="card bg-light border-0 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <small class="text-muted">En Caja</small>
+                        <h6 class="mb-0 text-dark" id="montoCajaHeader">$<?= number_format($data['cajaAbierta']['total_actual'] ?? 0, 0) ?></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-white border-1 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <small class="text-muted">Transferencias</small>
+                        <h6 class="mb-0 text-dark" id="montoTransferenciasHeader">$0</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-light border-0 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <small class="text-muted">Ingresos</small>
+                        <h6 class="mb-0 text-dark" id="montoIngresosHeader">$0</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-white border-1 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <small class="text-muted">Egresos</small>
+                        <h6 class="mb-0 text-dark" id="montoEgresosHeader">$0</h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card bg-light border-0 shadow-sm">
+                    <div class="card-body p-2 text-center">
+                        <small class="text-muted">Ventas</small>
+                        <h6 class="mb-0 text-dark" id="montoVentasHeader">$<?= number_format($data['cajaAbierta']['total_ventas'] ?? 0, 0) ?></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-danger w-100" id="btnCerrarCajaHeader">
+                    <i class="fas fa-lock me-2"></i>Cerrar Caja
+                </button>
+            </div>
+            <?php else: ?>
+            <div class="col-md-8">
+                <div class="card bg-secondary text-white">
+                    <div class="card-body p-3 text-center">
+                        <h5 class="mb-0">CAJA CERRADA</h5>
+                        <small>Debe abrir la caja para comenzar a trabajar</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button class="btn btn-success w-100" id="btnAbrirCajaHeader">
+                    <i class="fas fa-cash-register me-2"></i>Abrir Caja
+                </button>
+            </div>
+            <?php endif; ?>
         </div>
         
 
@@ -146,13 +216,14 @@
                     </div>
                 </div>
 
-                <!-- Botones -->
+
+                
+
+
+                <!-- Botones Principales -->
                 <div class="d-grid gap-2">
                     <button class="btn btn-primary btn-lg" id="btnProcesarVenta">
                         <i class="fas fa-cash-register me-2"></i>Procesar Venta
-                    </button>
-                    <button class="btn btn-danger" id="btnCancelarVenta">
-                        <i class="fas fa-times me-2"></i>Cancelar
                     </button>
                 </div>
             </div>
@@ -160,7 +231,119 @@
     </div>
 </div>
 
+<!-- Modal Producto No Inventariado -->
+<div class="modal fade" id="modalProductoNoInventariado" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title">Agregar Producto No Inventariado</h5>
+                <button type="button" class="btn-close" onclick="cerrarModalManual()"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formProductoNoInventariado">
+                    <div class="mb-3">
+                        <label for="nombreProductoNoInv" class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombreProductoNoInv" name="nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="precioProductoNoInv" class="form-label">Precio <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="precioProductoNoInv" name="precio" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    
 
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalManual()">Cancelar</button>
+                <button type="button" class="btn btn-warning" id="btnAgregarProductoNoInv">Agregar al Carrito</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelar Venta -->
+<div class="modal fade" id="modalCancelarVentaPos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Cancelar Venta Existente</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCancelarVentaPos">
+                    <div class="mb-3">
+                        <label for="ventaIdCancelarPos" class="form-label">ID de Venta <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="ventaIdCancelarPos" name="ventaId" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="motivoCancelacionPos" class="form-label">Motivo de Cancelación</label>
+                        <textarea class="form-control" id="motivoCancelacionPos" name="motivo" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="ajusteCajaPos" name="ajusteCaja">
+                            <label class="form-check-label" for="ajusteCajaPos">
+                                Ajustar efectivo en caja (devolver dinero al cliente)
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="montoDevolucionContainerPos" style="display: none;">
+                        <label for="montoDevueltoPos" class="form-label">Monto a Devolver</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="montoDevueltoPos" name="montoDevuelto" min="0" step="0.01">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarCancelacionPos">Cancelar Venta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Movimiento Caja -->
+<div class="modal fade" id="modalMovimientoCaja" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" id="headerMovimientoCaja">
+                <h5 class="modal-title" id="tituloMovimientoCaja">Registrar Movimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formMovimientoCaja">
+                    <input type="hidden" id="tipoMovimientoCaja" name="tipo">
+                    
+                    <div class="mb-3">
+                        <label for="conceptoCaja" class="form-label">Concepto <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="conceptoCaja" name="concepto" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="montoCaja" class="form-label">Monto <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="montoCaja" name="monto" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarMovimientoCaja">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php footerAdmin($data); ?>
 
@@ -179,6 +362,7 @@ function formatoPrecioCOP(precio) {
 document.addEventListener('DOMContentLoaded', function() {
     cargarClientes();
     cargarProductos();
+    actualizarTarjetasCaja();
     
     const inputBuscar = document.getElementById('buscarProducto');
     inputBuscar.addEventListener('input', filtrarProductos);
@@ -195,7 +379,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     document.getElementById('btnProcesarVenta').addEventListener('click', procesarVenta);
-    document.getElementById('btnCancelarVenta').addEventListener('click', cancelarVenta);
+
+    document.getElementById('btnProductoNoInventariadoHeader').addEventListener('click', function() {
+        const modalElement = document.getElementById('modalProductoNoInventariado');
+        modalElement.style.display = 'block';
+        modalElement.classList.add('show');
+        document.body.classList.add('modal-open');
+        
+        // Crear backdrop manualmente
+        const backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'modal-backdrop-temp';
+        document.body.appendChild(backdrop);
+        
+        // Cerrar al hacer click en backdrop
+        backdrop.addEventListener('click', cerrarModalManual);
+    });
+    
+    document.getElementById('btnAbrirCajaHeader')?.addEventListener('click', function() {
+        mostrarModalAbrirCaja();
+    });
+    
+    document.getElementById('btnCerrarCajaHeader')?.addEventListener('click', function() {
+        mostrarModalCerrarCaja();
+    });
+    document.getElementById('btnAgregarProductoNoInv').addEventListener('click', agregarProductoNoInventariado);
+    document.getElementById('btnConfirmarCancelacionPos').addEventListener('click', cancelarVentaExistente);
+    document.getElementById('btnGuardarMovimientoCaja').addEventListener('click', guardarMovimientoCaja);
+    document.getElementById('ajusteCajaPos').addEventListener('change', function() {
+        const container = document.getElementById('montoDevolucionContainerPos');
+        container.style.display = this.checked ? 'block' : 'none';
+    });
     document.getElementById('descuento').addEventListener('input', calcularTotales);
     document.getElementById('metodoPago').addEventListener('change', manejarMetodoPago);
     document.getElementById('pagaCon').addEventListener('input', calcularCambio);
@@ -582,19 +796,134 @@ function ejecutarVenta() {
     });
 }
 
-function cancelarVenta() {
-    if (carrito.length > 0) {
-        Swal.fire({
-            title: '¿Está seguro?',
-            text: "Se perderán todos los productos del carrito",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, cancelar',
-            cancelButtonText: 'No, mantener'
-        }).then((result) => {
-            if (result.isConfirmed) limpiarVenta();
-        });
+
+
+function agregarProductoNoInventariado() {
+    const form = document.getElementById('formProductoNoInventariado');
+    if(!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
     }
+    
+    const nombre = document.getElementById('nombreProductoNoInv').value;
+    const precio = parseFloat(document.getElementById('precioProductoNoInv').value);
+    
+    if(!nombre || precio <= 0) {
+        Swal.fire('Error', 'Nombre y precio son requeridos', 'error');
+        return;
+    }
+    
+    // Agregar directamente al carrito sin llamada al servidor
+    const numeroTemp = Math.floor(Math.random() * 9000) + 1000;
+    const productoTemporal = {
+        id: 'temp_' + Date.now(),
+        codigo: 'TEMP' + numeroTemp,
+        nombre: nombre,
+        precio: precio,
+        manoObra: 0,
+        precioTotal: precio,
+        cantidad: 1,
+        subtotal: precio,
+        temporal: true
+    };
+    
+    carrito.push(productoTemporal);
+    actualizarTablaCarrito();
+    calcularTotales();
+    
+    // Cerrar modal
+    cerrarModalManual();
+    
+    form.reset();
+    
+    // Toast en esquina superior derecha
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2000,
+        timerProgressBar: true
+    });
+    
+    Toast.fire({
+        icon: 'success',
+        title: `${nombre} agregado`
+    });
+}
+
+function cancelarVentaExistente() {
+    const form = document.getElementById('formCancelarVentaPos');
+    if(!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    
+    Swal.fire({
+        title: '¿Cancelar venta?',
+        text: 'Esta acción registrará la cancelación en el historial',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, cancelar venta',
+        cancelButtonText: 'No cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('<?= BASE_URL ?>pos/cancelarVenta', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status) {
+                    Swal.fire('Éxito', data.msg, 'success');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalCancelarVentaPos'));
+                    modal.hide();
+                    form.reset();
+                } else {
+                    Swal.fire('Error', data.msg, 'error');
+                }
+            });
+        }
+    });
+}
+
+function abrirModalMovimientoCaja(tipo, titulo, clase) {
+    document.getElementById('tipoMovimientoCaja').value = tipo;
+    document.getElementById('tituloMovimientoCaja').textContent = titulo;
+    document.getElementById('headerMovimientoCaja').className = 'modal-header ' + clase;
+    document.getElementById('formMovimientoCaja').reset();
+    document.getElementById('tipoMovimientoCaja').value = tipo;
+    
+    const modal = new bootstrap.Modal(document.getElementById('modalMovimientoCaja'));
+    modal.show();
+}
+
+function guardarMovimientoCaja() {
+    const form = document.getElementById('formMovimientoCaja');
+    if(!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+    
+    const formData = new FormData(form);
+    formData.append('cajaId', <?= $data['cajaAbierta']['id'] ?? 'null' ?>);
+    formData.append('metodoPago', 1); // Efectivo por defecto
+    
+    fetch('<?= BASE_URL ?>caja/registrarMovimiento', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status) {
+            Swal.fire('Éxito', data.msg, 'success');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalMovimientoCaja'));
+            modal.hide();
+        } else {
+            Swal.fire('Error', data.msg, 'error');
+        }
+    });
 }
 
 
@@ -612,5 +941,184 @@ function limpiarVenta() {
     document.getElementById('cambio').value = '';
     document.getElementById('pagoEfectivoContainer').style.display = 'block';
     document.getElementById('cambioContainer').style.display = 'none';
+}
+
+function cerrarModalManual() {
+    const modalElement = document.getElementById('modalProductoNoInventariado');
+    modalElement.style.display = 'none';
+    modalElement.classList.remove('show');
+    document.body.classList.remove('modal-open');
+    
+    const backdrop = document.getElementById('modal-backdrop-temp');
+    if(backdrop) backdrop.remove();
+}
+
+function mostrarModalCerrarCaja() {
+    <?php if($data['cajaAbierta']): ?>
+    fetch(`<?= BASE_URL ?>caja/getResumenCaja/<?= $data['cajaAbierta']['id'] ?>`)
+        .then(response => response.json())
+        .then(data => {
+            const enCaja = parseFloat(data.efectivo_disponible || 0);
+            const transferencias = parseFloat(data.ingresos_transferencias || 0);
+            const ingresos = parseFloat(data.total_ingresos || 0);
+            const ventas = parseFloat(data.total_ventas_caja || 0);
+            const totalGeneral = enCaja;
+            
+            Swal.fire({
+                title: 'Cerrar Caja',
+                html: `
+                    <div class="text-start">
+                        <h6>Resumen de Caja:</h6>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Transferencias:</strong></div>
+                            <div class="col-6">$${transferencias.toLocaleString()}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Ingresos:</strong></div>
+                            <div class="col-6">$${ingresos.toLocaleString()}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Egresos:</strong></div>
+                            <div class="col-6" style="color: ${parseFloat(data.total_egresos || 0) > 0 ? 'red' : ''}">${parseFloat(data.total_egresos || 0) > 0 ? '-$' + parseFloat(data.total_egresos || 0).toLocaleString() : '$0'}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6"><strong>Ventas:</strong></div>
+                            <div class="col-6">$${ventas.toLocaleString()}</div>
+                        </div>
+                        <hr>
+                        <div class="row mb-3">
+                            <div class="col-6"><strong>TOTAL GENERAL:</strong></div>
+                            <div class="col-6"><strong>$${totalGeneral.toLocaleString()}</strong></div>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <label class="form-label">Monto Final en Caja:</label>
+                            <input type="number" id="montoFinalCierre" class="form-control" placeholder="Ingrese el dinero físico" step="0.01">
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Cerrar Caja',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#dc3545',
+                preConfirm: () => {
+                    const montoFinal = document.getElementById('montoFinalCierre').value;
+                    if (!montoFinal || parseFloat(montoFinal) < 0) {
+                        Swal.showValidationMessage('Debe ingresar un monto válido');
+                        return false;
+                    }
+                    return parseFloat(montoFinal);
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    cerrarCajaConfirmado(result.value);
+                }
+            });
+        });
+    <?php endif; ?>
+}
+
+function cerrarCajaConfirmado(montoFinal) {
+    const formData = new FormData();
+    formData.append('cajaId', <?= $data['cajaAbierta']['id'] ?? 'null' ?>);
+    formData.append('montoFinal', montoFinal);
+    formData.append('observaciones', 'Cerrado desde POS');
+    
+    fetch('<?= BASE_URL ?>caja/cerrarCaja', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status) {
+            Swal.fire('Éxito', data.msg, 'success').then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Error', data.msg, 'error');
+        }
+    });
+}
+
+function actualizarTarjetasCaja() {
+    <?php if($data['cajaAbierta']): ?>
+    fetch(`<?= BASE_URL ?>caja/getResumenCaja/<?= $data['cajaAbierta']['id'] ?>`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('montoCajaHeader').textContent = '$' + parseFloat(data.total_actual || 0).toLocaleString();
+            document.getElementById('montoTransferenciasHeader').textContent = '$' + parseFloat(data.ingresos_transferencias || 0).toLocaleString();
+            document.getElementById('montoIngresosHeader').textContent = '$' + parseFloat(data.total_ingresos || 0).toLocaleString();
+            
+            const egresos = parseFloat(data.total_egresos || 0);
+            const egresosElement = document.getElementById('montoEgresosHeader');
+            if(egresos > 0) {
+                egresosElement.textContent = '-$' + egresos.toLocaleString();
+                egresosElement.style.color = 'red';
+            } else {
+                egresosElement.textContent = '$0';
+                egresosElement.style.color = '';
+            }
+            
+            document.getElementById('montoVentasHeader').textContent = '$' + parseFloat(data.total_ventas_caja || 0).toLocaleString();
+        });
+    <?php endif; ?>
+}
+
+function mostrarModalAbrirCaja() {
+    Swal.fire({
+        title: 'Abrir Caja',
+        html: `
+            <div class="text-start">
+                <div class="mb-3">
+                    <label class="form-label">Monto Inicial:</label>
+                    <input type="number" id="montoInicialApertura" class="form-control" placeholder="Ingrese el monto inicial" step="0.01" min="0">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Observaciones:</label>
+                    <textarea id="observacionesApertura" class="form-control" rows="3" placeholder="Observaciones opcionales"></textarea>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Abrir Caja',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#28a745',
+        preConfirm: () => {
+            const montoInicial = document.getElementById('montoInicialApertura').value;
+            if (!montoInicial || parseFloat(montoInicial) < 0) {
+                Swal.showValidationMessage('Debe ingresar un monto inicial válido');
+                return false;
+            }
+            return {
+                monto: parseFloat(montoInicial),
+                observaciones: document.getElementById('observacionesApertura').value
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            abrirCajaConfirmado(result.value.monto, result.value.observaciones);
+        }
+    });
+}
+
+function abrirCajaConfirmado(montoInicial, observaciones) {
+    const formData = new FormData();
+    formData.append('montoInicial', montoInicial);
+    formData.append('observaciones', observaciones);
+    
+    fetch('<?= BASE_URL ?>caja/abrirCaja', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status) {
+            Swal.fire('Éxito', data.msg, 'success').then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire('Error', data.msg, 'error');
+        }
+    });
 }
 </script>

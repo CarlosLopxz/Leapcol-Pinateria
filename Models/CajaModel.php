@@ -75,15 +75,25 @@ class CajaModel extends Mysql
         $sql = "SELECT 
                     c.*,
                     u.nombre as usuario_nombre,
-                    (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') as total_ingresos,
-                    (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso') as total_egresos,
+                    -- Ingresos por transferencias (tarjetas, transferencias)
+                    COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago IN (2, 3, 4)), 0) as ingresos_transferencias,
+                    -- Ingresos por efectivo
+                    COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago = 1), 0) as ingresos_efectivo,
+                    -- Ingresos adicionales
+                    COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso'), 0) as total_ingresos,
+                    -- Egresos
+                    COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso'), 0) as total_egresos,
+                    -- Total ventas
                     COALESCE(c.total_ventas, 0) as total_ventas_caja,
-                    COALESCE(c.total_efectivo, 0) as efectivo_ventas,
-                    COALESCE(c.total_tarjeta, 0) as tarjeta_ventas,
-                    COALESCE(c.total_transferencia, 0) as transferencia_ventas,
+                    -- Efectivo disponible (inicial + efectivo + ingresos - egresos)
+                    (c.monto_inicial + 
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'venta' AND metodo_pago = 1), 0) +
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso'), 0) -
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso'), 0)) as efectivo_disponible,
+                    -- Total actual (para compatibilidad)
                     (c.monto_inicial + COALESCE(c.total_ventas, 0) + 
-                     (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso') - 
-                     (SELECT COALESCE(SUM(monto), 0) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso')) as total_actual
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso'), 0) - 
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso'), 0)) as total_actual
                 FROM cajas c
                 INNER JOIN usuarios u ON c.usuario_id = u.idusuario
                 WHERE c.id = ?";
@@ -133,5 +143,40 @@ class CajaModel extends Mysql
                 INNER JOIN usuarios u ON c.usuario_id = u.idusuario
                 WHERE c.id = ?";
         return $this->select($sql, [intval($cajaId)]);
+    }
+    
+    public function registrarCancelacion($ventaId, $motivo, $montoDevuelto, $ajusteCaja, $usuarioId)
+    {
+        $query = "INSERT INTO cancelaciones_venta(venta_id, motivo, monto_cancelado, ajuste_caja, monto_devuelto, usuario_id) 
+                  SELECT id, ?, total, ?, ?, ? FROM ventas WHERE id = ?";
+        $arrData = [$motivo, $ajusteCaja, $montoDevuelto, $usuarioId, $ventaId];
+        return $this->insert($query, $arrData);
+    }
+    
+    public function registrarProductoTemporal($nombre, $precio, $usuarioId)
+    {
+        $query = "INSERT INTO productos_temporales(nombre, precio, usuario_id) VALUES(?, ?, ?)";
+        $arrData = [$nombre, $precio, $usuarioId];
+        return $this->insert($query, $arrData);
+    }
+    
+    public function getProductosTemporales($usuarioId = null)
+    {
+        $sql = "SELECT pt.*, u.nombre as usuario_nombre 
+                FROM productos_temporales pt
+                INNER JOIN usuarios u ON pt.usuario_id = u.idusuario";
+        $params = [];
+        if($usuarioId) {
+            $sql .= " WHERE pt.usuario_id = ?";
+            $params[] = intval($usuarioId);
+        }
+        $sql .= " ORDER BY pt.fecha_creacion DESC";
+        return $this->select_all($sql, $params);
+    }
+    
+    public function marcarProductoTemporalComoInventariado($id)
+    {
+        $sql = "UPDATE productos_temporales SET agregado_inventario = 1 WHERE id = ?";
+        return $this->update($sql, [intval($id)]);
     }
 }

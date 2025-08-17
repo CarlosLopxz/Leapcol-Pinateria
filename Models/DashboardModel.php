@@ -42,9 +42,16 @@ class DashboardModel extends Mysql
     
     public function getTotalIngresos()
     {
-        $sql = "SELECT SUM(total) as total FROM ventas WHERE estado = 1";
+        // Obtener el total de la caja abierta actual
+        $sql = "SELECT 
+                    (c.monto_inicial + COALESCE(c.total_ventas, 0) + 
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'ingreso'), 0) - 
+                     COALESCE((SELECT SUM(monto) FROM movimientos_caja WHERE caja_id = c.id AND tipo = 'egreso'), 0)) as total_actual
+                FROM cajas c 
+                WHERE c.estado = 1 
+                ORDER BY c.id DESC LIMIT 1";
         $request = $this->select($sql);
-        return isset($request['total']) ? $request['total'] : 0;
+        return isset($request['total_actual']) ? $request['total_actual'] : 0;
     }
     
     public function getVentasRecientes()

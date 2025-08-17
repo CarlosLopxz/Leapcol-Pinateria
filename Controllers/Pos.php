@@ -158,4 +158,103 @@ class Pos extends AuthController
             error_log("Error al registrar venta en caja: " . $e->getMessage());
         }
     }
+    
+    public function agregarProductoTemporal()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            
+            if($_POST) {
+                $nombre = strClean($_POST['nombre']);
+                $precio = floatval($_POST['precio']);
+                
+                if(empty($nombre) || $precio <= 0) {
+                    $arrResponse = ['status' => false, 'msg' => 'Nombre y precio son requeridos'];
+                } else {
+                    $result = $this->cajaModel->registrarProductoTemporal(
+                        $nombre, 
+                        $precio, 
+                        $_SESSION['userData']['idusuario']
+                    );
+                    
+                    if($result > 0) {
+                        $arrResponse = [
+                            'status' => true, 
+                            'msg' => 'Producto temporal agregado al carrito', 
+                            'producto' => [
+                                'id' => 'temp_' . $result,
+                                'nombre' => $nombre,
+                                'precio' => $precio,
+                                'temporal' => true
+                            ]
+                        ];
+                    } else {
+                        $arrResponse = ['status' => false, 'msg' => 'Error al agregar producto temporal'];
+                    }
+                }
+                
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            }
+        } catch (Exception $e) {
+            error_log("Error en agregarProductoTemporal: " . $e->getMessage());
+            echo json_encode(['status' => false, 'msg' => 'Error al procesar la solicitud'], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
+    
+    public function cancelarVenta()
+    {
+        try {
+            header('Content-Type: application/json; charset=utf-8');
+            
+            if($_POST) {
+                $ventaId = intval($_POST['ventaId']);
+                $motivo = strClean($_POST['motivo'] ?? '');
+                $ajusteCaja = isset($_POST['ajusteCaja']) ? 1 : 0;
+                $montoDevuelto = floatval($_POST['montoDevuelto'] ?? 0);
+                
+                if($ventaId <= 0) {
+                    $arrResponse = ['status' => false, 'msg' => 'ID de venta requerido'];
+                } else {
+                    $result = $this->cajaModel->registrarCancelacion(
+                        $ventaId, 
+                        $motivo, 
+                        $montoDevuelto, 
+                        $ajusteCaja, 
+                        $_SESSION['userData']['idusuario']
+                    );
+                    
+                    if($result > 0) {
+                        if($ajusteCaja && $montoDevuelto > 0) {
+                            $cajaAbierta = $this->cajaModel->getCajaAbierta($_SESSION['userData']['idusuario']);
+                            if($cajaAbierta) {
+                                $datos = [
+                                    'caja_id' => $cajaAbierta['id'],
+                                    'tipo' => 'egreso',
+                                    'concepto' => 'Devolución por cancelación - Venta #' . $ventaId,
+                                    'monto' => $montoDevuelto,
+                                    'metodo_pago' => 1,
+                                    'cancelacion_id' => $result,
+                                    'usuario_id' => $_SESSION['userData']['idusuario']
+                                ];
+                                
+                                $this->cajaModel->registrarMovimiento($datos);
+                                $this->cajaModel->actualizarTotalesCaja($cajaAbierta['id']);
+                            }
+                        }
+                        
+                        $arrResponse = ['status' => true, 'msg' => 'Venta cancelada correctamente'];
+                    } else {
+                        $arrResponse = ['status' => false, 'msg' => 'Error al cancelar la venta'];
+                    }
+                }
+                
+                echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+            }
+        } catch (Exception $e) {
+            error_log("Error en cancelarVenta: " . $e->getMessage());
+            echo json_encode(['status' => false, 'msg' => 'Error al procesar la solicitud'], JSON_UNESCAPED_UNICODE);
+        }
+        die();
+    }
 }

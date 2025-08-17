@@ -48,11 +48,15 @@ class VentasModel extends Mysql
     {
         $this->intIdVenta = $idVenta;
         
-        // Obtener detalles incluyendo mano de obra
-        $sql = "SELECT d.*, p.codigo, p.nombre, p.precio_venta, p.mano_obra,
-                       (p.precio_venta + p.mano_obra) as precio_total
+        // Obtener detalles incluyendo productos temporales
+        $sql = "SELECT d.*, 
+                       COALESCE(p.codigo, 'TEMP') as codigo, 
+                       COALESCE(p.nombre, 'Producto No Inventariado') as nombre, 
+                       COALESCE(p.precio_venta, 0) as precio_venta, 
+                       COALESCE(p.mano_obra, 0) as mano_obra,
+                       COALESCE((p.precio_venta + p.mano_obra), d.precio_unitario) as precio_total
                 FROM detalle_venta d 
-                INNER JOIN productos p ON d.producto_id = p.id 
+                LEFT JOIN productos p ON d.producto_id = p.id 
                 WHERE d.venta_id = {$this->intIdVenta}";
         $request = $this->select_all($sql);
         
