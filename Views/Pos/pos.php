@@ -785,6 +785,7 @@ function ejecutarVenta() {
                     window.open(`<?= BASE_URL ?>pos/imprimirTicket/${data.idVenta}`, '_blank');
                 }
                 limpiarVenta();
+                actualizarTarjetasCaja();
             });
         } else {
             Swal.fire('Error', data.msg, 'error');
