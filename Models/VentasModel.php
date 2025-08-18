@@ -375,32 +375,22 @@ class VentasModel extends Mysql
         $return = false;
 
         try {
-            // Iniciar transacción
-            $this->beginTransaction();
-
-            // Obtener detalle de la venta
-            $sql_detalle = "SELECT producto_id, cantidad FROM detalle_venta WHERE venta_id = {$this->intIdVenta}";
-            $detalle = $this->select_all($sql_detalle);
-
-            // Devolver productos al inventario
-            foreach ($detalle as $producto) {
-                $query_stock = "UPDATE productos SET stock = stock + ? WHERE id = ?";
-                $arrDataStock = array($producto['cantidad'], $producto['producto_id']);
-                $this->update($query_stock, $arrDataStock);
+            // Verificar que la venta no esté ya anulada
+            $sql_verificar = "SELECT estado FROM ventas WHERE id = {$this->intIdVenta}";
+            $venta = $this->select($sql_verificar);
+            
+            if(!$venta || $venta['estado'] == 0) {
+                return false; // Ya está anulada o no existe
             }
 
-            // Anular la venta
+            // Anular la venta - el trigger restaurar_stock_venta se encarga del stock automáticamente
             $query_anular = "UPDATE ventas SET estado = 0 WHERE id = {$this->intIdVenta}";
             $request = $this->update($query_anular, []);
 
             if ($request) {
-                $this->commit();
                 $return = true;
-            } else {
-                $this->rollback();
             }
         } catch (Exception $e) {
-            $this->rollback();
             error_log("Error en anularVenta: " . $e->getMessage());
         }
 
@@ -502,6 +492,7 @@ class VentasModel extends Mysql
     
     private function crearTrigger()
     {
+        // Trigger para inserción de ventas
         $sql = "DROP TRIGGER IF EXISTS `manejar_stock_venta`";
         $this->update($sql, []);
         
