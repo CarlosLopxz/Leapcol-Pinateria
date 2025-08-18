@@ -179,4 +179,10 @@ class CajaModel extends Mysql
         $sql = "UPDATE productos_temporales SET agregado_inventario = 1 WHERE id = ?";
         return $this->update($sql, [intval($id)]);
     }
+    
+    public function verificarVentaEnCaja($ventaId, $cajaId)
+    {
+        $sql = "SELECT id FROM movimientos_caja WHERE venta_id = ? AND caja_id = ? AND tipo = 'venta'";
+        return $this->select($sql, [intval($ventaId), intval($cajaId)]);
+    }
 }

@@ -279,11 +279,36 @@ class Ventas extends AuthController
             if($_POST) {
                 $idVenta = intval($_POST['idVenta']);
                 if($idVenta > 0) {
-                    $result = $this->model->anularVenta($idVenta);
-                    if($result) {
-                        $arrResponse = ['status' => true, 'msg' => 'Venta anulada correctamente'];
+                    // Verificar que la venta exista
+                    $venta = $this->model->getVenta($idVenta);
+                    if(!$venta) {
+                        $arrResponse = ['status' => false, 'msg' => 'Venta no encontrada'];
                     } else {
-                        $arrResponse = ['status' => false, 'msg' => 'Error al anular la venta'];
+                        // Verificar si hay una caja abierta
+                        $usuarioId = $_SESSION['userData']['idusuario'] ?? 1;
+                        
+                        // Cargar modelo de caja
+                        require_once 'Models/CajaModel.php';
+                        $cajaModel = new CajaModel();
+                        $cajaAbierta = $cajaModel->getCajaAbierta($usuarioId);
+                        
+                        if(!$cajaAbierta) {
+                            $arrResponse = ['status' => false, 'msg' => 'No hay una caja abierta. No se puede anular la venta.'];
+                        } else {
+                            // Verificar si la venta pertenece a la caja actual
+                            $ventaEnCaja = $cajaModel->verificarVentaEnCaja($idVenta, $cajaAbierta['id']);
+                            
+                            if(!$ventaEnCaja) {
+                                $arrResponse = ['status' => false, 'msg' => 'No se puede anular una venta que no pertenece a la caja actual. Solo se pueden anular ventas de la sesión de caja activa.'];
+                            } else {
+                                $result = $this->model->anularVenta($idVenta);
+                                if($result) {
+                                    $arrResponse = ['status' => true, 'msg' => 'Venta anulada correctamente'];
+                                } else {
+                                    $arrResponse = ['status' => false, 'msg' => 'Error al anular la venta'];
+                                }
+                            }
+                        }
                     }
                 } else {
                     $arrResponse = ['status' => false, 'msg' => 'ID de venta inválido'];

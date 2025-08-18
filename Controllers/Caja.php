@@ -208,6 +208,21 @@ class Caja extends AuthController
                     die();
                 }
                 
+                // Verificar que la venta pertenezca a la caja actual
+                $cajaAbierta = $this->model->getCajaAbierta($_SESSION['userData']['idusuario']);
+                if(!$cajaAbierta) {
+                    $arrResponse = ['status' => false, 'msg' => 'No tienes una caja abierta'];
+                    echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+                    die();
+                }
+                
+                $ventaEnCaja = $this->model->verificarVentaEnCaja($ventaId, $cajaAbierta['id']);
+                if(!$ventaEnCaja) {
+                    $arrResponse = ['status' => false, 'msg' => 'Solo puedes cancelar ventas de tu caja actual'];
+                    echo json_encode($arrResponse, JSON_UNESCAPED_UNICODE);
+                    die();
+                }
+                
                 // Registrar cancelación
                 $cancelacionId = $this->model->registrarCancelacion(
                     $ventaId, 

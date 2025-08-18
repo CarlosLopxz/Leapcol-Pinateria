@@ -525,8 +525,10 @@
             if (result.isConfirmed) {
                 // Mostrar modal de carga
                 const loadingModal = document.getElementById('loadingModal');
-                loadingModal.classList.remove('hide');
-                loadingModal.classList.add('show');
+                if(loadingModal) {
+                    loadingModal.classList.remove('hide');
+                    loadingModal.classList.add('show');
+                }
                 
                 const formData = new FormData();
                 formData.append('idVenta', id);
@@ -551,8 +553,10 @@
                 })
                 .then(data => {
                     // Ocultar modal de carga
-                    loadingModal.classList.remove('show');
-                    loadingModal.classList.add('hide');
+                    if(loadingModal) {
+                        loadingModal.classList.remove('show');
+                        loadingModal.classList.add('hide');
+                    }
                     
                     if(data.status) {
                         Swal.fire(
@@ -573,19 +577,24 @@
                         // Recargar tabla
                         tableVentas.ajax.reload();
                     } else {
-                        Swal.fire(
-                            'Error',
-                            data.msg,
-                            'error'
-                        );
+                        // Mostrar modal de error personalizado para restricciones de caja
+                        Swal.fire({
+                            title: 'No se puede anular',
+                            text: data.msg,
+                            icon: 'warning',
+                            confirmButtonText: 'Entendido',
+                            confirmButtonColor: '#3085d6'
+                        });
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     
                     // Ocultar modal de carga
-                    loadingModal.classList.remove('show');
-                    loadingModal.classList.add('hide');
+                    if(loadingModal) {
+                        loadingModal.classList.remove('show');
+                        loadingModal.classList.add('hide');
+                    }
                     
                     Swal.fire(
                         'Error',
