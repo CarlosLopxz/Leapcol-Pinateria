@@ -668,6 +668,13 @@
                                   mov.metodo_pago == 2 ? 'Tarjeta' : 'Transferencia';
                     
                     const tr = document.createElement('tr');
+                    
+                    // Aplicar estilo rojo si es una venta anulada (monto negativo)
+                    if (mov.concepto && mov.concepto.includes('anulada') && parseFloat(mov.monto) < 0) {
+                        tr.style.color = 'red';
+                        tr.style.fontWeight = 'bold';
+                    }
+                    
                     tr.innerHTML = `
                         <td>${new Date(mov.fecha).toLocaleTimeString()}</td>
                         <td>${tipo}</td>
