@@ -116,6 +116,16 @@ class PosModel extends Mysql
                             $costoTotal, 
                             $ganancia
                         ]);
+                        
+                        // Actualizar stock del producto (evitar stock negativo)
+                        $queryStock = "UPDATE productos SET stock = GREATEST(0, stock - ?) WHERE id = ?";
+                        $this->update($queryStock, [$producto['cantidad'], $producto['id']]);
+                        
+                        // Verificar si el stock quedó en 0 para logging
+                        $stockFinal = $this->verificarStock($producto['id']);
+                        if ($stockFinal == 0) {
+                            error_log("ADVERTENCIA: Producto ID {$producto['id']} quedó sin stock después de la venta");
+                        }
                     }
                 }
                 
