@@ -15,58 +15,58 @@
         </div>
         
         <!-- Tarjetas de Estado de Caja -->
-        <div class="row mb-4">
+        <div class="row mb-2">
             <?php if($data['cajaAbierta']): ?>
             <div class="col-md-2">
                 <div class="card bg-light border-0 shadow-sm">
-                    <div class="card-body p-2 text-center">
-                        <small class="text-muted">En Caja</small>
-                        <h6 class="mb-0 text-dark" id="montoCajaHeader">$<?= number_format($data['cajaAbierta']['total_actual'] ?? 0, 0) ?></h6>
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">En Caja</small>
+                        <h6 class="mb-0 text-dark" style="font-size: 0.9rem;" id="montoCajaHeader">$<?= number_format($data['cajaAbierta']['total_actual'] ?? 0, 0) ?></h6>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="card bg-white border-1 shadow-sm">
-                    <div class="card-body p-2 text-center">
-                        <small class="text-muted">Transferencias</small>
-                        <h6 class="mb-0 text-dark" id="montoTransferenciasHeader">$0</h6>
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">Transferencias</small>
+                        <h6 class="mb-0 text-dark" style="font-size: 0.9rem;" id="montoTransferenciasHeader">$0</h6>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="card bg-light border-0 shadow-sm">
-                    <div class="card-body p-2 text-center">
-                        <small class="text-muted">Ingresos</small>
-                        <h6 class="mb-0 text-dark" id="montoIngresosHeader">$0</h6>
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">Ingresos</small>
+                        <h6 class="mb-0 text-dark" style="font-size: 0.9rem;" id="montoIngresosHeader">$0</h6>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="card bg-white border-1 shadow-sm">
-                    <div class="card-body p-2 text-center">
-                        <small class="text-muted">Egresos</small>
-                        <h6 class="mb-0 text-dark" id="montoEgresosHeader">$0</h6>
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">Egresos</small>
+                        <h6 class="mb-0 text-dark" style="font-size: 0.9rem;" id="montoEgresosHeader">$0</h6>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
                 <div class="card bg-light border-0 shadow-sm">
-                    <div class="card-body p-2 text-center">
-                        <small class="text-muted">Ventas</small>
-                        <h6 class="mb-0 text-dark" id="montoVentasHeader">$<?= number_format($data['cajaAbierta']['total_ventas'] ?? 0, 0) ?></h6>
+                    <div class="card-body p-1 text-center">
+                        <small class="text-muted" style="font-size: 0.7rem;">Ventas</small>
+                        <h6 class="mb-0 text-dark" style="font-size: 0.9rem;" id="montoVentasHeader">$<?= number_format($data['cajaAbierta']['total_ventas'] ?? 0, 0) ?></h6>
                     </div>
                 </div>
             </div>
             <div class="col-md-2">
-                <button class="btn btn-danger w-100" id="btnCerrarCajaHeader">
-                    <i class="fas fa-lock me-2"></i>Cerrar Caja
+                <button class="btn btn-danger btn-sm w-100" id="btnCerrarCajaHeader">
+                    <i class="fas fa-lock me-1"></i>Cerrar Caja
                 </button>
             </div>
             <?php else: ?>
             <div class="col-md-8">
                 <div class="card bg-secondary text-white">
-                    <div class="card-body p-3 text-center">
-                        <h5 class="mb-0">CAJA CERRADA</h5>
+                    <div class="card-body p-2 text-center">
+                        <h6 class="mb-0">CAJA CERRADA</h6>
                         <small>Debe abrir la caja para comenzar a trabajar</small>
                     </div>
                 </div>
@@ -84,17 +84,17 @@
         <div class="row">
             <div class="col-lg-8">
                 <!-- Búsqueda de productos -->
-                <div class="card mb-4">
-                    <div class="card-body">
+                <div class="card mb-2">
+                    <div class="card-body p-2">
                         <div class="position-relative">
-                            <div class="input-group">
+                            <div class="input-group input-group-sm">
                                 <input type="text" id="buscarProducto" class="form-control" placeholder="Buscar producto por código o nombre...">
                                 <span class="input-group-text">
                                     <i class="fas fa-search"></i>
                                 </span>
                             </div>
                             <!-- Dropdown de productos filtrados -->
-                            <div id="dropdownProductos" class="card position-absolute w-100" style="display: none; z-index: 1000; max-height: 300px; overflow-y: auto; top: 100%; margin-top: 2px; background-color: #efefef;">
+                            <div id="dropdownProductos" class="card position-absolute w-100" style="display: none; z-index: 1000; max-height: 200px; overflow-y: auto; top: 100%; margin-top: 2px; background-color: #efefef;">
                                 <div class="card-body p-2">
                                     <div id="listaProductosFiltrados"></div>
                                 </div>
@@ -105,20 +105,20 @@
 
                 <!-- Carrito -->
                 <div class="card">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Carrito de Venta</h5>
+                    <div class="card-header bg-white py-2">
+                        <h6 class="card-title mb-0">Carrito de Venta</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-striped" id="tablaCarrito">
+                    <div class="card-body p-2">
+                        <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
+                            <table class="table table-hover table-striped table-sm" id="tablaCarrito">
                                 <thead>
-                                    <tr>
+                                    <tr style="font-size: 0.8rem;">
                                         <th>Producto</th>
-                                        <th width="100">Cantidad</th>
-                                        <th width="100">Precio</th>
-                                        <th width="100">Mano Obra</th>
-                                        <th width="120">Subtotal</th>
-                                        <th width="50">Acción</th>
+                                        <th width="80">Cant.</th>
+                                        <th width="80">Precio</th>
+                                        <th width="80">M.Obra</th>
+                                        <th width="90">Subtotal</th>
+                                        <th width="40"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="carritoItems">
@@ -134,83 +134,87 @@
 
             <div class="col-lg-4">
                 <!-- Cliente -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Cliente</h5>
+                <div class="card mb-2">
+                    <div class="card-header bg-white py-1">
+                        <h6 class="card-title mb-0">Cliente</h6>
                     </div>
-                    <div class="card-body">
-                        <select class="form-select" id="clienteSelect">
+                    <div class="card-body p-2">
+                        <select class="form-select form-select-sm" id="clienteSelect">
                             <option value="0">Cliente General</option>
                         </select>
                     </div>
                 </div>
 
                 <!-- Resumen -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Resumen de Venta</h5>
+                <div class="card mb-2">
+                    <div class="card-header bg-white py-1">
+                        <h6 class="card-title mb-0">Resumen</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Subtotal:</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control" id="subtotal" readonly value="0">
+                    <div class="card-body p-2">
+                        <div class="row g-1 mb-2">
+                            <div class="col-6">
+                                <label class="form-label" style="font-size: 0.8rem;">Subtotal:</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="subtotal" readonly value="0">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" style="font-size: 0.8rem;">Descuento:</label>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="descuento" value="0" min="0">
+                                </div>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Descuento:</label>
+                        <div class="mb-2">
+                            <label class="form-label fw-bold" style="font-size: 0.9rem;">TOTAL:</label>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="descuento" value="0" min="0">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">TOTAL:</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control form-control-lg fw-bold" id="total" readonly value="0">
+                                <span class="input-group-text fw-bold">$</span>
+                                <input type="text" class="form-control fw-bold text-primary" id="total" readonly value="0">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pago -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Método de Pago</h5>
+                <div class="card mb-2">
+                    <div class="card-header bg-white py-1">
+                        <h6 class="card-title mb-0">Método de Pago</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Destino del dinero:</label>
-                            <select class="form-select" id="destinoCaja">
-                                <option value="general">Caja General</option>
-                                <option value="creacion">Caja Creación</option>
-                            </select>
+                    <div class="card-body p-2">
+                        <div class="row g-1 mb-2">
+                            <div class="col-6">
+                                <label class="form-label" style="font-size: 0.8rem;">Destino:</label>
+                                <select class="form-select form-select-sm" id="destinoCaja">
+                                    <option value="general">Caja General</option>
+                                    <option value="creacion">Caja Creación</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label" style="font-size: 0.8rem;">Método:</label>
+                                <select class="form-select form-select-sm" id="metodoPago">
+                                    <option value="1">Efectivo</option>
+                                    <option value="2">Tarjeta de Crédito</option>
+                                    <option value="3">Tarjeta de Débito</option>
+                                    <option value="4">Transferencia</option>
+                                </select>
+                            </div>
                         </div>
                         
-                        <select class="form-select mb-3" id="metodoPago">
-                            <option value="1">Efectivo</option>
-                            <option value="2">Tarjeta de Crédito</option>
-                            <option value="3">Tarjeta de Débito</option>
-                            <option value="4">Transferencia</option>
-                        </select>
-                        
-                        <div class="mb-3" id="pagoEfectivoContainer">
-                            <label class="form-label">Paga con:</label>
-                            <div class="input-group">
+                        <div class="mb-2" id="pagoEfectivoContainer">
+                            <label class="form-label" style="font-size: 0.8rem;">Paga con:</label>
+                            <div class="input-group input-group-sm">
                                 <span class="input-group-text">$</span>
                                 <input type="number" class="form-control" id="pagaCon" min="0">
                             </div>
                         </div>
                         
-                        <div class="mb-3" id="cambioContainer" style="display: none;">
-                            <label class="form-label fw-bold">Cambio:</label>
-                            <div class="input-group">
+                        <div class="mb-2" id="cambioContainer" style="display: none;">
+                            <label class="form-label fw-bold text-success" style="font-size: 0.8rem;">Cambio:</label>
+                            <div class="input-group input-group-sm">
                                 <span class="input-group-text">$</span>
-                                <input type="text" class="form-control form-control-lg fw-bold text-success" id="cambio" readonly>
+                                <input type="text" class="form-control fw-bold text-success" id="cambio" readonly>
                             </div>
                         </div>
                     </div>
@@ -221,8 +225,8 @@
 
 
                 <!-- Botones Principales -->
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary btn-lg" id="btnProcesarVenta">
+                <div class="d-grid gap-1">
+                    <button class="btn btn-primary" id="btnProcesarVenta">
                         <i class="fas fa-cash-register me-2"></i>Procesar Venta
                     </button>
                 </div>
@@ -487,12 +491,12 @@ function filtrarProductos() {
         item.innerHTML = `
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <strong>${producto.nombre}</strong><br>
+                    <strong style="font-size: 0.85rem;">${producto.nombre.length > 25 ? producto.nombre.substring(0, 25) + '...' : producto.nombre}</strong><br>
                     <small class="text-muted">Código: ${producto.codigo} | Stock: ${stockDisponible}</small>
-                    ${producto.mano_obra > 0 ? `<br><small class="text-info">Mano de obra: ${formatoPrecioCOP(producto.mano_obra)}</small>` : ''}
+                    ${producto.mano_obra > 0 ? `<br><small class="text-info">M.O: ${formatoPrecioCOP(producto.mano_obra)}</small>` : ''}
                 </div>
                 <div class="text-end">
-                    <span class="fw-bold">${formatoPrecioCOP(parseFloat(producto.precio_venta) + parseFloat(producto.mano_obra || 0))}</span>
+                    <span class="fw-bold" style="font-size: 0.9rem;">${formatoPrecioCOP(parseFloat(producto.precio_venta) + parseFloat(producto.mano_obra || 0))}</span>
                 </div>
             </div>
         `;
@@ -596,20 +600,20 @@ function actualizarTablaCarrito() {
     carrito.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${item.nombre}</strong><br><small>Código: ${item.codigo}</small></td>
+            <td style="font-size: 0.8rem;"><strong>${item.nombre.length > 20 ? item.nombre.substring(0, 20) + '...' : item.nombre}</strong><br><small class="text-muted">${item.codigo}</small></td>
             <td>
-                <div class="input-group input-group-sm" style="width:100px;">
-                    <button class="btn btn-outline-secondary" onclick="cambiarCantidad(${index}, -1)">-</button>
-                    <input type="text" class="form-control text-center" value="${item.cantidad}" readonly>
-                    <button class="btn btn-outline-secondary" onclick="cambiarCantidad(${index}, 1)">+</button>
+                <div class="input-group input-group-sm" style="width:70px;">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(${index}, -1)" style="padding:2px 6px; font-size:0.7rem;">-</button>
+                    <input type="text" class="form-control text-center" value="${item.cantidad}" readonly style="padding:2px; font-size:0.8rem;">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="cambiarCantidad(${index}, 1)" style="padding:2px 6px; font-size:0.7rem;">+</button>
                 </div>
             </td>
-            <td class="text-end">${formatoPrecioCOP(item.precio)}</td>
-            <td class="text-end">${item.manoObra > 0 ? formatoPrecioCOP(item.manoObra) : '-'}</td>
-            <td class="text-end">${formatoPrecioCOP(item.subtotal)}</td>
+            <td class="text-end" style="font-size: 0.8rem;">${formatoPrecioCOP(item.precio)}</td>
+            <td class="text-end" style="font-size: 0.8rem;">${item.manoObra > 0 ? formatoPrecioCOP(item.manoObra) : '-'}</td>
+            <td class="text-end fw-bold" style="font-size: 0.8rem;">${formatoPrecioCOP(item.subtotal)}</td>
             <td class="text-center">
-                <button class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${index})">
-                    <i class="fas fa-trash"></i>
+                <button class="btn btn-sm btn-outline-danger" onclick="eliminarDelCarrito(${index})" style="padding:2px 6px;">
+                    <i class="fas fa-trash" style="font-size:0.7rem;"></i>
                 </button>
             </td>
         `;

@@ -6,62 +6,56 @@
 <div class="d2c_main px-0 px-md-2 py-4">
     <div class="container-fluid">
         <!-- Title -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h4 class="mb-0 text-capitalize">Punto de Venta</h4>
-                <p class="text-muted">Registra ventas y genera tickets</p>
-            </div>
-            <div>
-                <a href="<?= BASE_URL ?>ventas" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left me-2"></i>Volver
-                </a>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0">POS</h6>
+            <a href="<?= BASE_URL ?>ventas" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i>
+            </a>
         </div>
 
         <div class="row">
             <!-- Productos y Carrito -->
             <div class="col-lg-8">
-                <!-- Búsqueda de productos -->
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-8 mb-3 mb-md-0">
-                                <div class="input-group">
-                                    <input type="text" id="buscarProducto" class="form-control" placeholder="Buscar producto por código o nombre...">
+                <!-- Búsqueda -->
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <div class="row g-1">
+                            <div class="col-8">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" id="buscarProducto" class="form-control" placeholder="Buscar...">
                                     <button class="btn btn-primary" type="button" id="btnBuscarProducto">
                                         <i class="fas fa-search"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <button class="btn btn-success w-100" id="btnMostrarProductos">
-                                    <i class="fas fa-th me-2"></i>Ver Productos
+                            <div class="col-4">
+                                <button class="btn btn-success btn-sm w-100" id="btnMostrarProductos">
+                                    <i class="fas fa-th"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Carrito de compras -->
+                <!-- Carrito -->
                 <div class="card">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Carrito de Venta</h5>
+                    <div class="card-header bg-light py-1">
+                        <small class="fw-bold">Carrito</small>
                     </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-striped" id="tablaCarrito">
+                    <div class="card-body p-1">
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm mb-0" id="tablaCarrito">
                                 <thead>
-                                    <tr>
+                                    <tr style="font-size: 0.75rem;">
                                         <th>Producto</th>
-                                        <th width="100">Cantidad</th>
-                                        <th width="120">Precio</th>
-                                        <th width="120">Subtotal</th>
-                                        <th width="50">Acción</th>
+                                        <th width="60">Cant</th>
+                                        <th width="60">$</th>
+                                        <th width="30"></th>
                                     </tr>
                                 </thead>
                                 <tbody id="carritoItems">
                                     <tr id="carritoVacio">
-                                        <td colspan="5" class="text-center">No hay productos en el carrito</td>
+                                        <td colspan="4" class="text-center text-muted" style="font-size: 0.8rem;">Sin productos</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -73,95 +67,80 @@
             <!-- Resumen y Pago -->
             <div class="col-lg-4">
                 <!-- Cliente -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Cliente</h5>
-                    </div>
-                    <div class="card-body">
-                        <select class="form-select mb-3" id="clienteSelect">
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <select class="form-select form-select-sm mb-1" id="clienteSelect">
                             <option value="0">Cliente General</option>
-                            <!-- Se cargarán dinámicamente -->
                         </select>
-                        <button class="btn btn-outline-primary btn-sm w-100" id="btnNuevoCliente">
-                            <i class="fas fa-user-plus me-2"></i>Nuevo Cliente
+                        <button class="btn btn-outline-primary btn-sm w-100" id="btnNuevoCliente" style="font-size: 0.75rem;">
+                            <i class="fas fa-plus"></i> Cliente
                         </button>
                     </div>
                 </div>
 
-                <!-- Resumen de venta -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Resumen de Venta</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label for="subtotal" class="form-label">Subtotal:</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control" id="subtotal" readonly value="0">
+                <!-- Totales -->
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <div class="row g-1 mb-1">
+                            <div class="col-6">
+                                <small>Subtotal:</small>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="text" class="form-control" id="subtotal" readonly value="0">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <small>Descuento:</small>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" id="descuento" value="0" min="0">
+                                </div>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label for="descuento" class="form-label">Descuento:</label>
+                        <div>
+                            <small class="fw-bold">TOTAL:</small>
                             <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="descuento" value="0" min="0">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="total" class="form-label fw-bold">TOTAL:</label>
-                            <div class="input-group">
-                                <span class="input-group-text">$</span>
-                                <input type="text" class="form-control form-control-lg fw-bold" id="total" readonly value="0">
+                                <span class="input-group-text fw-bold">$</span>
+                                <input type="text" class="form-control fw-bold text-primary" id="total" readonly value="0">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Método de pago -->
-                <div class="card mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="card-title mb-0">Método de Pago</h5>
-                    </div>
-                    <div class="card-body">
-                        <select class="form-select mb-3" id="metodoPago">
+                <!-- Pago -->
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <select class="form-select form-select-sm mb-1" id="metodoPago">
                             <option value="1">Efectivo</option>
-                            <option value="2">Tarjeta de Crédito</option>
-                            <option value="3">Tarjeta de Débito</option>
-                            <option value="4">Transferencia</option>
+                            <option value="2">Tarjeta</option>
+                            <option value="3">Transferencia</option>
                         </select>
                         
-                        <div class="mb-3" id="pagoEfectivoContainer">
-                            <label for="pagaCon" class="form-label">Paga con:</label>
-                            <div class="input-group">
+                        <div class="mb-1" id="pagoEfectivoContainer">
+                            <small>Paga con:</small>
+                            <div class="input-group input-group-sm">
                                 <span class="input-group-text">$</span>
-                                <input type="number" class="form-control" id="pagaCon" min="0" step="0.01">
+                                <input type="number" class="form-control" id="pagaCon" min="0">
                             </div>
                         </div>
                         
-                        <div class="mb-3" id="cambioContainer" style="display: none;">
-                            <label for="cambio" class="form-label fw-bold">Cambio:</label>
-                            <div class="input-group">
+                        <div class="mb-1" id="cambioContainer" style="display: none;">
+                            <small class="fw-bold text-success">Cambio:</small>
+                            <div class="input-group input-group-sm">
                                 <span class="input-group-text">$</span>
-                                <input type="text" class="form-control form-control-lg fw-bold text-success" id="cambio" readonly>
+                                <input type="text" class="form-control fw-bold text-success" id="cambio" readonly>
                             </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="observaciones" class="form-label">Observaciones:</label>
-                            <textarea class="form-control" id="observaciones" rows="2"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <!-- Botones de acción -->
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary btn-lg" id="btnProcesarVenta">
-                        <i class="fas fa-cash-register me-2"></i>Procesar Venta
+                <!-- Botones -->
+                <div class="d-grid gap-1">
+                    <button class="btn btn-primary" id="btnProcesarVenta">
+                        <i class="fas fa-cash-register"></i> VENDER
                     </button>
-                    <button class="btn btn-danger" id="btnCancelarVenta">
-                        <i class="fas fa-times me-2"></i>Cancelar
+                    <button class="btn btn-outline-secondary btn-sm" id="btnCancelarVenta">
+                        <i class="fas fa-times"></i> Limpiar
                     </button>
                 </div>
             </div>
@@ -640,22 +619,21 @@
         carrito.forEach((item, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>
-                    <strong>${item.nombre}</strong><br>
-                    <small>Código: ${item.codigo}</small>
+                <td style="font-size: 0.75rem;">
+                    <div class="fw-bold">${item.nombre.length > 15 ? item.nombre.substring(0, 15) + '...' : item.nombre}</div>
+                    <small class="text-muted">${item.codigo}</small>
                 </td>
                 <td>
-                    <div class="input-group input-group-sm" style="width:100px;">
-                        <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, -1)">-</button>
-                        <input type="text" class="form-control text-center" value="${item.cantidad}" readonly style="padding:5px;">
-                        <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, 1)">+</button>
+                    <div class="input-group input-group-sm" style="width:50px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, -1)" style="padding:1px 4px; font-size:0.7rem;">-</button>
+                        <input type="text" class="form-control text-center" value="${item.cantidad}" readonly style="padding:1px; font-size:0.7rem; width:20px;">
+                        <button class="btn btn-outline-secondary" type="button" onclick="cambiarCantidad(${index}, 1)" style="padding:1px 4px; font-size:0.7rem;">+</button>
                     </div>
                 </td>
-                <td class="text-end">${formatoPrecioCOP(item.precio)}</td>
-                <td class="text-end">${formatoPrecioCOP(item.subtotal)}</td>
+                <td class="text-end fw-bold" style="font-size: 0.75rem;">${formatoPrecioCOP(item.subtotal)}</td>
                 <td class="text-center">
-                    <button class="btn btn-sm btn-danger" onclick="eliminarDelCarrito(${index})">
-                        <i class="fas fa-trash"></i>
+                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarDelCarrito(${index})" style="padding:1px 4px;">
+                        <i class="fas fa-times" style="font-size:0.6rem;"></i>
                     </button>
                 </td>
             `;
@@ -818,7 +796,7 @@
         const descuentos = parseFloat(document.getElementById('descuento').value) || 0;
         const total = parseFloat(document.getElementById('total').value);
         const metodoPago = document.getElementById('metodoPago').value;
-        const observaciones = document.getElementById('observaciones').value.trim();
+        const observaciones = '';
         
         // Preparar productos para enviar
         const productosVenta = carrito.map(item => ({
@@ -1016,7 +994,7 @@
         document.getElementById('descuento').value = 0;
         document.getElementById('total').value = 0;
         document.getElementById('metodoPago').value = 1;
-        document.getElementById('observaciones').value = '';
+        // document.getElementById('observaciones').value = '';
         document.getElementById('buscarProducto').value = '';
         document.getElementById('pagaCon').value = '';
         document.getElementById('cambio').value = '';
