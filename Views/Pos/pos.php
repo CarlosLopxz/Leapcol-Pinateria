@@ -106,7 +106,6 @@
                 <!-- Carrito -->
                 <div class="card">
                     <div class="card-header bg-white py-2">
-                        <h6 class="card-title mb-0">Carrito de Venta</h6>
                     </div>
                     <div class="card-body p-2">
                         <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
@@ -195,8 +194,6 @@
                                 <label class="form-label" style="font-size: 0.8rem;">Método:</label>
                                 <select class="form-select form-select-sm" id="metodoPago">
                                     <option value="1">Efectivo</option>
-                                    <option value="2">Tarjeta de Crédito</option>
-                                    <option value="3">Tarjeta de Débito</option>
                                     <option value="4">Transferencia</option>
                                 </select>
                             </div>
