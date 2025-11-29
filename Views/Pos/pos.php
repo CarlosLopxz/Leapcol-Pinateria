@@ -226,6 +226,7 @@
                     <button class="btn btn-primary" id="btnProcesarVenta">
                         <i class="fas fa-cash-register me-2"></i>Procesar Venta
                     </button>
+                    <button class="btn btn-secondary" id="btnGuardarVenta" style="display: none;"></button>
                 </div>
             </div>
         </div>
@@ -1124,3 +1125,4 @@ function abrirCajaConfirmado(montoInicial, observaciones) {
     });
 }
 </script>
+<script src="<?= BASE_URL ?>Assets/js/pos-hold-order.js"></script>

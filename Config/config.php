@@ -1,7 +1,7 @@
 <?php
 
 // URL base de la aplicación (ajústala si está en subcarpeta, por ejemplo: /Leapcol-Pinateria/)
-define('BASE_URL', 'https://pinateria.comeya.xyz/');
+define('BASE_URL', 'https://pinateria.leapcol.site/');
 
 // Zona horaria
 date_default_timezone_set('America/Bogota');
@@ -10,7 +10,7 @@ date_default_timezone_set('America/Bogota');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'comeyax_carlos');
 define('DB_PASSWORD', 'tjWbWiOLVPO');
-define('DB_NAME', 'comeyax_pinate');
+define('DB_NAME', 'comeyax_pinater');
 define('DB_CHARSET', 'utf8mb4');
 
 // Datos de la empresa
