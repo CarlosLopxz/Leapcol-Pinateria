@@ -1,7 +1,7 @@
 <?php
 
 // URL base de la aplicación (ajústala si está en subcarpeta, por ejemplo: /Leapcol-Pinateria/)
-define('BASE_URL', 'https://pinateria.leapcol.site/');
+define('BASE_URL', 'http://pinateria.leapcol.site/');
 
 // Zona horaria
 date_default_timezone_set('America/Bogota');

@@ -1125,4 +1125,4 @@ function abrirCajaConfirmado(montoInicial, observaciones) {
     });
 }
 </script>
-<script src="<?= BASE_URL ?>Assets/js/pos-hold-order.js"></script>
+<script src="<?= BASE_URL ?>assets/js/pos-hold-order.js"></script>
